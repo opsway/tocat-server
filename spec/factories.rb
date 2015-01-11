@@ -22,4 +22,14 @@ FactoryGirl.define do
   factory :account do
     account_type ""
   end
+
+  factory :user do
+    name "Test User"
+    login "teusr"
+    balance_account 1
+    income_account 2
+    team_id 1
+    daily_rate 50
+    role 1
+  end
 end
