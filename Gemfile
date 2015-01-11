@@ -41,8 +41,10 @@ group :development do
   gem 'binding_of_caller'
   gem 'meta_request'
 end
+gem 'pry'
 
 group :test do
+  gem 'factory_girl_rails'
   gem 'rspec-rails', '~> 3.0.0'
   gem 'shoulda'
   gem 'guard-rspec'
