@@ -18,4 +18,8 @@ FactoryGirl.define do
     task_id 1
     order_id 1
   end
+
+  factory :account do
+    account_type ""
+  end
 end
