@@ -9,8 +9,10 @@ class Order < ActiveRecord::Base
               :presence => true
 
   validate :check_budgets
-  #validate :check_if_team_exists
+  validate :check_if_team_exists
+
   belongs_to :team
+  has_many :invoices
 
 
   private
@@ -25,7 +27,7 @@ class Order < ActiveRecord::Base
 
   def check_if_team_exists
     if team_id.present?
-      errors.add(:team_id, "should exists") unless Team.find(self.team_id).present?
+      errors.add(:team_id, "should exists") unless Team.exists?(:id => team_id)
     end
   end
 end
