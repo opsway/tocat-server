@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150111104730) do
+ActiveRecord::Schema.define(version: 20150111105857) do
 
   create_table "invoices", force: true do |t|
     t.string   "client",                      null: false
@@ -31,6 +31,23 @@ ActiveRecord::Schema.define(version: 20150111104730) do
     t.integer  "invoice_id"
     t.decimal  "invoiced_budget",    precision: 8, scale: 2
     t.decimal  "allocatable_budget", precision: 8, scale: 2
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "task_orders", force: true do |t|
+    t.integer  "task_id",                            null: false
+    t.integer  "order_id",                           null: false
+    t.decimal  "budget",     precision: 5, scale: 2
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "tasks", force: true do |t|
+    t.string   "external_id"
+    t.integer  "user_id"
+    t.boolean  "accepted",    default: false
+    t.boolean  "paid",        default: false
     t.datetime "created_at"
     t.datetime "updated_at"
   end

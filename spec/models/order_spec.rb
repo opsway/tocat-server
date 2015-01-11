@@ -13,6 +13,7 @@ RSpec.describe Order, :type => :model do
     it {should validate_presence_of(:allocatable_budget)}
     it {should belong_to(:team)}
     it {should have_many(:invoices)}
+    it { should have_many(:tasks).through(:task_orders) }
 
     it "should fail if allocatable budget more than invoiced" do
       order = build(:order)

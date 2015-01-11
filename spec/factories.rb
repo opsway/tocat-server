@@ -13,4 +13,9 @@ FactoryGirl.define do
     balance_account_id 1
     gross_profit_account 1
   end
+
+  factory :task_orders do
+    task_id 1
+    order_id 1
+  end
 end
