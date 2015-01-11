@@ -10,7 +10,7 @@ class Order < ActiveRecord::Base
 
   validate :check_budgets
   #validate :check_if_team_exists
-  #belongs_to :team
+  belongs_to :team
 
 
   private
