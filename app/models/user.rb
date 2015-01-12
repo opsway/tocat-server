@@ -15,6 +15,7 @@ class User < ActiveRecord::Base
 
   has_many :transactions
   has_many :accounts, as: :accountable
+  has_many :tasks
 
   before_save :normalize_data
 

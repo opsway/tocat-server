@@ -1,7 +1,7 @@
 class Account < ActiveRecord::Base
   validates_presence_of :account_type
-  #validates_presence_of :accountable_type
-  #validates_presence_of :accountable_id
+  validates_presence_of :accountable_type
+  validates_presence_of :accountable_id
 
   validate :check_account_type
   validate :check_accounts_amount
