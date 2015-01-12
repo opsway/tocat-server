@@ -30,6 +30,17 @@ FactoryGirl.define do
     income_account 2
     team_id 1
     daily_rate 50
-    role 1
+    role_id 1
+  end
+
+  factory :role do
+    name "manager"
+  end
+
+  factory :transaction do
+    total 999
+    comment "Test transaction"
+    account_id 1
+    user_id 1
   end
 end
