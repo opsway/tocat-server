@@ -3,7 +3,8 @@ class Account < ActiveRecord::Base
   validate :check_account_type
   before_save :normalize_account_type
   belongs_to :team
-  #belongs_to :user
+  belongs_to :user
+  has_many :transactions
 
   private
 

@@ -5,7 +5,6 @@ require 'factory_girl_rails'
 RSpec.describe Order, :type => :model do
 
   context "validations" do
-    before(:all) {create(:team)}
 
     it {should validate_presence_of(:name)}
     it {should validate_presence_of(:team_id)}
@@ -14,6 +13,19 @@ RSpec.describe Order, :type => :model do
     it {should belong_to(:team)}
     it {should have_many(:invoices)}
     it { should have_many(:tasks).through(:task_orders) }
+
+    it "should test order has many orders relation" do
+      team = create(:team)
+      order = build(:order)
+      order.save
+      order.team = team
+      sub_order = build(:order)
+      sub_order.name = "Sub Order"
+      sub_order.team = team
+      sub_order.parent = order
+      sub_order.save
+      sub_order.parent.name.should eq(order.name)
+    end
 
     it "should fail if allocatable budget more than invoiced" do
       order = build(:order)
