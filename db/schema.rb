@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150111173939) do
+ActiveRecord::Schema.define(version: 20150112031254) do
 
   create_table "accounts", force: true do |t|
     t.string   "account_type", null: false
@@ -32,13 +32,13 @@ ActiveRecord::Schema.define(version: 20150111173939) do
     t.string   "name",                                                       null: false
     t.text     "description"
     t.boolean  "paid",                                       default: false
-    t.integer  "parent_order_id"
     t.integer  "team_id",                                                    null: false
     t.integer  "invoice_id"
     t.decimal  "invoiced_budget",    precision: 8, scale: 2
     t.decimal  "allocatable_budget", precision: 8, scale: 2
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "parent_id"
   end
 
   create_table "roles", force: true do |t|
