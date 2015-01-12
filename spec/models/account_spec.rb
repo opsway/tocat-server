@@ -1,9 +1,9 @@
 require 'rails_helper'
 
 RSpec.describe Account, :type => :model do
-  it {should belong_to(:team)}
-  it {should belong_to(:user)}
+  it {should belong_to(:accountable)}
   it {should have_many(:transactions)}
+
 
   it "should create balance account" do
     account = build(:account)
