@@ -6,6 +6,7 @@ FactoryGirl.define do
     team_id 1
     invoiced_budget 10
     allocatable_budget 9
+    invoice_id 1
   end
 
   factory :team do
@@ -21,6 +22,8 @@ FactoryGirl.define do
 
   factory :account do
     account_type ""
+    accountable_id 1
+    accountable_type "Team"
   end
 
   factory :user do
