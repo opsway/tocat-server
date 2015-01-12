@@ -2,8 +2,9 @@ class Account < ActiveRecord::Base
   validates_presence_of :account_type
   validate :check_account_type
   before_save :normalize_account_type
-  belongs_to :team
-  belongs_to :user
+  #belongs_to :team
+  #belongs_to :user
+  belongs_to :accountable, polymorphic: true
   has_many :transactions
 
   private

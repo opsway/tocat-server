@@ -11,13 +11,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150112031254) do
+ActiveRecord::Schema.define(version: 20150112034826) do
 
   create_table "accounts", force: true do |t|
-    t.string   "account_type", null: false
+    t.string   "account_type",     null: false
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "accountable_id"
+    t.string   "accountable_type"
   end
+
+  add_index "accounts", ["accountable_id"], name: "index_accounts_on_accountable_id", using: :btree
 
   create_table "invoices", force: true do |t|
     t.string   "client",                      null: false
