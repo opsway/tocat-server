@@ -40,7 +40,10 @@ group :development do
   gem 'better_errors'
   gem 'binding_of_caller'
   gem 'meta_request'
+  gem 'brakeman', :require => false
+
 end
+
 gem 'pry'
 
 group :test do
