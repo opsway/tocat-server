@@ -16,11 +16,7 @@ module V1
 
     def create
       @order = Order.new(order_params)
-      if @order.save
-        render json: @order, serializer: OrderShowSerializer
-      else
-        render json: @order.errors, status: :unprocessable_entity
-      end
+      save_and_render
     end
 
     def update
@@ -38,38 +34,22 @@ module V1
 
     def set_invoice
       @order.invoice = Invoice.find(params[:invoice_id])
-      if @order.save
-        render json: @order, serializer: OrderShowSerializer
-      else
-        render json: @order.errors, status: :unprocessable_entity
-      end
+      save_and_render
     end
 
     def delete_invoice
       @order.invoice_id = nil
-      if @order.save
-        render json: @order, serializer: OrderShowSerializer
-      else
-        render json: @order.errors, status: :unprocessable_entity
-      end
+      save_and_render
     end
 
     def set_paid
       @order.paid = true
-      if @order.save
-        render json: @order, serializer: OrderShowSerializer
-      else
-        render json: @order.errors, status: :unprocessable_entity
-      end
+      save_and_render
     end
 
     def set_unpaid
       @order.paid = false
-      if @order.save
-        render json: @order, serializer: OrderShowSerializer
-      else
-        render json: @order.errors, status: :unprocessable_entity
-      end
+      save_and_render
     end
 
     def suborders
@@ -82,6 +62,14 @@ module V1
     end
 
     private
+
+      def save_and_render
+        if @order.save
+          render json: @order, serializer: OrderShowSerializer
+        else
+          render json: @order.errors, status: :unprocessable_entity
+        end
+      end
       def set_order
         @order = Order.find(params[:id])
       end

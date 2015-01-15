@@ -1,0 +1,31 @@
+{
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "login",
+    "team",
+    "role",
+    "links"
+  ],
+  "properties" : {
+    "id" : { "type" : "integer" },
+    "name" : { "type" : "string"},
+    "login" : { "type" : "string"},
+    "team" : {
+      "type" : "object",
+      "properties" : {
+        "name" : { "type" : "string" },
+        "href" : { "type" : "string" }
+      }
+    },
+    "role" : { "type" : "string"},
+    "links" : {
+      "type" : "object",
+      "properties" : {
+        "href" : { "type" : "string" },
+        "rel" : { "type" : "string" }
+      }
+    }
+  }
+}

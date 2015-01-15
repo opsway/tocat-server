@@ -17,15 +17,7 @@ RSpec.describe V1::UsersController, type: :controller do
     end
 
     it "should check JSON schema" do
-      sample = @body.sample
-      t = User.find sample['id']
-      expect(sample["name"]).to eq t.name
-      expect(sample["login"]).to eq t.login
-      expect(sample["team"]["name"]).to eq t.team.name
-      expect(sample["team"]["href"]).to eq v1_team_path(t.team)
-      expect(sample["role"]).to eq t.role.name
-      expect(sample["links"]["href"]).to eq v1_user_path(t)
-      expect(sample["links"]["rel"]).to eq "self"
+      expect(response).to match_response_schema_to_list("users")
     end
   end
 
@@ -33,6 +25,7 @@ RSpec.describe V1::UsersController, type: :controller do
     before(:each) do
       get :show, id: create(:user).id, format: :json
       @body = JSON.parse(response.body)
+      @response = response
     end
 
     it "returns a successful 200 response" do
@@ -40,20 +33,7 @@ RSpec.describe V1::UsersController, type: :controller do
     end
 
     it "should check JSON schema" do
-      sample = @body
-      t = User.find(sample['id'])
-      expect(sample["name"]).to eq t.name
-      expect(sample["login"]).to eq t.login
-      expect(sample["team"]["name"]).to eq t.team.name
-      expect(sample["team"]["href"]).to eq v1_team_path(t.team)
-      expect(BigDecimal.new(sample["daily_rate"])).to eq t.daily_rate
-      expect(sample["role"]).to eq t.role.name
-      expect(sample["links"]["href"]).to eq v1_user_path(t)
-      expect(sample["links"]["rel"]).to eq "self"
-      expect(sample["balance_account"]["href"]).to eq v1_user_balance_path(t)
-      expect(sample["balance_account"]["id"]).to eq t.balance_account.id
-      expect(sample["income_account"]["href"]).to eq v1_user_income_path(t)
-      expect(sample["income_account"]["id"]).to eq t.income_account.id
+      expect(response).to match_response_schema("user")
     end
 
   end

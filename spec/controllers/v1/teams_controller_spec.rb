@@ -21,10 +21,7 @@ RSpec.describe V1::TeamsController, type: :controller do
     end
 
     it "should check JSON schema" do
-      sample = @body.sample
-      team = Team.find sample['id']
-      expect(sample["name"]).to eq team.name
-      expect(sample["links"]["href"]).to eq v1_team_path(team)
+      expect(response).to match_response_schema_to_list("teams")
     end
   end
 
@@ -40,15 +37,7 @@ RSpec.describe V1::TeamsController, type: :controller do
     end
 
     it "should check JSON schema" do
-      sample = @body
-      team = Team.find(sample['id'])
-      expect(sample["name"]).to eq team.name
-      expect(sample["balance_account"]["id"]).to eq team.balance_account.id
-      expect(BigDecimal.new(sample["balance_account"]["balance"])).to eq team.balance_account.balance
-      expect(sample["balance_account"]["href"]).to eq v1_team_balance_path(team)
-      expect(sample["income_account"]["id"]).to eq team.income_account.id
-      expect(BigDecimal.new(sample["income_account"]["balance"])).to eq team.income_account.balance
-      expect(sample["income_account"]["href"]).to eq v1_team_income_path(team)
+      expect(response).to match_response_schema("user")      
     end
 
   end
