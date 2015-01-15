@@ -16,10 +16,8 @@ RSpec.describe V1::TransactionsController, type: :controller do
     end
 
     it "should check JSON schema" do
-      sample = @body.sample
-      t = Transaction.find sample['id']
-      expect(sample["comment"]).to eq t.comment
-      expect(sample["links"]["href"]).to eq v1_transaction_path(t)
+      expect(response).to match_response_schema_to_list("transactions")
+
     end
   end
 
@@ -35,14 +33,8 @@ RSpec.describe V1::TransactionsController, type: :controller do
     end
 
     it "should check JSON schema" do
-      sample = @body
-      t = Transaction.find(sample['id'])
-      expect(sample["timestamp"]).to eq t.created_at.to_f
-      expect(sample["account"]["id"]).to eq t.account.id
-      expect(sample["account"]["type"]).to eq t.account.account_type
-      expect(BigDecimal.new(sample["total"])).to eq t.total
-      expect(sample["comment"]).to eq t.comment
-      expect(sample["user_id"]).to eq t.user_id
+      expect(response).to match_response_schema("transaction")
+
     end
 
   end

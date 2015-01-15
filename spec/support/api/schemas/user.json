@@ -1,0 +1,51 @@
+{
+  "type": "object",
+  "required": [
+      "id",
+      "name",
+      "login",
+      "team",
+      "daily_rate",
+      "role",
+      "links",
+      "balance_account",
+      "income_account"
+  ],
+  "properties" : {
+      "id" : { "type" : "integer" },
+      "name" : { "type" : "string"},
+      "login" : { "type" : "string"},
+      "team" : {
+          "type" : "object",
+          "properties" : {
+              "name" : { "type" : "string" },
+              "href" : { "type" : "string" }
+          }
+      },
+      "daily_rate" : { "type" : "string" },
+      "role" : { "type" : "string"},
+      "links" : {
+          "type" : "object",
+          "properties" : {
+              "href" : { "type" : "string" },
+              "rel" : { "type" : "string" }
+          }
+      },
+      "balance_account" : {
+          "type" : "object",
+          "properties" : {
+              "href" : { "type" : "string" },
+              "id" : { "type" : "integer" }
+          }
+      },
+      "income_account" : {
+          "type" : "object",
+          "properties" : {
+              "href" : { "type" : "string" },
+              "id" : { "type" : "integer" }
+          }
+      }
+
+  }
+}
+

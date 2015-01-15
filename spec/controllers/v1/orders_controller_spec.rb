@@ -20,12 +20,8 @@ RSpec.describe V1::OrdersController, type: :controller do
     end
 
     it "should check JSON schema" do
-      sample = @body.sample
-      order = Order.find sample['id']
-      expect(sample["name"]).to eq order.name
-      expect(BigDecimal.new(sample["invoiced_budget"])).to eq order.invoiced_budget
-      expect(BigDecimal.new(sample["allocatable_budget"])).to eq order.allocatable_budget
-      expect(BigDecimal.new(sample["free_budget"])).to eq order.free_budget
+      expect(response).to match_response_schema_to_list("orders")
+
     end
   end
 
@@ -41,17 +37,7 @@ RSpec.describe V1::OrdersController, type: :controller do
     end
 
     it "should check JSON schema" do
-      sample = @body
-      order = Order.find sample['id']
-      expect(sample["name"]).to eq order.name
-      expect(BigDecimal.new(sample["invoiced_budget"])).to eq order.invoiced_budget
-      expect(BigDecimal.new(sample["allocatable_budget"])).to eq order.allocatable_budget
-      expect(BigDecimal.new(sample["free_budget"])).to eq order.free_budget
-      expect(sample["paid"]).to eq false
-      #expect(sample["parent_order"]).should # TODO
-      #expect(sample["invoice"]).should # TODO
-      expect(sample["team"]["name"]).to eq order.team.name
-      expect(sample["team"]["id"]).to eq order.team.id
+      expect(response).to match_response_schema("order")      
     end
   end
 

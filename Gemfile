@@ -49,6 +49,7 @@ end
 gem 'pry'
 
 group :test do
+  gem "json-schema"
   gem 'database_cleaner', '~> 1.4.0'
   gem 'simplecov', :require => false
   gem 'factory_girl_rails'

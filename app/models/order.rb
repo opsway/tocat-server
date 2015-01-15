@@ -21,34 +21,23 @@ class Order < ActiveRecord::Base
 
   before_save :set_free_budget
 
-  # attr_accessor   :name,
-  #                 :description,
-  #                 :paid,
-  #                 :team_id,
-  #                 :invoice_id,
-  #                 :invoiced_budget,
-  #                 :allocatable_budget,
-  #                 :parent_id
-
-
-
   private
 
-  def check_budgets
-    if allocatable_budget.present? and invoiced_budget.present?
-      if allocatable_budget > invoiced_budget
-        errors.add(:allocatable_budget, "must be lower than Invoiced Budget")
+    def check_budgets
+      if allocatable_budget.present? and invoiced_budget.present?
+        if allocatable_budget > invoiced_budget
+          errors.add(:allocatable_budget, "must be lower than Invoiced Budget")
+        end
       end
     end
-  end
 
-  def check_if_team_exists
-    if team_id.present?
-      errors.add(:team_id, "should exists") unless Team.exists?(id: team_id)
+    def check_if_team_exists
+      if team_id.present?
+        errors.add(:team_id, "should exists") unless Team.exists?(id: team_id)
+      end
     end
-  end
 
-  def set_free_budget
-    self.free_budget = self.invoiced_budget - self.allocatable_budget
-  end
+    def set_free_budget
+      self.free_budget = self.invoiced_budget - self.allocatable_budget
+    end
 end
