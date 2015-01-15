@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150112045838) do
+ActiveRecord::Schema.define(version: 20150115082748) do
 
   create_table "accounts", force: true do |t|
     t.string   "account_type",     null: false
@@ -40,12 +40,13 @@ ActiveRecord::Schema.define(version: 20150112045838) do
     t.text     "description"
     t.boolean  "paid",                                        default: false
     t.integer  "team_id",                                                     null: false
-    t.integer  "invoice_id",                                                  null: false
+    t.integer  "invoice_id"
     t.decimal  "invoiced_budget",    precision: 10, scale: 2,                 null: false
     t.decimal  "allocatable_budget", precision: 10, scale: 2,                 null: false
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "parent_id"
+    t.decimal  "free_budget",        precision: 10, scale: 2,                 null: false
   end
 
   add_index "orders", ["team_id"], name: "index_orders_on_team_id", using: :btree
