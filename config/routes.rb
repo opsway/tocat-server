@@ -14,7 +14,8 @@ Rails.application.routes.draw do
     resources :team,
               :controller => "teams",
               :path => "team",
-              :defaults => {:format => 'json'}
+              :defaults => {:format => 'json'},
+              :only => [:index, :show]
     get '/team/:id/balance', to: 'teams#balance_account', as: 'team_balance'
     get '/team/:id/income', to: 'teams#income_account', as: 'team_income'
   end
