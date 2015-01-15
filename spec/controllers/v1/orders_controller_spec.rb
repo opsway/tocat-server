@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe V1::OrdersController, :type => :controller do
+RSpec.describe V1::OrdersController, type: :controller do
   describe "/order " do
 
     before(:each) do
@@ -63,14 +63,14 @@ RSpec.describe V1::OrdersController, :type => :controller do
       order = FactoryGirl.attributes_for(:order)
       order[:team_id] = @team.id
       post :create, order: order, format: :json
-       expect(Order.where(:id => JSON.parse(response.body)["id"]).exists?).to eq true
+       expect(Order.where(id: JSON.parse(response.body)["id"]).exists?).to eq true
     end
 
     it "create order with invalid params" do
       order = FactoryGirl.attributes_for(:order)
       order[:team_id] = nil
       post :create, order: order, format: :json
-      expect(Order.where(:id => JSON.parse(response.body)["id"]).exists?).to eq false
+      expect(Order.where(id: JSON.parse(response.body)["id"]).exists?).to eq false
     end
   end
 
@@ -82,7 +82,7 @@ RSpec.describe V1::OrdersController, :type => :controller do
 
   it "should update order" do
     order = create(:order)
-    patch :update, id: order.id, order: {:name => "New name"}, format: :json
+    patch :update, id: order.id, order: {name: "New name"}, format: :json
     expect(Order.find(order.id).name).to eq "New name"
   end
 
@@ -101,7 +101,7 @@ RSpec.describe V1::OrdersController, :type => :controller do
 
     it "should set invoice" do
       pending
-      post :set_invoice, id: @order.id, params: { :invoice_id => 1 }, format: :json
+      post :set_invoice, id: @order.id, params: { invoice_id: 1 }, format: :json
       expect(Order.find(@order.id).paid).to eq true
     end
 
@@ -115,7 +115,7 @@ RSpec.describe V1::OrdersController, :type => :controller do
     end
 
     it "should get suborders" do
-      sub_order = create(:order, :parent_id => @order.id)
+      sub_order = create(:order, parent_id: @order.id)
       @order.sub_orders << sub_order
       get :suborders, id: @order.id, format: :json
       data = JSON.parse response.body

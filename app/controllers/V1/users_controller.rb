@@ -1,6 +1,6 @@
 module V1
   class UsersController < ApplicationController
-    before_action :set_user, :except => [:index]
+    before_action :set_user, except: [:index]
 
     def index
       @users = User.all

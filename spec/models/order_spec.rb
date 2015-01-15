@@ -2,7 +2,7 @@ require 'rails_helper'
 require 'factory_girl_rails'
 
 
-RSpec.describe Order, :type => :model do
+RSpec.describe Order, type: :model do
 
   context "validations" do
 

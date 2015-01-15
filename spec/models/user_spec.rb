@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe User, :type => :model do
+RSpec.describe User, type: :model do
   it { should validate_presence_of(:name) }
   it { should validate_presence_of(:login) }
   it { should validate_presence_of(:team_id) }
@@ -30,7 +30,7 @@ RSpec.describe User, :type => :model do
     user = create(:user)
     user_id = user.id
     user.destroy
-    accounts = Account.where(:accountable_id => user_id)
+    accounts = Account.where(accountable_id: user_id)
     expect(accounts).to eq []
   end
 end

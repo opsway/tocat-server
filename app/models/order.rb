@@ -2,18 +2,18 @@ class Order < ActiveRecord::Base
   validates_presence_of :name
   validates_presence_of :team_id
   validates :invoiced_budget,
-              :numericality => { :greater_than => 0 },
-              :presence => true
+              numericality: { greater_than: 0 },
+              presence: true
   validates :allocatable_budget,
-              :numericality => { :greater_than => 0 },
-              :presence => true
+              numericality: { greater_than: 0 },
+              presence: true
 
   validate :check_budgets
   validate :check_if_team_exists
 
   belongs_to :team
   has_many :invoices
-  has_many :task_orders, :class_name => 'TaskOrders'
+  has_many :task_orders, class_name: 'TaskOrders'
   has_many :tasks, through: :task_orders
 
   has_many :sub_orders, class_name: "Order", foreign_key: "parent_id"
@@ -44,7 +44,7 @@ class Order < ActiveRecord::Base
 
   def check_if_team_exists
     if team_id.present?
-      errors.add(:team_id, "should exists") unless Team.exists?(:id => team_id)
+      errors.add(:team_id, "should exists") unless Team.exists?(id: team_id)
     end
   end
 
