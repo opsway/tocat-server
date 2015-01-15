@@ -3,8 +3,6 @@ require 'rails_helper'
 RSpec.describe User, :type => :model do
   it { should validate_presence_of(:name) }
   it { should validate_presence_of(:login) }
-  it { should validate_presence_of(:balance_account) }
-  it { should validate_presence_of(:income_account) }
   it { should validate_presence_of(:team_id) }
   it { should validate_presence_of(:daily_rate) }
   it { should validate_presence_of(:role_id) }
@@ -21,5 +19,18 @@ RSpec.describe User, :type => :model do
     user.reload
     user.name.should eq("Test User")
     user.login.should eq("teusr")
+  end
+
+  it "should create two accounts after user creation" do
+    user = create(:user)
+    expect(user.accounts.length).to eq 2
+  end
+
+  it "should destroy user accounts if user was deleted" do
+    user = create(:user)
+    user_id = user.id
+    user.destroy
+    accounts = Account.where(:accountable_id => user_id)
+    expect(accounts).to eq []
   end
 end

@@ -12,7 +12,9 @@ class Account < ActiveRecord::Base
   has_many :transactions
 
   def balance
-    100
+    value = BigDecimal.new 0
+    self.transactions.each { |t| value += t.total}
+    value
   end
 
   private
