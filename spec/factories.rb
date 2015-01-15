@@ -2,15 +2,17 @@ require 'factory_girl_rails'
 
 FactoryGirl.define do
   factory :order do
-    name "Test Order"
+    sequence(:name) { |n| "Order #{n}" }
     team_id 1
     invoiced_budget 10
+    free_budget 1
     allocatable_budget 9
     invoice_id 1
+    association :team
   end
 
   factory :team do
-    name "Test Team"
+    sequence(:name) { |n| "Team #{n}" }
     balance_account_id 1
     gross_profit_account 1
   end
@@ -42,7 +44,7 @@ FactoryGirl.define do
 
   factory :transaction do
     total 999
-    comment "Test transaction"
+    sequence(:comment) { |n| "Transaction #{n}" }
     account_id 1
     user_id 1
   end
