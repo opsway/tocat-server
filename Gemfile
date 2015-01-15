@@ -5,6 +5,7 @@ ruby "2.1.1"
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '4.1.7'
+gem 'active_model_serializers'
 # Use mysql as the database for Active Record
 gem 'mysql2'
 # Use Uglifier as compressor for JavaScript assets
@@ -47,7 +48,7 @@ end
 gem 'pry'
 
 group :test do
-  gem 'api_matchers'
+  gem 'database_cleaner', '~> 1.4.0'
   gem 'simplecov', :require => false
   gem 'factory_girl_rails'
   gem 'rspec-rails', '~> 3.0.0'

@@ -10,7 +10,6 @@ RSpec.describe Order, :type => :model do
     it { should validate_presence_of(:team_id) }
     it { should validate_presence_of(:invoiced_budget) }
     it { should validate_presence_of(:allocatable_budget) }
-    it { should validate_presence_of(:free_budget) }
     it { should belong_to(:team) }
     it { should have_many(:invoices) }
     it { should have_many(:tasks).through(:task_orders) }
