@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe TaskOrders, :type => :model do
+RSpec.describe TaskOrders, type: :model do
   it {should validate_presence_of(:task_id)}
   it {should validate_presence_of(:order_id)}
   it {should validate_presence_of(:budget)}

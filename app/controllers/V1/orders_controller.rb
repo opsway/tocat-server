@@ -1,6 +1,6 @@
 module V1
   class OrdersController < ApplicationController
-    before_action :set_order, :except => [:index, :create]#, only: [:show, :edit, :update, :destroy]
+    before_action :set_order, except: [:index, :create]#, only: [:show, :edit, :update, :destroy]
 
     def index
       @orders = Order.all
@@ -33,7 +33,7 @@ module V1
 
     def destroy
       @order.destroy
-      render :nothing => true, :status => 204
+      render nothing: true, status: 204
     end
 
     def set_invoice
@@ -78,7 +78,7 @@ module V1
     end
 
     def create_suborder
-      render :nothing => true, :status => 204  #TODO waiting for commentary from Andriy
+      render nothing: true, status: 204  #TODO waiting for commentary from Andriy
     end
 
     private

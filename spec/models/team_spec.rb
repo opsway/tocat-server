@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Team, :type => :model do
+RSpec.describe Team, type: :model do
   context "validations" do
 
     it { should validate_presence_of(:name) }
@@ -17,7 +17,7 @@ RSpec.describe Team, :type => :model do
       team = create(:team)
       team_id = team.id
       team.destroy
-      accounts = Account.where(:accountable_id => team_id)
+      accounts = Account.where(accountable_id: team_id)
       expect(accounts).to eq []
     end
 

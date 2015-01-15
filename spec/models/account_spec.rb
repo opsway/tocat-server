@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Account, :type => :model do
+RSpec.describe Account, type: :model do
   it { should belong_to(:accountable) }
   it { should have_many(:transactions) }
   it { should validate_presence_of(:accountable_id) }
@@ -37,8 +37,8 @@ RSpec.describe Account, :type => :model do
 
   it "should fails if accounts contain more than 2 record for User or Team" do
     team = create(:team)
-    team.accounts << create(:account, :account_type => "balance")
-    team.accounts << create(:account, :account_type => "payment")
+    team.accounts << create(:account, account_type: "balance")
+    team.accounts << create(:account, account_type: "payment")
     third_account = team.accounts.new
     third_account.account_type = "payment"
     third_account.valid?.should eq(false)

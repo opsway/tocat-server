@@ -8,22 +8,22 @@ class Team < ActiveRecord::Base
   after_destroy :destroy_accounts
 
   def balance_account
-    Account.where(:accountable_id => self.id,
-                  :accountable_type => self.class.name,
-                  :account_type => 'balance').first
+    Account.where(accountable_id: self.id,
+                  accountable_type: self.class.name,
+                  account_type: 'balance').first
   end
 
   def income_account
-    Account.where(:accountable_id => self.id,
-                  :accountable_type => self.class.name,
-                  :account_type => 'payment').first
+    Account.where(accountable_id: self.id,
+                  accountable_type: self.class.name,
+                  account_type: 'payment').first
   end
 
   private
 
     def create_accounts
-      balance = self.accounts.create! :account_type => 'balance'
-      payment = self.accounts.create! :account_type => 'payment'
+      balance = self.accounts.create! account_type: 'balance'
+      payment = self.accounts.create! account_type: 'payment'
       self.balance_account_id = balance.id
       self.gross_profit_account = payment.id
       self.save!

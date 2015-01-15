@@ -3,10 +3,10 @@ class ChangeTeamAccounts < ActiveRecord::Migration
     change_column :teams,
                   :balance_account_id,
                   :integer,
-                  :null => true
+                  null: true
     change_column :teams,
                   :gross_profit_account,
                   :integer,
-                  :null => true
+                  null: true
   end
 end

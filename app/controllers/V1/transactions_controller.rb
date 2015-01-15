@@ -1,6 +1,6 @@
 module V1
   class TransactionsController < ApplicationController
-    before_action :set_transaction, :except => [:index]
+    before_action :set_transaction, except: [:index]
 
     def index
       @transactions = Transaction.all

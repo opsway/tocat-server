@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe V1::TransactionsController, :type => :controller do
+RSpec.describe V1::TransactionsController, type: :controller do
 
   describe "/transaction " do
 
@@ -26,7 +26,7 @@ RSpec.describe V1::TransactionsController, :type => :controller do
   describe "/transaction/:id" do
     before(:each) do
       team = create(:team)
-      get :show, id: create(:transaction, :account => team.balance_account).id, format: :json
+      get :show, id: create(:transaction, account: team.balance_account).id, format: :json
       @body = JSON.parse(response.body)
     end
 

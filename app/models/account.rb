@@ -33,8 +33,8 @@ class Account < ActiveRecord::Base
 
     def check_accounts_amount
       return unless accountable_id and accountable_type
-      amount = Account.where(:accountable_id => accountable_id,
-                              :accountable_type => accountable.class.name)
+      amount = Account.where(accountable_id: accountable_id,
+                              accountable_type: accountable.class.name)
                       .length
       if amount >= 2
         errors[:base] << "2 accounts for this parent already exists."

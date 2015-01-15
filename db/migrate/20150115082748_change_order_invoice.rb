@@ -3,6 +3,6 @@ class ChangeOrderInvoice < ActiveRecord::Migration
     change_column :orders,
                   :invoice_id,
                   :integer,
-                  :null => true
+                  null: true
   end
 end
