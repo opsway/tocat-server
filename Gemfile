@@ -41,12 +41,13 @@ group :development do
   gem 'binding_of_caller'
   gem 'meta_request'
   gem 'brakeman', :require => false
-
+  gem 'terminal-notifier-guard'
 end
 
 gem 'pry'
 
 group :test do
+  gem 'api_matchers'
   gem 'simplecov', :require => false
   gem 'factory_girl_rails'
   gem 'rspec-rails', '~> 3.0.0'

@@ -4,6 +4,9 @@ class Order < ActiveRecord::Base
   validates :invoiced_budget,
               :numericality => { :greater_than => 0 },
               :presence => true
+  validates :free_budget,
+              :numericality => { :greater_than => 0 },
+              :presence => true
   validates :allocatable_budget,
               :numericality => { :greater_than => 0 },
               :presence => true
