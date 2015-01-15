@@ -68,7 +68,7 @@ RSpec.describe V1::UsersController, :type => :controller do
       body = JSON.parse(response.body)
       account = @user.balance_account
       expect(body["type"]).to eq account.account_type
-      expect(body["balance"]).to eq account.balance
+      expect(BigDecimal.new(body["balance"])).to eq account.balance
       expect(body["parent"]["id"]).to eq account.accountable.id
       expect(body["parent"]["type"]).to eq account.accountable.class.name
     end
@@ -78,7 +78,7 @@ RSpec.describe V1::UsersController, :type => :controller do
       body = JSON.parse(response.body)
       account = @user.income_account
       expect(body["type"]).to eq account.account_type
-      expect(body["balance"]).to eq account.balance
+      expect(BigDecimal.new(body["balance"])).to eq account.balance
       expect(body["parent"]["id"]).to eq account.accountable.id
       expect(body["parent"]["type"]).to eq account.accountable.class.name
     end

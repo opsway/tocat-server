@@ -19,7 +19,7 @@ class AccountSerializer < ActiveModel::Serializer
       _t[:user] = {
         "id" => t.user_id,
         "name" => t.user.name,
-        "role" => "t.user.role.name" # TODO fix after role implementation
+        "role" => t.user.role.name
         }
         transactions << _t
     end

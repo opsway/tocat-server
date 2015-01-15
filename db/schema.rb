@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150115141629) do
+ActiveRecord::Schema.define(version: 20150115155743) do
 
   create_table "accounts", force: true do |t|
     t.string   "account_type",     null: false
@@ -47,6 +47,7 @@ ActiveRecord::Schema.define(version: 20150115141629) do
     t.datetime "updated_at"
     t.integer  "parent_id"
     t.decimal  "free_budget",        precision: 10, scale: 2,                 null: false
+    t.boolean  "completed",                                   default: false
   end
 
   add_index "orders", ["team_id"], name: "index_orders_on_team_id", using: :btree

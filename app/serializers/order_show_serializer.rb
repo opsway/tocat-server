@@ -1,6 +1,6 @@
 class OrderShowSerializer < ActiveModel::Serializer
   include Rails.application.routes.url_helpers
-  
+
   attributes  :id,
               :invoiced_budget,
               :allocatable_budget,
@@ -8,7 +8,7 @@ class OrderShowSerializer < ActiveModel::Serializer
               :name,
               :description,
               :paid,
-              #:completed, TODO add completed to model
+              :completed,
               :parent_order,
               :invoice,
               :links,
@@ -42,6 +42,10 @@ class OrderShowSerializer < ActiveModel::Serializer
     end
 
     def links
-      #TODO add links
+      data = {}
+      data[:id] = object.id
+      data[:href] = v1_order_path(object)
+      data[:rel] = 'self'
+      data
     end
 end
