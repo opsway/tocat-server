@@ -16,73 +16,59 @@ module V1
 
     def create
       @order = Order.new(order_params)
-      respond_to do |format|
-        if @order.save
-          format.json { render json: @order, serializer: OrderShowSerializer }
-        else
-          format.json { render json: @order.errors, status: :unprocessable_entity }
-        end
+      if @order.save
+        render json: @order, serializer: OrderShowSerializer
+      else
+        render json: @order.errors, status: :unprocessable_entity
       end
     end
 
     def update
-      respond_to do |format|
-        if @order.update(order_params)
-          format.json { head :no_content }
-        else
-          format.json { render json: @order.errors, status: :unprocessable_entity }
-        end
+      if @order.update(order_params)
+        render json: @order, serializer: OrderShowSerializer
+      else
+        render json: @order.errors, status: :unprocessable_entity
       end
     end
 
     def destroy
       @order.destroy
-      respond_to do |format|
-        format.json { head :no_content }
-      end
+      render :nothing => true, :status => 204
     end
 
     def set_invoice
       @order.invoice = Invoice.find(params[:invoice_id])
-      respond_to do |format|
-        if @order.save
-          format.json { render json: @order, serializer: OrderShowSerializer }
-        else
-          format.json { render json: @order.errors, status: :unprocessable_entity }
-        end
+      if @order.save
+        render json: @order, serializer: OrderShowSerializer
+      else
+        render json: @order.errors, status: :unprocessable_entity
       end
     end
 
     def delete_invoice
       @order.invoice_id = nil
-      respond_to do |format|
-        if @order.save
-          format.json { render json: @order, serializer: OrderShowSerializer }
-        else
-          format.json { render json: @order.errors, status: :unprocessable_entity }
-        end
+      if @order.save
+        render json: @order, serializer: OrderShowSerializer
+      else
+        render json: @order.errors, status: :unprocessable_entity
       end
     end
 
     def set_paid
       @order.paid = true
-      respond_to do |format|
-        if @order.save
-          format.json { render json: @order, serializer: OrderShowSerializer }
-        else
-          format.json { render json: @order.errors, status: :unprocessable_entity }
-        end
+      if @order.save
+        render json: @order, serializer: OrderShowSerializer
+      else
+        render json: @order.errors, status: :unprocessable_entity
       end
     end
 
     def set_unpaid
       @order.paid = false
-      respond_to do |format|
-        if @order.save
-          format.json { render json: @order, serializer: OrderShowSerializer }
-        else
-          format.json { render json: @order.errors, status: :unprocessable_entity }
-        end
+      if @order.save
+        render json: @order, serializer: OrderShowSerializer
+      else
+        render json: @order.errors, status: :unprocessable_entity
       end
     end
 
@@ -92,7 +78,7 @@ module V1
     end
 
     def create_suborder
-      format.json { head :no_content } #TODO waiting for commentary from Andriy
+      render :nothing => true, :status => 204  #TODO waiting for commentary from Andriy
     end
 
     private

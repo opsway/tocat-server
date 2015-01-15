@@ -5,6 +5,7 @@ ruby "2.1.1"
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '4.1.7'
+gem 'rails-api'
 gem 'active_model_serializers'
 # Use mysql as the database for Active Record
 gem 'mysql2'
