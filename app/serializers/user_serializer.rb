@@ -11,7 +11,7 @@ class UserSerializer < ActiveModel::Serializer
   end
 
   def role
-    "object.role.name" # TODO fix aftre role implementation
+    object.role.name
   end
 
   def links

@@ -11,6 +11,10 @@ FactoryGirl.define do
     association :team
   end
 
+  factory :role do
+    sequence(:name) { |n| "Role #{n}" }
+  end
+
   factory :team do
     sequence(:name) { |n| "Team #{n}" }
   end
@@ -31,11 +35,7 @@ FactoryGirl.define do
     sequence(:login) { |n| "usr#{n}" }
     association :team
     daily_rate 50
-    role_id 1
-  end
-
-  factory :role do
-    name "manager"
+    association :role
   end
 
   factory :transaction do

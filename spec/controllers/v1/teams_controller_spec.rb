@@ -44,10 +44,10 @@ RSpec.describe V1::TeamsController, :type => :controller do
       team = Team.find(sample['id'])
       expect(sample["name"]).to eq team.name
       expect(sample["balance_account"]["id"]).to eq team.balance_account.id
-      expect(sample["balance_account"]["balance"]).to eq team.balance_account.balance
+      expect(BigDecimal.new(sample["balance_account"]["balance"])).to eq team.balance_account.balance
       expect(sample["balance_account"]["href"]).to eq v1_team_balance_path(team)
       expect(sample["income_account"]["id"]).to eq team.income_account.id
-      expect(sample["income_account"]["balance"]).to eq team.income_account.balance
+      expect(BigDecimal.new(sample["income_account"]["balance"])).to eq team.income_account.balance
       expect(sample["income_account"]["href"]).to eq v1_team_income_path(team)
     end
 
@@ -63,7 +63,7 @@ RSpec.describe V1::TeamsController, :type => :controller do
       body = JSON.parse(response.body)
       account = @team.balance_account
       expect(body["type"]).to eq account.account_type
-      expect(body["balance"]).to eq account.balance
+      expect(BigDecimal.new(body["balance"])).to eq account.balance
       expect(body["parent"]["id"]).to eq account.accountable.id
       expect(body["parent"]["type"]).to eq account.accountable.class.name
     end
@@ -73,7 +73,7 @@ RSpec.describe V1::TeamsController, :type => :controller do
       body = JSON.parse(response.body)
       account = @team.income_account
       expect(body["type"]).to eq account.account_type
-      expect(body["balance"]).to eq account.balance
+      expect(BigDecimal.new(body["balance"])).to eq account.balance
       expect(body["parent"]["id"]).to eq account.accountable.id
       expect(body["parent"]["type"]).to eq account.accountable.class.name
     end
