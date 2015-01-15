@@ -10,5 +10,12 @@ Rails.application.routes.draw do
     delete '/order/:id/paid', to: 'orders#set_unpaid', as: 'set_unpaid'
     get '/order/:id/suborder', to: 'orders#suborders', as: 'suborders'
     post '/order/:id/suborder', to: 'orders#create_suborder', as: 'new_suborder'
+
+    resources :team,
+              :controller => "teams",
+              :path => "team",
+              :defaults => {:format => 'json'}
+    get '/team/:id/balance', to: 'teams#balance_account', as: 'team_balance'
+    get '/team/:id/income', to: 'teams#income_account', as: 'team_income'
   end
 end

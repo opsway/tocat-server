@@ -1,7 +1,6 @@
 require 'rails_helper'
 
 RSpec.describe V1::OrdersController, :type => :controller do
-  render_views
   describe "/order " do
 
     before(:each) do

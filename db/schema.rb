@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150115082748) do
+ActiveRecord::Schema.define(version: 20150115121458) do
 
   create_table "accounts", force: true do |t|
     t.string   "account_type",     null: false
@@ -79,8 +79,8 @@ ActiveRecord::Schema.define(version: 20150115082748) do
 
   create_table "teams", force: true do |t|
     t.string   "name",                 null: false
-    t.integer  "balance_account_id",   null: false
-    t.integer  "gross_profit_account", null: false
+    t.integer  "balance_account_id"
+    t.integer  "gross_profit_account"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
