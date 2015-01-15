@@ -13,8 +13,6 @@ FactoryGirl.define do
 
   factory :team do
     sequence(:name) { |n| "Team #{n}" }
-    balance_account_id 1
-    gross_profit_account 1
   end
 
   factory :task_orders do

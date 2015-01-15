@@ -1,4 +1,6 @@
 class OrderShowSerializer < ActiveModel::Serializer
+  include Rails.application.routes.url_helpers
+  
   attributes  :id,
               :invoiced_budget,
               :allocatable_budget,
@@ -34,7 +36,7 @@ class OrderShowSerializer < ActiveModel::Serializer
     def team
       data = {}
       data[:name] = object.team.name
-      data[:href] = 'team path' #TODO replace with proper path
+      data[:href] = v1_team_path(object.team)
       data[:id] = object.team.id
       data
     end

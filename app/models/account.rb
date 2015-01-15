@@ -11,6 +11,10 @@ class Account < ActiveRecord::Base
   belongs_to :accountable, polymorphic: true
   has_many :transactions
 
+  def balance
+    100
+  end
+
   private
 
     def normalize_account_type

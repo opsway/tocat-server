@@ -34,10 +34,6 @@ class Order < ActiveRecord::Base
 
   private
 
-  def active_model_serializer
-    OrdersSerializer
-  end
-
   def check_budgets
     if allocatable_budget.present? and invoiced_budget.present?
       if allocatable_budget > invoiced_budget
