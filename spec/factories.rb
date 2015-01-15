@@ -27,11 +27,9 @@ FactoryGirl.define do
   end
 
   factory :user do
-    name "Test User"
-    login "teusr"
-    balance_account 1
-    income_account 2
-    team_id 1
+    sequence(:name) { |n| "User #{n}" }
+    sequence(:login) { |n| "usr#{n}" }
+    association :team
     daily_rate 50
     role_id 1
   end

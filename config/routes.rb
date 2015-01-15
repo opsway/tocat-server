@@ -55,5 +55,21 @@ Rails.application.routes.draw do
               :path => "transaction",
               :defaults => {:format => 'json'},
               :only => [:index, :show]
+
+    resources :user,
+              :controller => "users",
+              :path => "user",
+              :defaults => {:format => 'json'},
+              :only => [:index, :show]
+
+    get '/user/:id/balance',
+        to: 'users#balance_account',
+        as: 'user_balance',
+        :format => 'json'
+
+    get '/user/:id/income',
+        to: 'users#income_account',
+        as: 'user_income',
+        :format => 'json'
   end
 end
