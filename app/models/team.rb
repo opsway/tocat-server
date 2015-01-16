@@ -1,5 +1,5 @@
 class Team < ActiveRecord::Base
-  validates_presence_of :name
+  validates :name, presence: true
   has_many :orders
   has_many :accounts, as: :accountable
   has_many :users
@@ -21,15 +21,15 @@ class Team < ActiveRecord::Base
 
   private
 
-    def create_accounts
-      balance = self.accounts.create! account_type: 'balance'
-      payment = self.accounts.create! account_type: 'payment'
-      self.balance_account_id = balance.id
-      self.gross_profit_account = payment.id
-      self.save!
-    end
+  def create_accounts
+    balance = self.accounts.create! account_type: 'balance'
+    payment = self.accounts.create! account_type: 'payment'
+    self.balance_account_id = balance.id
+    self.gross_profit_account = payment.id
+    self.save!
+  end
 
-    def destroy_accounts
-      self.accounts.destroy_all
-    end
+  def destroy_accounts
+    self.accounts.destroy_all
+  end
 end

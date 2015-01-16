@@ -15,12 +15,11 @@ class AccountSerializer < ActiveModel::Serializer
       transaction_data[:total] = transaction.total
       transaction_data[:comment] = transaction.comment
       account_parent = transaction.account.accountable
-      transaction_data[:user] = {
-        "id" => account_parent.id,
-        "name" => account_parent.name,
-        "role" => account_parent.role.name
-        }
-        transactions << transaction_data
+      owner = {}
+      owner[:id] = account_parent.id
+      owner[:name] = account_parent.name
+      transaction_data[:owner] = owner
+      transactions << transaction_data
     end
     data[:transactions] = transactions
     data

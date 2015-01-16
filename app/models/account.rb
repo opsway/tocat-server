@@ -1,7 +1,7 @@
 class Account < ActiveRecord::Base
-  validates_presence_of :account_type
-  validates_presence_of :accountable_type
-  validates_presence_of :accountable_id
+  validates :account_type, presence: true
+  validates :accountable_type, presence: true
+  validates :accountable_id, presence: true
 
   validate :check_account_type
   validate :check_accounts_amount
@@ -13,7 +13,6 @@ class Account < ActiveRecord::Base
 
   def balance
     value = BigDecimal.new 0
-    binding.pry
     transactions.each { |t| value += t.total }
     value
   end
@@ -21,11 +20,11 @@ class Account < ActiveRecord::Base
   private
 
   def normalize_account_type
-    account_type = account_type.downcase if account_type.present?
+    self.account_type = self.account_type.downcase if self.account_type.present?
   end
 
   def check_account_type
-    return unless(account_type)
+    return unless account_type
     allowed_types = %w(balance payment)
     unless allowed_types.include? account_type.downcase
       errors.add(:account_type, 'contains wrong argument')
@@ -33,12 +32,10 @@ class Account < ActiveRecord::Base
   end
 
   def check_accounts_amount
-    return unless(accountable_id and accountable_type)
+    return unless accountable_id && accountable_type
     amount = Account.where(accountable_id: accountable_id,
-                            accountable_type: accountable.class.name)
-                              .length
-    if(amount >= 2)
-      errors[:base] << '2 accounts for this parent already exists.'
-    end
+                           accountable_type: accountable.class.name)
+                    .length
+    errors[:base] << '2 accounts for this parent already exists.' if (amount >= 2)
   end
 end
