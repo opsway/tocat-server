@@ -37,7 +37,7 @@ RSpec.describe V1::TeamsController, type: :controller do
     end
 
     it "should check JSON schema" do
-      expect(response).to match_response_schema("user")
+      expect(response).to match_response_schema("team")
     end
 
   end
@@ -51,7 +51,7 @@ RSpec.describe V1::TeamsController, type: :controller do
 
     it "validates balance account JSON schema" do
       get :balance_account, id: @team.id, format: :json
-      expect(response).to match_response_schema("account")      
+      expect(response).to match_response_schema("account")
     end
 
     it "validates income account JSON schema" do

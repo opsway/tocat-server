@@ -7,12 +7,12 @@
       "id": "id",
       "type": "integer"
     },
-    "type": {
-      "id": "type",
-      "type": "string"
-    },
     "balance": {
       "id": "balance",
+      "type": "string"
+    },
+    "type": {
+      "id": "type",
       "type": "string"
     },
     "parent": {
@@ -27,8 +27,7 @@
           "id": "id",
           "type": "integer"
         }
-      },
-      "additionalProperties": false
+      }
     },
     "transactions": {
       "id": "transactions",
@@ -49,8 +48,8 @@
             "id": "comment",
             "type": "string"
           },
-          "user": {
-            "id": "user",
+          "owner": {
+            "id": "owner",
             "type": "object",
             "properties": {
               "id": {
@@ -60,18 +59,11 @@
               "name": {
                 "id": "name",
                 "type": "string"
-              },
-              "role": {
-                "id": "role",
-                "type": "string"
               }
-            },
-            "additionalProperties": false
+            }
           }
-        },
-        "additionalProperties": false
+        }
       }
     }
-  },
-  "additionalProperties": false
+  }
 }
