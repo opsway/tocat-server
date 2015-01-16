@@ -1,27 +1,26 @@
 class AccountSerializer < ActiveModel::Serializer
-  attributes :id
+  attributes :id, :balance
 
   def attributes
-    data = {}
-    data[:id] = object.id
+    data = super
     data[:type] = object.account_type
-    data[:balance] = object.balance
     parent = {}
     parent[:type] = object.accountable_type
     parent[:id] = object.accountable_id
     data[:parent] = parent
     transactions = []
-    object.transactions.each do |t|
-      _t = {}
-      _t[:id] = t.id
-      _t[:total] = t.total
-      _t[:comment] = t.comment
-      _t[:user] = {
-        "id" => t.account.accountable.id,
-        "name" => t.account.accountable.name,
-        "role" => t.account.accountable.role.name
+    object.transactions.each do |transaction|
+      transaction_data = {}
+      transaction_data[:id] = transaction.id
+      transaction_data[:total] = transaction.total
+      transaction_data[:comment] = transaction.comment
+      account_parent = transaction.account.accountable
+      transaction_data[:user] = {
+        "id" => account_parent.id,
+        "name" => account_parent.name,
+        "role" => account_parent.role.name
         }
-        transactions << _t
+        transactions << transaction_data
     end
     data[:transactions] = transactions
     data
