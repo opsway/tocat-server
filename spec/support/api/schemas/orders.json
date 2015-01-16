@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "/",
+  "type": "object",
+  "properties": {
+    "id": {
+      "id": "id",
+      "type": "integer"
+    },
+    "name": {
+      "id": "name",
+      "type": "string"
+    },
+    "invoiced_budget": {
+      "id": "invoiced_budget",
+      "type": "string"
+    },
+    "allocatable_budget": {
+      "id": "allocatable_budget",
+      "type": "string"
+    },
+    "free_budget": {
+      "id": "free_budget",
+      "type": "string"
+    },
+    "links": {
+      "id": "links",
+      "type": "object",
+      "properties": {
+        "url": {
+          "id": "url",
+          "type": "string"
+        },
+        "rel": {
+          "id": "rel",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

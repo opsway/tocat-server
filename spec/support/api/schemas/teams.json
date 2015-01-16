@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "/",
+  "type": "object",
+  "properties": {
+    "id": {
+      "id": "id",
+      "type": "integer"
+    },
+    "name": {
+      "id": "name",
+      "type": "string"
+    },
+    "links": {
+      "id": "links",
+      "type": "object",
+      "properties": {
+        "id": {
+          "id": "id",
+          "type": "integer"
+        },
+        "href": {
+          "id": "href",
+          "type": "string"
+        },
+        "rel": {
+          "id": "rel",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

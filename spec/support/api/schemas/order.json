@@ -1,0 +1,90 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "/",
+  "type": "object",
+  "properties": {
+    "id": {
+      "id": "id",
+      "type": "integer"
+    },
+    "invoiced_budget": {
+      "id": "invoiced_budget",
+      "type": "string"
+    },
+    "allocatable_budget": {
+      "id": "allocatable_budget",
+      "type": "string"
+    },
+    "free_budget": {
+      "id": "free_budget",
+      "type": "string"
+    },
+    "name": {
+      "id": "name",
+      "type": "string"
+    },
+    "description": {
+      "id": "description",
+      "type": "null"
+    },
+    "paid": {
+      "id": "paid",
+      "type": "boolean"
+    },
+    "completed": {
+      "id": "completed",
+      "type": "boolean"
+    },
+    "parent_order": {
+      "id": "parent_order",
+      "type": "object",
+      "properties": {},
+      "additionalProperties": false
+    },
+    "invoice": {
+      "id": "invoice",
+      "type": "object",
+      "properties": {},
+      "additionalProperties": false
+    },
+    "links": {
+      "id": "links",
+      "type": "object",
+      "properties": {
+        "id": {
+          "id": "id",
+          "type": "integer"
+        },
+        "href": {
+          "id": "href",
+          "type": "string"
+        },
+        "rel": {
+          "id": "rel",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "team": {
+      "id": "team",
+      "type": "object",
+      "properties": {
+        "name": {
+          "id": "name",
+          "type": "string"
+        },
+        "href": {
+          "id": "href",
+          "type": "string"
+        },
+        "id": {
+          "id": "id",
+          "type": "integer"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
