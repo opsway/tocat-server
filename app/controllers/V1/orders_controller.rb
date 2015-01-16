@@ -58,7 +58,7 @@ module V1
     end
 
     def create_suborder
-      render nothing: true, status: 204  #TODO waiting for commentary from Andriy
+      render nothing: true, status: 204  # TODO waiting for commentary from Andriy
     end
 
     private
