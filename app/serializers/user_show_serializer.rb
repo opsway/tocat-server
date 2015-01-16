@@ -7,7 +7,9 @@ class UserShowSerializer < ActiveModel::Serializer
              :team,
              :daily_rate,
              :role,
-             :links
+             :links,
+             :balance_account_state,
+             :income_account_state
 
   private
 
@@ -34,5 +36,13 @@ class UserShowSerializer < ActiveModel::Serializer
     balance = {}
     income = {}
     data
+  end
+
+  def balance_account_state
+    { total: object.balance_account.balance }
+  end
+
+  def income_account_state
+    { total: object.income_account.balance }
   end
 end
