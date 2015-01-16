@@ -18,7 +18,7 @@ class OrderShowSerializer < ActiveModel::Serializer
 
   def parent_order
     data = {}
-    if object.parent
+    if object.parent # FIXME
       data[:href] = order_path(object.parent)
       data[:id] = object.parent.id
     end
@@ -27,9 +27,7 @@ class OrderShowSerializer < ActiveModel::Serializer
 
   def invoice
     data = {}
-    object.invoices.each do |invoice|
-      data["#{invoice.id}"] = { 'href' => "#{order_path(object.parent)}/invoice" } # TODO refactor
-    end
+    data[:href] = '/invoice/2' # TODO refactor
     data
   end
 
@@ -42,10 +40,23 @@ class OrderShowSerializer < ActiveModel::Serializer
   end
 
   def links
-    data = {}
-    data[:id] = object.id
-    data[:href] = order_path(object)
-    data[:rel] = 'self'
+    data = []
+    link_to_self = {}
+    link_to_self[:href] = order_path(object)
+    link_to_self[:rel] = 'self'
+    data << link_to_self
+    link_to_paid = {}
+    link_to_paid[:href] = set_paid_path(object)
+    link_to_paid[:rel] = 'setpaid'
+    data << link_to_paid
+    link_to_invoice = {}
+    link_to_invoice[:href] = set_invoice_path(object)
+    link_to_invoice[:rel] = 'invoice'
+    data << link_to_invoice
+    link_to_suborder = {}
+    link_to_suborder[:href] = suborders_path(object)
+    link_to_suborder[:rel] = 'suborder'
+    data << link_to_suborder
     data
   end
 end
