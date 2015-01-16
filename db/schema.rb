@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150115155743) do
+ActiveRecord::Schema.define(version: 20150116084401) do
 
   create_table "accounts", force: true do |t|
     t.string   "account_type",     null: false
@@ -79,9 +79,7 @@ ActiveRecord::Schema.define(version: 20150115155743) do
   add_index "tasks", ["user_id"], name: "index_tasks_on_user_id", using: :btree
 
   create_table "teams", force: true do |t|
-    t.string   "name",                 null: false
-    t.integer  "balance_account_id"
-    t.integer  "gross_profit_account"
+    t.string   "name",       null: false
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -98,15 +96,13 @@ ActiveRecord::Schema.define(version: 20150115155743) do
   add_index "transactions", ["comment"], name: "index_transactions_on_comment", using: :btree
 
   create_table "users", force: true do |t|
-    t.string   "name",                                       null: false
-    t.string   "login",                                      null: false
-    t.integer  "team_id",                                    null: false
-    t.decimal  "daily_rate",         precision: 5, scale: 2, null: false
+    t.string   "name",                               null: false
+    t.string   "login",                              null: false
+    t.integer  "team_id",                            null: false
+    t.decimal  "daily_rate", precision: 5, scale: 2, null: false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "role_id",                                    null: false
-    t.integer  "balance_account_id"
-    t.integer  "income_account_id"
+    t.integer  "role_id",                            null: false
   end
 
 end
