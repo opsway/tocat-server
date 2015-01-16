@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe V1::OrdersController, type: :controller do
+RSpec.describe OrdersController, type: :controller do
   describe '/order' do
     before(:each) do
       create_list(:order, 5)

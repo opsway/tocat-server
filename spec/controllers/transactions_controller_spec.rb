@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe V1::TransactionsController, type: :controller do
+RSpec.describe TransactionsController, type: :controller do
   describe '/transaction ' do
     before(:each) do
       create(:team)

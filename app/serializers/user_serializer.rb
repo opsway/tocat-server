@@ -8,7 +8,7 @@ class UserSerializer < ActiveModel::Serializer
   def team
     data = {}
     data[:name] = object.team.name
-    data[:href] = v1_team_path(object.team)
+    data[:href] = team_path(object.team)
     data
   end
 
@@ -18,7 +18,7 @@ class UserSerializer < ActiveModel::Serializer
 
   def links
     data = {}
-    data[:href] = v1_user_path(object)
+    data[:href] = user_path(object)
     data[:rel] = 'self'
     data
   end

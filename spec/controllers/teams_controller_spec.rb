@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe V1::TeamsController, type: :controller do
+RSpec.describe TeamsController, type: :controller do
   describe '/team ' do
     before(:each) do
       create_list(:team, 5)

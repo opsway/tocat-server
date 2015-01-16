@@ -14,7 +14,7 @@ class UserShowSerializer < ActiveModel::Serializer
   def team
     data = {}
     data[:name] = object.team.name
-    data[:href] = v1_team_path(object.team)
+    data[:href] = team_path(object.team)
     data
   end
 
@@ -24,7 +24,7 @@ class UserShowSerializer < ActiveModel::Serializer
 
   def links
     data = {}
-    data[:href] = v1_user_path(object)
+    data[:href] = user_path(object)
     data[:rel] = 'self'
     data
   end
@@ -34,9 +34,9 @@ class UserShowSerializer < ActiveModel::Serializer
     balance = {}
     income = {}
     balance[:id] = object.balance_account.id
-    balance[:href] = v1_user_balance_path(object)
+    balance[:href] = user_balance_path(object)
     income[:id] = object.income_account.id
-    income[:href] = v1_user_income_path(object)
+    income[:href] = user_income_path(object)
     data[:balance_account] = balance
     data[:income_account] = income
     data

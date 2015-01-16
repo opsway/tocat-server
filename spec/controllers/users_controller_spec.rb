@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe V1::UsersController, type: :controller do
+RSpec.describe UsersController, type: :controller do
   describe '/user ' do
     before(:each) do
       create_list(:user, 5)

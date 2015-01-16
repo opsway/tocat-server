@@ -8,11 +8,11 @@ class OrderSerializer < ActiveModel::Serializer
              :free_budget,
              :links
 
-  private           
+  private
 
   def links
     data = {}
-    data[:url] = v1_order_path(object)
+    data[:url] = order_path(object)
     data[:rel] = 'self'
     data #TODO add more links, as in apiary
   end
