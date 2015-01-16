@@ -13,31 +13,32 @@ class Account < ActiveRecord::Base
 
   def balance
     value = BigDecimal.new 0
-    self.transactions.each { |t| value += t.total}
+    binding.pry
+    transactions.each { |t| value += t.total }
     value
   end
 
   private
 
-    def normalize_account_type
-      self.account_type = self.account_type.downcase if self.account_type.present?
-    end
+  def normalize_account_type
+    account_type = account_type.downcase if account_type.present?
+  end
 
-    def check_account_type
-      return unless account_type
-      allowed_types = %w(balance payment)
-      unless allowed_types.include? account_type.downcase
-        errors.add(:account_type, "contains wrong argument")
-      end
+  def check_account_type
+    return unless(account_type)
+    allowed_types = %w(balance payment)
+    unless allowed_types.include? account_type.downcase
+      errors.add(:account_type, 'contains wrong argument')
     end
+  end
 
-    def check_accounts_amount
-      return unless accountable_id and accountable_type
-      amount = Account.where(accountable_id: accountable_id,
-                              accountable_type: accountable.class.name)
-                      .length
-      if amount >= 2
-        errors[:base] << "2 accounts for this parent already exists."
-      end
+  def check_accounts_amount
+    return unless(accountable_id and accountable_type)
+    amount = Account.where(accountable_id: accountable_id,
+                            accountable_type: accountable.class.name)
+                              .length
+    if(amount >= 2)
+      errors[:base] << '2 accounts for this parent already exists.'
     end
+  end
 end

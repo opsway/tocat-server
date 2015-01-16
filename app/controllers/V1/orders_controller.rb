@@ -1,6 +1,6 @@
 module V1
   class OrdersController < ApplicationController
-    before_action :set_order, except: [:index, :create]#, only: [:show, :edit, :update, :destroy]
+    before_action :set_order, except: [:index, :create]
 
     def index
       @orders = Order.all
@@ -63,25 +63,25 @@ module V1
 
     private
 
-      def save_and_render
-        if @order.save
-          render json: @order, serializer: OrderShowSerializer
-        else
-          render json: @order.errors, status: :unprocessable_entity
-        end
+    def save_and_render
+      if @order.save
+        render json: @order, serializer: OrderShowSerializer
+      else
+        render json: @order.errors, status: :unprocessable_entity
       end
-      def set_order
-        @order = Order.find(params[:id])
-      end
+    end
 
-      def order_params
-        params.require(:order).permit(:name,
-                                      :description,
-                                      :team_id,
-                                      :invoiced_budget,
-                                      :allocatable_budget,
-                                      :invoice_id)
+    def set_order
+      @order = Order.find(params[:id])
+    end
 
-      end
+    def order_params
+      params.require(:order).permit(:name,
+                                    :description,
+                                    :team_id,
+                                    :invoiced_budget,
+                                    :allocatable_budget,
+                                    :invoice_id)
+    end
   end
 end
