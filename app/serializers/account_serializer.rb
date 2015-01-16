@@ -1,5 +1,7 @@
 class AccountSerializer < ActiveModel::Serializer
-  attributes :id, :balance
+  attributes :id, :balance, :transactions
+
+  private
 
   def attributes
     data = super
@@ -8,6 +10,10 @@ class AccountSerializer < ActiveModel::Serializer
     parent[:type] = object.accountable_type
     parent[:id] = object.accountable_id
     data[:parent] = parent
+    data
+  end
+
+  def transactions
     transactions = []
     object.transactions.each do |transaction|
       transaction_data = {}
@@ -21,7 +27,6 @@ class AccountSerializer < ActiveModel::Serializer
       transaction_data[:owner] = owner
       transactions << transaction_data
     end
-    data[:transactions] = transactions
-    data
+    transactions
   end
 end

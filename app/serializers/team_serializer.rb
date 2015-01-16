@@ -3,6 +3,8 @@ class TeamSerializer < ActiveModel::Serializer
 
   attributes :id, :name, :links
 
+  private
+
   def links
     data = {}
     data[:id] = object.id
@@ -10,5 +12,4 @@ class TeamSerializer < ActiveModel::Serializer
     data[:rel] = 'self'
     data
   end
-
 end

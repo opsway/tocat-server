@@ -3,6 +3,8 @@ class UserSerializer < ActiveModel::Serializer
 
   attributes :id, :name, :login, :team, :role, :links
 
+  private
+
   def team
     data = {}
     data[:name] = object.team.name
