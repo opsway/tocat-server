@@ -8,7 +8,7 @@ class TeamSerializer < ActiveModel::Serializer
   def links
     data = {}
     data[:id] = object.id
-    data[:href] = v1_team_path(object)
+    data[:href] = team_path(object)
     data[:rel] = 'self'
     data
   end

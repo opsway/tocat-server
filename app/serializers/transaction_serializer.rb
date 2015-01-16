@@ -7,7 +7,7 @@ class TransactionSerializer < ActiveModel::Serializer
 
   def links
     data = {}
-    data[:href] = v1_transaction_path(object)
+    data[:href] = transaction_path(object)
     data[:rel] = 'self'
     data
   end
