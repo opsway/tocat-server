@@ -31,23 +31,5 @@ RSpec.describe UsersController, type: :controller do
     it 'should check JSON schema' do
       expect(response).to match_response_schema('user')
     end
-  end
-
-  describe 'accounts' do
-    before(:each) do
-      @user = create(:user)
-      @user.balance_account.transactions << create(:transaction)
-      @user.income_account.transactions << create(:transaction)
-    end
-
-    it 'validates balance account JSON schema' do
-      get :balance_account, id: @user.id, format: :json
-      expect(response).to match_response_schema('account')
-    end
-
-    it 'validates income account JSON schema' do
-      get :income_account, id: @user.id, format: :json
-      expect(response).to match_response_schema('account')
-    end
-  end
+  end  
 end
