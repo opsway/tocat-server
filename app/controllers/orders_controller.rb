@@ -15,12 +15,16 @@ class OrdersController < ApplicationController
 
   def create
     @order = Order.new(order_params)
-    save_and_render
+    if @order.save
+      render nothing: true, status: 201
+    else
+      render json: @order.errors, status: :unprocessable_entity
+    end
   end
 
   def update
     if @order.update(order_params)
-      render json: @order, serializer: OrderShowSerializer
+      render nothing: true, status: 202
     else
       render json: @order.errors, status: :unprocessable_entity
     end
@@ -33,22 +37,38 @@ class OrdersController < ApplicationController
 
   def set_invoice
     @order.invoice = Invoice.find(params[:invoice_id])
-    save_and_render
+    if @order.save
+      render nothing: true, status: 202
+    else
+      render json: @order.errors, status: :unprocessable_entity
+    end
   end
 
   def delete_invoice
     @order.invoice_id = nil
-    save_and_render
+    if @order.save
+      render nothing: true, status: 202
+    else
+      render json: @order.errors, status: :unprocessable_entity
+    end
   end
 
   def set_paid
     @order.paid = true
-    save_and_render
+    if @order.save
+      render nothing: true, status: 202
+    else
+      render json: @order.errors, status: :unprocessable_entity
+    end
   end
 
   def set_unpaid
     @order.paid = false
-    save_and_render
+    if @order.save
+      render nothing: true, status: 202
+    else
+      render json: @order.errors, status: :unprocessable_entity
+    end
   end
 
   def suborders
@@ -61,15 +81,7 @@ class OrdersController < ApplicationController
   end
 
   private
-
-  def save_and_render
-    if @order.save
-      render json: @order, serializer: OrderShowSerializer
-    else
-      render json: @order.errors, status: :unprocessable_entity
-    end
-  end
-
+  
   def set_order
     @order = Order.find(params[:id])
   end

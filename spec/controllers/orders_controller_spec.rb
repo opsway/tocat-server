@@ -46,7 +46,7 @@ RSpec.describe OrdersController, type: :controller do
       order = FactoryGirl.attributes_for(:order)
       order[:team_id] = @team.id
       post :create, order: order, format: :json
-      expect(Order.where(id: JSON.parse(response.body)['id']).exists?).to eq true
+      expect(Order.where(name: order[:name]).exists?).to eq true
     end
 
     it 'create order with invalid params' do
