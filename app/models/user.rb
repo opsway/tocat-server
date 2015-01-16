@@ -35,9 +35,6 @@ class User < ActiveRecord::Base
   def create_accounts
     balance = self.accounts.create! account_type: 'balance'
     payment = self.accounts.create! account_type: 'payment'
-    self.balance_account_id = balance.id
-    self.income_account_id = payment.id
-    self.save!
   end
 
   def destroy_accounts
