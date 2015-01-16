@@ -38,22 +38,4 @@ RSpec.describe TeamsController, type: :controller do
       expect(response).to match_response_schema('team')
     end
   end
-
-  describe 'accounts' do
-    before(:each) do
-      @team = create(:team)
-      @team.balance_account.transactions << create(:transaction)
-      @team.income_account.transactions << create(:transaction)
-    end
-
-    it 'validates balance account JSON schema' do
-      get :balance_account, id: @team.id, format: :json
-      expect(response).to match_response_schema('account')
-    end
-
-    it 'validates income account JSON schema' do
-      get :income_account, id: @team.id, format: :json
-      expect(response).to match_response_schema('account')
-    end
-  end
 end

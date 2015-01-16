@@ -33,12 +33,6 @@ class UserShowSerializer < ActiveModel::Serializer
     data = super
     balance = {}
     income = {}
-    balance[:id] = object.balance_account.id
-    balance[:href] = user_balance_path(object)
-    income[:id] = object.income_account.id
-    income[:href] = user_income_path(object)
-    data[:balance_account] = balance
-    data[:income_account] = income
     data
   end
 end

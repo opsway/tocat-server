@@ -40,15 +40,6 @@ Rails.application.routes.draw do
             defaults: {format: 'json'},
             only: [:index, :show]
 
-  get '/team/:id/balance',
-      to: 'teams#balance_account',
-      as: 'team_balance',
-      format: 'json'
-  get '/team/:id/income',
-      to: 'teams#income_account',
-      as: 'team_income',
-      format: 'json'
-
   resources :transaction,
             controller: "transactions",
             path: "transaction",
@@ -61,13 +52,4 @@ Rails.application.routes.draw do
             defaults: {format: 'json'},
             only: [:index, :show]
 
-  get '/user/:id/balance',
-      to: 'users#balance_account',
-      as: 'user_balance',
-      format: 'json'
-
-  get '/user/:id/income',
-      to: 'users#income_account',
-      as: 'user_income',
-      format: 'json'
 end
