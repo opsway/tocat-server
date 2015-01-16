@@ -3,10 +3,12 @@ class TransactionSerializer < ActiveModel::Serializer
 
   attributes :id, :comment, :links
 
+  private
+
   def links
     data = {}
     data[:href] = v1_transaction_path(object)
-    data[:rel] = "self"
+    data[:rel] = 'self'
     data
   end
 end

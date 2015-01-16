@@ -1,13 +1,15 @@
 class UserShowSerializer < ActiveModel::Serializer
   include Rails.application.routes.url_helpers
 
-  attributes  :id,
-              :name,
-              :login,
-              :team,
-              :daily_rate,
-              :role,
-              :links
+  attributes :id,
+             :name,
+             :login,
+             :team,
+             :daily_rate,
+             :role,
+             :links
+
+  private
 
   def team
     data = {}
