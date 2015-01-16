@@ -12,6 +12,7 @@ module V1
     end
 
     private
+    
     def set_transaction
       @transaction = Transaction.find(params[:id])
     end

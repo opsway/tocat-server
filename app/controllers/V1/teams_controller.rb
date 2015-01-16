@@ -20,6 +20,7 @@ module V1
     end
 
     private
+    
     def set_team
       @team = Team.find(params[:id])
     end
