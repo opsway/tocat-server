@@ -41,29 +41,18 @@ RSpec.describe V1::UsersController, type: :controller do
   describe "accounts" do
     before(:each) do
       @user = create(:user)
+      @user.balance_account.transactions << create(:transaction)
+      @user.income_account.transactions << create(:transaction)
     end
 
     it "validates balance account JSON schema" do
       get :balance_account, id: @user.id, format: :json
-      body = JSON.parse(response.body)
-      account = @user.balance_account
-      expect(body["type"]).to eq account.account_type
-      expect(BigDecimal.new(body["balance"])).to eq account.balance
-      expect(body["parent"]["id"]).to eq account.accountable.id
-      expect(body["parent"]["type"]).to eq account.accountable.class.name
+      expect(response).to match_response_schema("account")
     end
 
     it "validates income account JSON schema" do
       get :income_account, id: @user.id, format: :json
-      body = JSON.parse(response.body)
-      account = @user.income_account
-      expect(body["type"]).to eq account.account_type
-      expect(BigDecimal.new(body["balance"])).to eq account.balance
-      expect(body["parent"]["id"]).to eq account.accountable.id
-      expect(body["parent"]["type"]).to eq account.accountable.class.name
+      expect(response).to match_response_schema("account")
     end
-
   end
-
-
 end

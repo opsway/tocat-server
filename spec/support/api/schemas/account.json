@@ -1,0 +1,77 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "/",
+  "type": "object",
+  "properties": {
+    "id": {
+      "id": "id",
+      "type": "integer"
+    },
+    "type": {
+      "id": "type",
+      "type": "string"
+    },
+    "balance": {
+      "id": "balance",
+      "type": "string"
+    },
+    "parent": {
+      "id": "parent",
+      "type": "object",
+      "properties": {
+        "type": {
+          "id": "type",
+          "type": "string"
+        },
+        "id": {
+          "id": "id",
+          "type": "integer"
+        }
+      },
+      "additionalProperties": false
+    },
+    "transactions": {
+      "id": "transactions",
+      "type": "array",
+      "items": {
+        "id": "0",
+        "type": "object",
+        "properties": {
+          "id": {
+            "id": "id",
+            "type": "integer"
+          },
+          "total": {
+            "id": "total",
+            "type": "string"
+          },
+          "comment": {
+            "id": "comment",
+            "type": "string"
+          },
+          "user": {
+            "id": "user",
+            "type": "object",
+            "properties": {
+              "id": {
+                "id": "id",
+                "type": "integer"
+              },
+              "name": {
+                "id": "name",
+                "type": "string"
+              },
+              "role": {
+                "id": "role",
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

@@ -17,9 +17,9 @@ class AccountSerializer < ActiveModel::Serializer
       _t[:total] = t.total
       _t[:comment] = t.comment
       _t[:user] = {
-        "id" => t.user_id,
-        "name" => t.user.name,
-        "role" => t.user.role.name
+        "id" => t.account.accountable.id,
+        "name" => t.account.accountable.name,
+        "role" => t.account.accountable.role.name
         }
         transactions << _t
     end

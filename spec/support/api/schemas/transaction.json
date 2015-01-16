@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "/",
+  "type": "object",
+  "properties": {
+    "id": {
+      "id": "id",
+      "type": "integer"
+    },
+    "timestamp": {
+      "id": "timestamp",
+      "type": "integer"
+    },
+    "account": {
+      "id": "account",
+      "type": "object",
+      "properties": {
+        "id": {
+          "id": "id",
+          "type": "integer"
+        },
+        "type": {
+          "id": "type",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "total": {
+      "id": "total",
+      "type": "string"
+    },
+    "comment": {
+      "id": "comment",
+      "type": "string"
+    },
+    "user_id": {
+      "id": "user_id",
+      "type": "integer"
+    }
+  },
+  "additionalProperties": false
+}
