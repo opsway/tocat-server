@@ -10,6 +10,7 @@ gem 'turbolinks'
 gem 'spring',        group: :development
 
 group :development do
+  gem 'guard-rubocop'
   gem 'better_errors'
   gem 'binding_of_caller'
   gem 'meta_request'
@@ -20,6 +21,7 @@ end
 
 
 group :test do
+  gem 'rubocop', require: false
   gem 'pry'
   gem 'json-schema'
   gem 'database_cleaner', '~> 1.4.0'

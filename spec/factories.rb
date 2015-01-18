@@ -25,9 +25,9 @@ FactoryGirl.define do
   end
 
   factory :account do
-    account_type ""
+    account_type ''
     accountable_id 1
-    accountable_type "Team"
+    accountable_type 'Team'
   end
 
   factory :user do

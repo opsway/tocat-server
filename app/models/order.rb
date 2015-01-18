@@ -33,7 +33,7 @@ class Order < ActiveRecord::Base
 
   def check_if_team_exists
     if team_id.present?
-      errors.add(:team_id, 'should exists') unless (Team.exists?(id: team_id))
+      errors.add(:team_id, 'should exists') unless Team.exists?(id: team_id)
     end
   end
 
