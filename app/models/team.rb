@@ -22,8 +22,8 @@ class Team < ActiveRecord::Base
   private
 
   def create_accounts
-    balance = self.accounts.create! account_type: 'balance'
-    payment = self.accounts.create! account_type: 'payment'
+    self.accounts.create! account_type: 'balance'
+    self.accounts.create! account_type: 'payment'
   end
 
   def destroy_accounts

@@ -13,7 +13,7 @@ RSpec.describe OrdersController, type: :controller do
     end
 
     it 'return valid names' do
-      db_names = Order.all.map { |o| o.name }
+      db_names = Order.all.map(&:name)
       names = @body.map { |m| m['name'] }
       expect(names).to match_array(db_names)
     end

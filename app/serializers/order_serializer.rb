@@ -14,6 +14,6 @@ class OrderSerializer < ActiveModel::Serializer
     data = {}
     data[:url] = order_path(object)
     data[:rel] = 'self'
-    data #TODO add more links, as in apiary
+    data # TODO add more links, as in apiary
   end
 end
