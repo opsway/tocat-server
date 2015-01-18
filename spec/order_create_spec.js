@@ -1,3 +1,7 @@
+// Free budget is filled in on order creation
+// free_budget = invoiced-allocatable
+
+
 var frisby = require('frisby');
 var url = 'http://private-bc12f-tocat.apiary-mock.com';
 
@@ -16,9 +20,20 @@ frisby.create('Create Order: set allocatable budget more than invoiced')
 
         )
     .expectStatus(402)
-    .expectJSON({error:'ORDER_VALIDATION_FAILED'})
+    .expectJSON({error:'ORDER_ERROR'})
     .expectBodyContains('Allocatable budget should be less or equal')
+    .afterJSON(function(id) {
+      frisby.create('Invoiced budget should be equal to allocatable')
+            .get(url + '/order/' + id)
+            .expectStatus(200)
+            .expectJSON({'invoiced_budget' : 50, 'free_budget' : 50, 'parent_order' : {'id' : id, "href" : "/order/" + id}})
+            .toss()
+      })
     .toss();
+
+
+
+
 
 frisby.create('Create Order: set allocatable budget equal to invoiced')
     .post(url + '/order', 
@@ -37,7 +52,7 @@ frisby.create('Create Order: set allocatable budget equal to invoiced')
     .expectStatus(201)
     .toss();
 
-frisby.create('Create Order: set allocatable budget less then zero')
+frisby.create('Create Order: set allocatable budget less than zero')
     .post(url + '/order', 
 
     	{
@@ -52,7 +67,7 @@ frisby.create('Create Order: set allocatable budget less then zero')
 
         )
     .expectStatus(402)
-    .expectJSON({error:'ORDER_VALIDATION_FAILED'})
+    .expectJSON({error:'ORDER_ERROR'})
     .expectBodyContains('Allocatable budget should be less or equal')
     .toss();  
 
@@ -71,7 +86,7 @@ frisby.create('Create Order: set allocatable budget to zero')
 
         )
     .expectStatus(402)
-    .expectJSON({error:'ORDER_VALIDATION_FAILED'})
+    .expectJSON({error:'ORDER_ERROR'})
     .expectBodyContains('Allocatable budget should be less or equal')
     .toss();    
 
@@ -90,7 +105,7 @@ frisby.create('Create Order: set invoiced budget less then zero')
 
         )
     .expectStatus(402)
-    .expectJSON({error:'ORDER_VALIDATION_FAILED'})
+    .expectJSON({error:'ORDER_ERROR'})
     .expectBodyContains('Allocatable budget should be less or equal')
     .toss();  
 
@@ -110,7 +125,7 @@ frisby.create('Create Order: name can not be empty')
 
         )
     .expectStatus(402)
-    .expectJSON({error:'ORDER_VALIDATION_FAILED'})
+    .expectJSON({error:'ORDER_ERROR'})
     .expectBodyContains('Order name can not be empty')
     .toss(); 
 
@@ -129,7 +144,7 @@ frisby.create('Create Order: check team exists')
 
         )
     .expectStatus(402)
-    .expectJSON({error:'ORDER_VALIDATION_FAILED'})
+    .expectJSON({error:'ORDER_ERROR'})
     .expectBodyContains('Team does not exists')
     .toss();  
 
@@ -157,25 +172,25 @@ frisby.create('Correct order creation')
       frisby.create('Update order with allocatable budget greater than invoiced')
         .patch(url + '/order/' + order.id, {allocatable_budget: 200})
         .expectStatus(402)
-        .expectJSON({error:'ORDER_VALIDATION_FAILED'})
+        .expectJSON({error:'ORDER_ERROR'})
         .toss();
 
       frisby.create('Update order with allocatable budget less than zero')
         .patch(url + '/order/' + order.id, {allocatable_budget: -10})
         .expectStatus(402)
-        .expectJSON({error:'ORDER_VALIDATION_FAILED'})
+        .expectJSON({error:'ORDER_ERROR'})
         .toss();
 
       frisby.create('Update order with invoiced budget less than zero')
         .patch(url + '/order/' + order.id, {invoiced_budget: -10})
         .expectStatus(402)
-        .expectJSON({error:'ORDER_VALIDATION_FAILED'})
+        .expectJSON({error:'ORDER_ERROR'})
         .toss();
 
       frisby.create('Update order with invoiced budget set to zero')
         .patch(url + '/order/' + order.id, {invoiced_budget: 0})
         .expectStatus(402)
-        .expectJSON({error:'ORDER_VALIDATION_FAILED'})
+        .expectJSON({error:'ORDER_ERROR'})
         .toss();
 
       })
