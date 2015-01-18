@@ -7,4 +7,15 @@ class TaskOrders < ActiveRecord::Base
 
   belongs_to :order
   belongs_to :task
+
+  before_save :check_free_budget
+
+  private
+
+  def check_free_budget
+    if self.budget > self.order.free_budget
+      errors[:base] << 'Budget must be lower than free budget from order'
+      false
+    end
+  end
 end

@@ -6,10 +6,19 @@ class Task < ActiveRecord::Base
 
   belongs_to :user
 
+  def resolver
+    self.user
+  end
+
   def budget
-    budget = BugDecimal 0
+    budget = BigDecimal 0
     task_orders.each do |record|
       budget += record.budget
     end
+    budget
+  end
+
+  def external_url
+    "http://jira.opsway.com/browse/#{external_id}"
   end
 end
