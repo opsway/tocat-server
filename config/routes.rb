@@ -56,4 +56,39 @@ Rails.application.routes.draw do
             controller: 'tasks',
             path: 'task',
             defaults: { format: 'json' }
+
+  post '/task/:id/accept',
+       to: 'tasks#set_accepted',
+       as: 'task_set_accepted',
+       format: 'json'
+
+  delete '/task/:id/accept',
+         to: 'tasks#delete_accepted',
+         as: 'task_remove_accepted',
+         format: 'json'
+
+  post '/task/:id/resolver',
+       to: 'tasks#set_resolver',
+       as: 'task_set_resolver',
+       format: 'json'
+
+  delete '/task/:id/resolver',
+         to: 'tasks#delete_resolver',
+         as: 'task_remove_resolver',
+         format: 'json'
+
+  get '/task/:id/budget',
+      to: 'tasks#budgets',
+      as: 'task_get_budget',
+      format: 'json'
+
+  post '/task/:id/budget',
+       to: 'tasks#set_budgets',
+       as: 'task_set_budget',
+       format: 'json'
+
+  get '/task/:id/order',
+      to: 'tasks#orders',
+      as: 'task_get_orders',
+      format: 'json'
 end

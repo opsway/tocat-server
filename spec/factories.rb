@@ -20,8 +20,14 @@ FactoryGirl.define do
   end
 
   factory :task_orders do
-    task_id 1
-    order_id 1
+    association :task
+    association :order
+    sequence(:budget) { |n| BigDecimal.new n }
+  end
+
+  factory :task do
+    sequence(:external_id) { |n| n }
+    association :user
   end
 
   factory :account do

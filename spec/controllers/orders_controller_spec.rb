@@ -40,11 +40,10 @@ RSpec.describe OrdersController, type: :controller do
   end
 
   describe 'POST /order' do
-    before(:each) { @team = create(:team) }
-
     it 'create order with valid params' do
       order = FactoryGirl.attributes_for(:order)
-      order[:team_id] = @team.id
+      team = create(:team)
+      order[:team_id] = team.id
       post :create, order: order, format: :json
       expect(Order.where(name: order[:name]).exists?).to eq true
     end
