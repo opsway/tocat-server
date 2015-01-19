@@ -41,14 +41,12 @@ class Order < ActiveRecord::Base
 
   def set_free_budget
     if new_record?
-      binding.pry
       if parent
         val = parent.free_budget - invoiced_budget
         parent.update_attributes(free_budget: val)
       end
       self.free_budget = invoiced_budget - allocatable_budget
     elsif invoiced_budget_changed?
-      binding.pry
       if parent
         val = parent.free_budget - invoiced_budget
         parent.update_attributes(free_budget: val)
