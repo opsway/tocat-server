@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150116084401) do
+ActiveRecord::Schema.define(version: 20150119110524) do
 
   create_table "accounts", force: true do |t|
     t.string   "account_type",     null: false
@@ -29,11 +29,9 @@ ActiveRecord::Schema.define(version: 20150116084401) do
     t.boolean  "paid",        default: false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "order_id",                    null: false
   end
 
   add_index "invoices", ["client"], name: "index_invoices_on_client", using: :btree
-  add_index "invoices", ["order_id"], name: "index_invoices_on_order_id", using: :btree
 
   create_table "orders", force: true do |t|
     t.string   "name",                                                        null: false

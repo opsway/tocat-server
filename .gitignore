@@ -38,3 +38,13 @@ bower.json
 config/database.yml
 
 critic.txt
+
+config/settings.local.yml
+config/settings/*.local.yml
+config/environments/*.local.yml
+
+node_modules/frisby
+
+spec/order_create_spec.js
+
+spec/order_create_spec.js

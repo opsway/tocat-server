@@ -13,7 +13,7 @@ RSpec.describe OrdersController, type: :controller do
     end
 
     it 'return valid names' do
-      db_names = Order.all.map { |o| o.name }
+      db_names = Order.all.map(&:name)
       names = @body.map { |m| m['name'] }
       expect(names).to match_array(db_names)
     end
@@ -40,12 +40,14 @@ RSpec.describe OrdersController, type: :controller do
   end
 
   describe 'POST /order' do
-    before(:each) { @team = create(:team) }
-
     it 'create order with valid params' do
       order = FactoryGirl.attributes_for(:order)
-      order[:team_id] = @team.id
-      post :create, order: order, format: :json
+      team = {}
+      team[:id] = order[:team_id]
+      order[:team] = team
+      team = create(:team)
+      order[:team_id] = team.id
+      post :create, order, format: :json
       expect(Order.where(name: order[:name]).exists?).to eq true
     end
 

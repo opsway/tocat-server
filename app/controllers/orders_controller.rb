@@ -1,5 +1,5 @@
 class OrdersController < ApplicationController
-  before_action :set_order, except: [:index, :create]
+  before_action :set_order, except: [:index, :create, :create_suborder]
 
   def index
     @orders = Order.all
@@ -15,10 +15,11 @@ class OrdersController < ApplicationController
 
   def create
     @order = Order.new(order_params)
+    @order.team_id = params[:team][:id]
     if @order.save
       render nothing: true, status: 201
     else
-      render json: @order.errors, status: :unprocessable_entity
+      render json: error_builder(@order), status: 402
     end
   end
 
@@ -26,7 +27,7 @@ class OrdersController < ApplicationController
     if @order.update(order_params)
       render nothing: true, status: 202
     else
-      render json: @order.errors, status: :unprocessable_entity
+      render json: error_builder(@order), status: 402
     end
   end
 
@@ -40,7 +41,7 @@ class OrdersController < ApplicationController
     if @order.save
       render nothing: true, status: 202
     else
-      render json: @order.errors, status: :unprocessable_entity
+      render json: error_builder(@order), status: 402
     end
   end
 
@@ -49,7 +50,7 @@ class OrdersController < ApplicationController
     if @order.save
       render nothing: true, status: 202
     else
-      render json: @order.errors, status: :unprocessable_entity
+      render json: error_builder(@order), status: 402
     end
   end
 
@@ -58,7 +59,7 @@ class OrdersController < ApplicationController
     if @order.save
       render nothing: true, status: 202
     else
-      render json: @order.errors, status: :unprocessable_entity
+      render json: error_builder(@order), status: 402
     end
   end
 
@@ -67,7 +68,7 @@ class OrdersController < ApplicationController
     if @order.save
       render nothing: true, status: 202
     else
-      render json: @order.errors, status: :unprocessable_entity
+      render json: error_builder(@order), status: 402
     end
   end
 
@@ -77,21 +78,29 @@ class OrdersController < ApplicationController
   end
 
   def create_suborder
-    render nothing: true, status: 204  # TODO waiting for commentary from Andriy
+    @order = Order.new(order_params)
+    @order.team_id = params[:team][:id]
+    @order.invoiced_budget = order_params[:allocatable_budget]
+    @order.parent = Order.find(params[:id])
+    if @order.save
+      render nothing: true, status: 202
+    else
+      render json: error_builder(@order), status: 402
+    end
   end
 
   private
-  
+
   def set_order
     @order = Order.find(params[:id])
   end
 
   def order_params
-    params.require(:order).permit(:name,
-    :description,
-    :team_id,
-    :invoiced_budget,
-    :allocatable_budget,
-    :invoice_id)
+    params.permit(:name,
+                  :description,
+                  :team,
+                  :invoiced_budget,
+                  :allocatable_budget,
+                  :invoice_id)
   end
 end
