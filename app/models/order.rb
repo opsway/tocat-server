@@ -1,12 +1,14 @@
 class Order < ActiveRecord::Base
-  validates :name, presence: true
+  validates :name, presence: { message: "Order name can not be empty" }
   validates :team_id, presence: true
-  validates :invoiced_budget,
-            numericality: { greater_than: 0 },
-            presence: true
-  validates :allocatable_budget,
-            numericality: { greater_than: 0 },
-            presence: true
+  validates_numericality_of :invoiced_budget,
+                            :greater_than => 0,
+                            :message => "Invoiced budget should be less or equal"
+  validates_numericality_of :allocatable_budget,
+                            :greater_than => 0,
+                            :message => "Allocatable budget should be less or equal"
+  validates_presence_of :invoiced_budget
+  validates_presence_of :allocatable_budget
 
   validate :check_budgets
   validate :check_if_team_exists
@@ -26,14 +28,14 @@ class Order < ActiveRecord::Base
   def check_budgets
     if allocatable_budget.present? && invoiced_budget.present?
       if allocatable_budget > invoiced_budget
-        errors.add(:allocatable_budget, 'must be lower than Invoiced Budget')
+        errors[:base] << "Allocatable budget should be less or equal"
       end
     end
   end
 
   def check_if_team_exists
     if team_id.present?
-      errors.add(:team_id, 'should exists') unless Team.exists?(id: team_id)
+      errors[:base] << 'Team does not exists' unless Team.exists?(id: team_id)
     end
   end
 
