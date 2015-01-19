@@ -15,6 +15,7 @@ class OrdersController < ApplicationController
 
   def create
     @order = Order.new(order_params)
+    @order.team_id = params[:team][:id]
     if @order.save
       render nothing: true, status: 201
     else
@@ -89,7 +90,7 @@ class OrdersController < ApplicationController
   def order_params
     params.permit(:name,
                   :description,
-                  :team_id,
+                  :team,
                   :invoiced_budget,
                   :allocatable_budget,
                   :invoice_id)
