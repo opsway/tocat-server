@@ -31,5 +31,5 @@ RSpec.describe UsersController, type: :controller do
     it 'should check JSON schema' do
       expect(response).to match_response_schema('user')
     end
-  end  
+  end
 end

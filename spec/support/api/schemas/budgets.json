@@ -1,0 +1,1 @@
+{"$schema":"http://json-schema.org/draft-04/schema#","id":"/","type":"object","properties":{"order_id":{"id":"order_id","type":"integer"},"budget":{"id":"budget","type":"string"}},"additionalProperties":false}

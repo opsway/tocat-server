@@ -7,7 +7,7 @@ class Role < ActiveRecord::Base
   private
 
   def normalize_name
-    if self.name.split(" ").length >= 2
+    if self.name.split(' ').length >= 2
       self.name = self.name.titleize
     else
       self.name = self.name.capitalize
