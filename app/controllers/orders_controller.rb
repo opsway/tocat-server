@@ -1,5 +1,5 @@
 class OrdersController < ApplicationController
-  before_action :set_order, except: [:index, :create]
+  before_action :set_order, except: [:index, :create, :create_suborder]
 
   def index
     @orders = Order.all
@@ -78,7 +78,15 @@ class OrdersController < ApplicationController
   end
 
   def create_suborder
-    render nothing: true, status: 204  # TODO waiting for commentary from Andriy
+    @order = Order.new(order_params)
+    @order.team_id = params[:team][:id]
+    @order.invoiced_budget = order_params[:allocatable_budget]
+    @order.parent = Order.find(params[:id])
+    if @order.save
+      render nothing: true, status: 202
+    else
+      render json: error_builder, status: 402
+    end
   end
 
   private
