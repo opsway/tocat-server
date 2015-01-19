@@ -19,7 +19,7 @@ class OrdersController < ApplicationController
     if @order.save
       render nothing: true, status: 201
     else
-      render json: error_builder, status: 402
+      render json: error_builder(@order), status: 402
     end
   end
 
@@ -27,7 +27,7 @@ class OrdersController < ApplicationController
     if @order.update(order_params)
       render nothing: true, status: 202
     else
-      render json: error_builder, status: 402
+      render json: error_builder(@order), status: 402
     end
   end
 
@@ -41,7 +41,7 @@ class OrdersController < ApplicationController
     if @order.save
       render nothing: true, status: 202
     else
-      render json: error_builder, status: 402
+      render json: error_builder(@order), status: 402
     end
   end
 
@@ -50,7 +50,7 @@ class OrdersController < ApplicationController
     if @order.save
       render nothing: true, status: 202
     else
-      render json: error_builder, status: 402
+      render json: error_builder(@order), status: 402
     end
   end
 
@@ -59,7 +59,7 @@ class OrdersController < ApplicationController
     if @order.save
       render nothing: true, status: 202
     else
-      render json: error_builder, status: 402
+      render json: error_builder(@order), status: 402
     end
   end
 
@@ -68,7 +68,7 @@ class OrdersController < ApplicationController
     if @order.save
       render nothing: true, status: 202
     else
-      render json: error_builder, status: 402
+      render json: error_builder(@order), status: 402
     end
   end
 
@@ -85,21 +85,11 @@ class OrdersController < ApplicationController
     if @order.save
       render nothing: true, status: 202
     else
-      render json: error_builder, status: 402
+      render json: error_builder(@order), status: 402
     end
   end
 
   private
-
-  def error_builder
-    message = ''
-    if @order.errors[:base][0].nil?
-      message = @order.errors.first.second
-    else
-      message = @order.errors[:base][0]
-    end
-    {error: 'ORDER_ERROR', message: message }
-  end
 
   def set_order
     @order = Order.find(params[:id])
