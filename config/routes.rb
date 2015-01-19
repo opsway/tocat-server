@@ -91,4 +91,19 @@ Rails.application.routes.draw do
       to: 'tasks#orders',
       as: 'task_get_orders',
       format: 'json'
+
+  resources :invoice,
+            controller: 'invoices',
+            path: 'invoice',
+            defaults: { format: 'json' }
+
+  post '/invoice/:id/paid',
+       to: 'invoices#set_paid',
+       as: 'invoice_set_paid',
+       format: 'json'
+
+  delete '/invoice/:id/paid',
+         to: 'invoicess#delete_paid',
+         as: 'invoice_remove_paid',
+         format: 'json'
 end
