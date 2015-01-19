@@ -4,6 +4,7 @@ gem 'rails', '4.1.7'
 gem 'rails-api'
 gem 'active_model_serializers'
 gem 'mysql2'
+gem "rails_config"
 # Turbolinks makes following links in your web application faster. Read more: https://github.com/rails/turbolinks
 gem 'turbolinks'
 # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
