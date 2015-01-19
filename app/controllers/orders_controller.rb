@@ -87,11 +87,11 @@ class OrdersController < ApplicationController
   end
 
   def order_params
-    params.require(:order).permit(:name,
-                                  :description,
-                                  :team_id,
-                                  :invoiced_budget,
-                                  :allocatable_budget,
-                                  :invoice_id)
+    params.permit(:name,
+                  :description,
+                  :team_id,
+                  :invoiced_budget,
+                  :allocatable_budget,
+                  :invoice_id)
   end
 end
