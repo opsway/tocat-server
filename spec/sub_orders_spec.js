@@ -22,21 +22,21 @@ frisby.create('Correct order creation')
     .afterJSON(function(order) {
       frisby.create('No team specified in suborder creation')
         .post(url + '/order/' + order.id + '/suborder', {'allocatable_budget': 50, 'name' : "new order"})
-        .expectStatus(402)
+        .expectStatus(422)
         .expectJSON({error:'ORDER_ERROR'})
         .expectBodyContains('Team value is missing')
         .toss();
 
       frisby.create('No allocatable_budget specified in suborder creation')
         .post(url + '/order/' + order.id + '/suborder', {'team': {'id' : 2}, 'name' : "new order"})
-        .expectStatus(402)
+        .expectStatus(422)
         .expectJSON({error:'ORDER_ERROR'})
         .expectBodyContains('Allocatable budget is missing')
         .toss();
 
       frisby.create('No order name specified in suborder creation')
         .post(url + '/order/' + order.id + '/suborder', {'allocatable_budget': 50, 'team': {'id' : 2}})
-        .expectStatus(402)
+        .expectStatus(422)
         .expectJSON({error:'ORDER_ERROR'})
         .expectBodyContains('Order name is missing')
         .toss();
@@ -60,21 +60,21 @@ frisby.create('Correct order creation')
 
           frisby.create('Suborder can not be created from suborder')
             .post(url + '/order/' + subOrder.id + '/suborder', {'allocatable_budget': 50, 'team' : {'id' : 2},  'name' : 'super order'})
-            .expectStatus(402)
+            .expectStatus(422)
             .expectJSON({error:'ORDER_ERROR'})
             .expectBodyContains('Suborder can not be created from another suborder')
             .toss();
 
           frisby.create('Suborder can not be invoiced more than parent free budget')
             .post(url + '/order/' + order.id + '/suborder', {'allocatable_budget': 500, 'team' : {'id' : 2}, 'name' : 'super order'})
-            .expectStatus(402)
+            .expectStatus(422)
             .expectJSON({error:'ORDER_ERROR'})
             .expectBodyContains('Suborder can not be invoiced more than parent free budget')
             .toss();
 
           frisby.create('Suborder can not be created for the same team as parent order')
             .post(url + '/order/' + order.id + '/suborder', {'allocatable_budget': 50, 'team' : {'id' : 1},  'name' : 'super order'})
-            .expectStatus(402)
+            .expectStatus(422)
             .expectJSON({error:'ORDER_ERROR'})
             .expectBodyContains('Suborder can not be created for the same team as parent order')
             .toss();
@@ -104,7 +104,7 @@ frisby.create('Correct order creation')
 
           frisby.create('Update suborder budget to more than available')
             .patch(url + '/order/' + subOrder.id, {'allocatable_budget': 500 , 'invoiced_budget' : 500})
-            .expectStatus(402)
+            .expectStatus(422)
             .expectJSON({error:'ORDER_ERROR'})
             .expectBodyContains('Suborder can not be invoiced more than parent free budget')
             .toss();
