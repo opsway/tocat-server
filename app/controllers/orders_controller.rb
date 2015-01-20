@@ -19,7 +19,7 @@ class OrdersController < ApplicationController
     if @order.save
       render nothing: true, status: 201
     else
-      render json: error_builder(@order), status: 402
+      render json: error_builder(@order), status: :unprocessable_entity
     end
   end
 
@@ -27,7 +27,7 @@ class OrdersController < ApplicationController
     if @order.update(order_params)
       render nothing: true, status: 202
     else
-      render json: error_builder(@order), status: 402
+      render json: error_builder(@order), status: :unprocessable_entity
     end
   end
 
@@ -41,7 +41,7 @@ class OrdersController < ApplicationController
     if @order.save
       render nothing: true, status: 202
     else
-      render json: error_builder(@order), status: 402
+      render json: error_builder(@order), status: :unprocessable_entity
     end
   end
 
@@ -50,7 +50,7 @@ class OrdersController < ApplicationController
     if @order.save
       render nothing: true, status: 202
     else
-      render json: error_builder(@order), status: 402
+      render json: error_builder(@order), status: :unprocessable_entity
     end
   end
 
@@ -59,7 +59,7 @@ class OrdersController < ApplicationController
     if @order.save
       render nothing: true, status: 202
     else
-      render json: error_builder(@order), status: 402
+      render json: error_builder(@order), status: :unprocessable_entity
     end
   end
 
@@ -68,7 +68,7 @@ class OrdersController < ApplicationController
     if @order.save
       render nothing: true, status: 202
     else
-      render json: error_builder(@order), status: 402
+      render json: error_builder(@order), status: :unprocessable_entity
     end
   end
 
@@ -85,7 +85,7 @@ class OrdersController < ApplicationController
     if @order.save
       render nothing: true, status: 202
     else
-      render json: error_builder(@order), status: 402
+      render json: error_builder(@order), status: :unprocessable_entity
     end
   end
 
