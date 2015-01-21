@@ -29,7 +29,7 @@ class OrdersController < ApplicationController
 
   def update
     if @order.update(order_params)
-      render json: @order, serializer: OrderAfterCreationSerializer, status: 204
+      render json: @order, serializer: OrderAfterCreationSerializer, status: 200
     else
       render json: error_builder(@order), status: :unprocessable_entity
     end
