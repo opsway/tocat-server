@@ -158,7 +158,7 @@ frisby.create('Correct order creation')
     .afterJSON(function(order) {
       frisby.create('Update order with correct allocatable budget')
         .patch(url + '/order/' + order.id, {allocatable_budget: 120})
-        .expectStatus(201)
+        .expectStatus(204)
         .toss();
 
       frisby.create('Update order with allocatable budget greater than invoiced')
