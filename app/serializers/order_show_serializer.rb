@@ -16,6 +16,10 @@ class OrderShowSerializer < ActiveModel::Serializer
 
   private
 
+  def free_budget
+    object.free_budget.to_f
+  end
+
   def invoiced_budget
     object.invoiced_budget.to_f
   end
