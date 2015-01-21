@@ -1,7 +1,3 @@
-// Free budget is filled in on order creation
-// free_budget = invoiced-allocatable
-
-
 var frisby = require('frisby');
 var url = 'http://tocat.opsway.com';
 
@@ -24,9 +20,6 @@ frisby.create('Create Order: set allocatable budget more than invoiced')
     .expectJSON({error:'ORDER_ERROR'})
     .expectBodyContains('Allocatable budget should be less or equal')
     .toss();
-
-
-
 
 
 frisby.create('Create Order: set allocatable budget equal to invoiced')
@@ -156,6 +149,12 @@ frisby.create('Correct order creation')
         )
     .expectStatus(201)
     .afterJSON(function(order) {
+      frisby.create("Check free budget upon order creation")
+        .get(url + '/order/' + order.id)
+        .expectStatus(200)
+        .expectJSON({'free_budget' : 100})
+        .toss();
+
       frisby.create('Update order with correct allocatable budget')
         .patch(url + '/order/' + order.id, {allocatable_budget: 120})
         .expectStatus(204)
