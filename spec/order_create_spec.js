@@ -3,15 +3,15 @@
 
 
 var frisby = require('frisby');
-var url = 'tocat.opsway.com';
+var url = 'http://localhost:3000';
 
 frisby.create('Create Order: set allocatable budget more than invoiced')
-    .post(url + '/order', 
+    .post(url + '/order',
 
     	{
-          "invoiced_budget": 150.00, 
-          "allocatable_budget": 600.00, 
-          "name" : "Test", 
+          "invoiced_budget": 150.00,
+          "allocatable_budget": 600.00,
+          "name" : "Test",
           "description" : "This is just a test order for SuperClient",
           "team":  {
             "id" : 1
@@ -36,12 +36,12 @@ frisby.create('Create Order: set allocatable budget more than invoiced')
 
 
 frisby.create('Create Order: set allocatable budget equal to invoiced')
-    .post(url + '/order', 
+    .post(url + '/order',
 
     	{
-          "invoiced_budget": 150.00, 
-          "allocatable_budget": 150.00, 
-          "name" : "Test", 
+          "invoiced_budget": 150.00,
+          "allocatable_budget": 150.00,
+          "name" : "Test",
           "description" : "This is just a test order for SuperClient",
           "team":  {
             "id" : 1
@@ -53,12 +53,12 @@ frisby.create('Create Order: set allocatable budget equal to invoiced')
     .toss();
 
 frisby.create('Create Order: set allocatable budget less than zero')
-    .post(url + '/order', 
+    .post(url + '/order',
 
     	{
-          "invoiced_budget": 150.00, 
-          "allocatable_budget": -10, 
-          "name" : "Test", 
+          "invoiced_budget": 150.00,
+          "allocatable_budget": -10,
+          "name" : "Test",
           "description" : "This is just a test order for SuperClient",
           "team":  {
             "id" : 1
@@ -69,15 +69,15 @@ frisby.create('Create Order: set allocatable budget less than zero')
     .expectStatus(422)
     .expectJSON({error:'ORDER_ERROR'})
     .expectBodyContains('Allocatable should be more than zero')
-    .toss();  
+    .toss();
 
 frisby.create('Create Order: set allocatable budget to zero')
-    .post(url + '/order', 
+    .post(url + '/order',
 
     	{
-          "invoiced_budget": 150.00, 
-          "allocatable_budget": 0, 
-          "name" : "Test", 
+          "invoiced_budget": 150.00,
+          "allocatable_budget": 0,
+          "name" : "Test",
           "description" : "This is just a test order for SuperClient",
           "team":  {
             "id" : 1
@@ -85,16 +85,16 @@ frisby.create('Create Order: set allocatable budget to zero')
         }
 
         )
-    .expectStatus(200)
-    .toss();    
+    .expectStatus(201)
+    .toss();
 
 frisby.create('Create Order: set invoiced budget less than zero')
-    .post(url + '/order', 
+    .post(url + '/order',
 
     	{
-          "invoiced_budget": -10, 
-          "allocatable_budget": -20, 
-          "name" : "Test", 
+          "invoiced_budget": -10,
+          "allocatable_budget": -20,
+          "name" : "Test",
           "description" : "This is just a test order for SuperClient",
           "team":  {
             "id" : 1
@@ -105,16 +105,16 @@ frisby.create('Create Order: set invoiced budget less than zero')
     .expectStatus(422)
     .expectJSON({error:'ORDER_ERROR'})
     .expectBodyContains('Invoiced budget should be greater or equal to 0')
-    .toss();  
+    .toss();
 
 
 frisby.create('Create Order: name can not be empty')
-    .post(url + '/order', 
+    .post(url + '/order',
 
     	{
-          "invoiced_budget": 10, 
-          "allocatable_budget": 5, 
-          "name" : "", 
+          "invoiced_budget": 10,
+          "allocatable_budget": 5,
+          "name" : "",
           "description" : "This is just a test order for SuperClient",
           "team":  {
             "id" : 1
@@ -125,15 +125,15 @@ frisby.create('Create Order: name can not be empty')
     .expectStatus(422)
     .expectJSON({error:'ORDER_ERROR'})
     .expectBodyContains('Order name can not be empty')
-    .toss(); 
+    .toss();
 
 frisby.create('Create Order: check team exists')
-    .post(url + '/order', 
+    .post(url + '/order',
 
     	{
-          "invoiced_budget": 20, 
-          "allocatable_budget": 10, 
-          "name" : "Test order", 
+          "invoiced_budget": 20,
+          "allocatable_budget": 10,
+          "name" : "Test order",
           "description" : "This is just a test order for SuperClient",
           "team":  {
             "id" : 999999999
@@ -144,15 +144,15 @@ frisby.create('Create Order: check team exists')
     .expectStatus(422)
     .expectJSON({error:'ORDER_ERROR'})
     .expectBodyContains('Team does not exists')
-    .toss();  
+    .toss();
 
 frisby.create('Correct order creation')
-    .post(url + '/order', 
+    .post(url + '/order',
 
       {
-          "invoiced_budget": 150.00, 
-          "allocatable_budget": 100.00, 
-          "name" : "Test", 
+          "invoiced_budget": 150.00,
+          "allocatable_budget": 100.00,
+          "name" : "Test",
           "description" : "This is just a test order for SuperClient",
           "team":  {
             "id" : 1
@@ -192,4 +192,4 @@ frisby.create('Correct order creation')
         .toss();
 
       })
-    .toss(); 
+    .toss();

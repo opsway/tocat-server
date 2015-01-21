@@ -16,6 +16,14 @@ class OrderShowSerializer < ActiveModel::Serializer
 
   private
 
+  def invoiced_budget
+    object.invoiced_budget.to_f
+  end
+
+  def allocatable_budget
+    object.allocatable_budget.to_f
+  end
+
   def parent_order
     data = {}
     if object.parent # FIXME

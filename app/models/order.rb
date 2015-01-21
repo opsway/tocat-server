@@ -2,11 +2,11 @@ class Order < ActiveRecord::Base
   validates :name, presence: { message: "Order name can not be empty" }
   validates :team_id, presence: true
   validates_numericality_of :invoiced_budget,
-                            :greater_than => 0,
-                            :message => "Invoiced budget should be less or equal"
+                            greater_than: 0,
+                            message: "Invoiced budget should be greater or equal to 0"
   validates_numericality_of :allocatable_budget,
-                            :greater_than => 0,
-                            :message => "Allocatable budget should be less or equal"
+                            greater_than_or_equal_to: 0,
+                            message: "Allocatable should be more than zero"
   validates_presence_of :invoiced_budget
   validates_presence_of :allocatable_budget
 
@@ -22,8 +22,18 @@ class Order < ActiveRecord::Base
   belongs_to :parent, class_name: 'Order'
 
   before_save :set_free_budget
+  before_save :check_inheritance
 
   private
+
+  def check_inheritance
+    if new_record? && parent.present?
+      if self.parent.parent.present?
+        errors[:base] << 'Suborder can not be created from another suborder'
+        false
+      end
+    end
+  end
 
   def check_budgets
     if allocatable_budget.present? && invoiced_budget.present?
