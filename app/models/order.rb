@@ -99,7 +99,7 @@ class Order < ActiveRecord::Base
         val = parent.free_budget - invoiced_budget
         parent.update_attributes(free_budget: val)
       end
-      self.free_budget = invoiced_budget - allocatable_budget
+      self.free_budget = allocatable_budget
     elsif invoiced_budget_changed?
       if parent
         val = parent.free_budget - invoiced_budget
