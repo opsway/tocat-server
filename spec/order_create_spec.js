@@ -1,5 +1,5 @@
 var frisby = require('frisby');
-var url = 'http://tocat.opsway.com';
+var url = 'http://localhost:3000';
 
 
 frisby.create('Create Order: set allocatable budget more than invoiced')
@@ -73,7 +73,7 @@ frisby.create('Create Order: set allocatable budget to zero')
 
         )
     .expectStatus(201)
-    .toss();    
+    .toss();
 
 frisby.create('Create Order: set invoiced budget less than zero')
     .post(url + '/order',
