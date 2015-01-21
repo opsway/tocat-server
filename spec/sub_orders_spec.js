@@ -47,9 +47,10 @@ frisby.create('Correct order creation')
         .post(url + '/order/' + order.id + '/suborder', {'allocatable_budget': 50, 'team' : {'id' : 2}, 'name' : 'super order'})
         .expectStatus(201)
         .afterJSON(function(subOrder) {
-          frisby.create('Invoiced budget should be equal to allocatable') // why free_budget = 50? it suppouse to be 0
+          frisby.create('Invoiced budget should be equal to allocatable')
             .get(url + '/order/' + subOrder.id)
             .expectStatus(200)
+            // .inspectBody()
             .expectJSON({'invoiced_budget' : 50, 'free_budget' : 50, 'parent_order' : {'id' : order.id, "href" : "/order/" + subOrder.id}})
             .toss();
 
@@ -73,7 +74,7 @@ frisby.create('Correct order creation')
             .expectBodyContains('Suborder can not be invoiced more than parent free budget')
             .toss();
 
-          
+
 
           frisby.create('Create second suborder from parent order')
             .post(url + '/order/' + order.id + '/suborder', {'allocatable_budget': 20, 'team' : {'id' : 2}, 'name' : 'super order'})
@@ -86,13 +87,13 @@ frisby.create('Correct order creation')
                 .toss()
             });
 
-          frisby.create('Update suborder budgets') //why 204(no content) Update action response with 201 and id of updated record, it checked in order_create_spec
+          frisby.create('Update suborder budgets')
             .patch(url + '/order/' + subOrder.id, {'allocatable_budget': 52, 'invoiced_budget' : 52})
             .expectStatus(204)
             .afterJSON(function(){
               frisby.create('Allocatable budget on parent order should decrease')
                 .get(url + '/order/' + order.id)
-                .inspectBody()
+                //.inspectBody()
                 .expectStatus(200)
                 .expectJSON({'allocatable_budget' : 28, 'free_budget' : 28})
                 .toss()
