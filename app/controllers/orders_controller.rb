@@ -29,7 +29,7 @@ class OrdersController < ApplicationController
 
   def update
     if @order.update(order_params)
-      render json: @order, serializer: OrderAfterCreationSerializer, status: 201
+      render json: @order, serializer: OrderAfterCreationSerializer, status: 204
     else
       render json: error_builder(@order), status: :unprocessable_entity
     end
@@ -37,13 +37,13 @@ class OrdersController < ApplicationController
 
   def destroy
     @order.destroy
-    render nothing: true, status: 204
+    render json: {}, status: 200
   end
 
   def set_invoice
     @order.invoice = Invoice.find(params[:invoice_id])
     if @order.save
-      render nothing: true, status: 202
+      render json: {}, status: 202
     else
       render json: error_builder(@order), status: :unprocessable_entity
     end
@@ -52,7 +52,7 @@ class OrdersController < ApplicationController
   def delete_invoice
     @order.invoice_id = nil
     if @order.save
-      render nothing: true, status: 202
+      render json: {}, status: 202
     else
       render json: error_builder(@order), status: :unprocessable_entity
     end
@@ -61,7 +61,7 @@ class OrdersController < ApplicationController
   def set_paid
     @order.paid = true
     if @order.save
-      render nothing: true, status: 202
+      render json: {}, status: 202
     else
       render json: error_builder(@order), status: :unprocessable_entity
     end
@@ -70,7 +70,7 @@ class OrdersController < ApplicationController
   def set_unpaid
     @order.paid = false
     if @order.save
-      render nothing: true, status: 202
+      render json: {}, status: 202
     else
       render json: error_builder(@order), status: :unprocessable_entity
     end
