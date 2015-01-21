@@ -3,7 +3,32 @@
 
 
 var frisby = require('frisby');
-var url = 'tocat.opsway.com';
+var url = 'http://tocat.opsway.com';
+
+frisby.create('Create Order: correct creation')
+    .post(url + '/order', 
+
+      {
+          "invoiced_budget": 150.00, 
+          "allocatable_budget": 100.00, 
+          "name" : "Test", 
+          "description" : "This is just a test order for SuperClient",
+          "team":  {
+            "id" : 1
+          }
+        }
+
+        )
+    .expectStatus(201)
+    .afterJSON(function(msg) {
+      frisby.create('Free budget should be as allocatable')
+            .get(url + '/order/' + msg.id)
+            .expectStatus(200)
+            .expectJSON({'invoiced_budget' : 150, 'allocatable_budget' : 100, 'free_budget' : 100})
+            .toss()
+      })
+    .toss();
+
 
 frisby.create('Create Order: set allocatable budget more than invoiced')
     .post(url + '/order', 
@@ -22,13 +47,6 @@ frisby.create('Create Order: set allocatable budget more than invoiced')
     .expectStatus(422)
     .expectJSON({error:'ORDER_ERROR'})
     .expectBodyContains('Allocatable budget should be less or equal')
-    .afterJSON(function(msg) {
-      frisby.create('Invoiced budget should be equal to allocatable')
-            .get(url + '/order/' + msg.id)
-            .expectStatus(200)
-            .expectJSON({'invoiced_budget' : 50, 'free_budget' : 50, 'parent_order' : {'id' : id, "href" : "/order/" + msg.id}})
-            .toss()
-      })
     .toss();
 
 
@@ -85,7 +103,7 @@ frisby.create('Create Order: set allocatable budget to zero')
         }
 
         )
-    .expectStatus(200)
+    .expectStatus(201)
     .toss();    
 
 frisby.create('Create Order: set invoiced budget less than zero')
