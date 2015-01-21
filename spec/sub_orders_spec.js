@@ -50,7 +50,7 @@ frisby.create('Correct order creation')
           frisby.create('Invoiced budget should be equal to allocatable')
             .get(url + '/order/' + subOrder.id)
             .expectStatus(200)
-            .expectJSON({'invoiced_budget' : 50, 'free_budget' : 50, 'parent_order' : {'id' : order.id, "href" : "/order/" + subOrder.id}})
+            .expectJSON({'invoiced_budget' : 50, 'free_budget' : 50, 'parent_order' : {'id' : order.id, "href" : "/order/" + order.id}})
             .toss();
 
           frisby.create('Allocatable budget on parent order should decrease')
