@@ -47,7 +47,7 @@ frisby.create('Correct order creation')
         .post(url + '/order/' + order.id + '/suborder', {'allocatable_budget': 50, 'team' : {'id' : 2}, 'name' : 'super order'})
         .expectStatus(201)
         .afterJSON(function(subOrder) {
-          frisby.create('Invoiced budget should be equal to allocatable') // why free_budget = 50? it suppouse to be 0
+          frisby.create('Invoiced budget should be equal to allocatable') 
             .get(url + '/order/' + subOrder.id)
             .expectStatus(200)
             .expectJSON({'invoiced_budget' : 50, 'free_budget' : 50, 'parent_order' : {'id' : order.id, "href" : "/order/" + subOrder.id}})
