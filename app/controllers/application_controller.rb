@@ -1,5 +1,5 @@
 class ApplicationController < ActionController::API
-  before_filter :check_format
+  #before_filter :check_format
   include ActionController::Serialization
 
   def default_serializer_options
@@ -18,6 +18,8 @@ class ApplicationController < ActionController::API
   private
 
   def check_format
+    return true if %w(GET DELETE).include? request.method
+    #binding.pry
     if request.format != Mime::JSON || request.content_type != 'application/json'
       render json: { error: 'ERROR', message: "Format #{request.content_type} not supported for #{request.path}" }
       return 0

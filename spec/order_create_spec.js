@@ -3,7 +3,7 @@
 
 
 var frisby = require('frisby');
-var url = 'http://localhost:3000';
+var url = 'http://tocat.opsway.com';
 
 frisby.create('Create Order: set allocatable budget more than invoiced')
     .post(url + '/order',
