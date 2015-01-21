@@ -80,11 +80,7 @@ frisby.create('Create Order: set allocatable budget to zero')
 
         )
     .expectStatus(201)
-<<<<<<< HEAD
     .toss();    
-=======
-    .toss();
->>>>>>> 65cd8fcaab2bbc84f76c3f6cb7d6b4174a21ba6f
 
 frisby.create('Create Order: set invoiced budget less than zero')
     .post(url + '/order',
