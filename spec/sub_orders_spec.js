@@ -2,15 +2,15 @@
 // Fail delete when parent order completed
 
 var frisby = require('frisby');
-var url = 'http://tocat.opsway.com';
+var url = 'http://localhost:3000';
 
 frisby.create('Correct order creation')
-    .post(url + '/order', 
+    .post(url + '/order',
 
         {
-          "invoiced_budget": 150.00, 
-          "allocatable_budget": 100.00, 
-          "name" : "Test", 
+          "invoiced_budget": 150.00,
+          "allocatable_budget": 100.00,
+          "name" : "Test",
           "description" : "This is just a test order for SuperClient",
           "team":  {
             "id" : 1
@@ -47,7 +47,7 @@ frisby.create('Correct order creation')
         .post(url + '/order/' + order.id + '/suborder', {'allocatable_budget': 50, 'team' : {'id' : 2}, 'name' : 'super order'})
         .expectStatus(201)
         .afterJSON(function(subOrder) {
-          frisby.create('Invoiced budget should be equal to allocatable')
+          frisby.create('Invoiced budget should be equal to allocatable') // why free_budget = 50? it suppouse to be 0
             .get(url + '/order/' + subOrder.id)
             .expectStatus(200)
             .expectJSON({'invoiced_budget' : 50, 'free_budget' : 50, 'parent_order' : {'id' : order.id, "href" : "/order/" + subOrder.id}})
@@ -86,7 +86,7 @@ frisby.create('Correct order creation')
                 .toss()
             });
 
-          frisby.create('Update suborder budgets')
+          frisby.create('Update suborder budgets') //why 204(no content) Update action response with 201 and id of updated record, it checked in order_create_spec
             .patch(url + '/order/' + subOrder.id, {'allocatable_budget': 52, 'invoiced_budget' : 52})
             .expectStatus(204)
             .afterJSON(function(){

@@ -15,19 +15,23 @@ class OrdersController < ApplicationController
 
   def create
     @order = Order.new(order_params)
-    @order.team_id = params[:team][:id]
-    if @order.save
-      render nothing: true, status: 201
+    if params[:team].present? && params[:team][:id]
+      @order.team_id = params[:team][:id]
+      if @order.save
+        render json: @order, serializer: OrderAfterCreationSerializer, status: 201
+      else
+        render json: error_builder(@order), status: :unprocessable_entity
+      end
     else
-      render json: error_builder(@order), status: 402
+      render json: { error: 'ORDER_ERROR', message: 'Team value is missing' }, status: :unprocessable_entity
     end
   end
 
   def update
     if @order.update(order_params)
-      render nothing: true, status: 202
+      render json: @order, serializer: OrderAfterCreationSerializer, status: 201
     else
-      render json: error_builder(@order), status: 402
+      render json: error_builder(@order), status: :unprocessable_entity
     end
   end
 
@@ -41,7 +45,7 @@ class OrdersController < ApplicationController
     if @order.save
       render nothing: true, status: 202
     else
-      render json: error_builder(@order), status: 402
+      render json: error_builder(@order), status: :unprocessable_entity
     end
   end
 
@@ -50,7 +54,7 @@ class OrdersController < ApplicationController
     if @order.save
       render nothing: true, status: 202
     else
-      render json: error_builder(@order), status: 402
+      render json: error_builder(@order), status: :unprocessable_entity
     end
   end
 
@@ -59,7 +63,7 @@ class OrdersController < ApplicationController
     if @order.save
       render nothing: true, status: 202
     else
-      render json: error_builder(@order), status: 402
+      render json: error_builder(@order), status: :unprocessable_entity
     end
   end
 
@@ -68,7 +72,7 @@ class OrdersController < ApplicationController
     if @order.save
       render nothing: true, status: 202
     else
-      render json: error_builder(@order), status: 402
+      render json: error_builder(@order), status: :unprocessable_entity
     end
   end
 
@@ -79,13 +83,21 @@ class OrdersController < ApplicationController
 
   def create_suborder
     @order = Order.new(order_params)
+    unless params[:allocatable_budget]
+      render json: { error: 'ORDER_ERROR', message: 'Allocatable budget is missing' }, status: :unprocessable_entity
+      return 0
+    end
+    unless params[:team].present? && params[:team][:id].present?
+      render json: { error: 'ORDER_ERROR', message: 'Team value is missing' }, status: :unprocessable_entity
+      return 0
+    end
     @order.team_id = params[:team][:id]
     @order.invoiced_budget = order_params[:allocatable_budget]
     @order.parent = Order.find(params[:id])
     if @order.save
-      render nothing: true, status: 202
+      render json: @order, serializer: OrderAfterCreationSerializer, status: 201 # conflict
     else
-      render json: error_builder(@order), status: 402
+      render json: error_builder(@order), status: :unprocessable_entity
     end
   end
 
