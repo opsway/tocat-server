@@ -37,7 +37,7 @@ class OrdersController < ApplicationController
 
   def destroy
     @order.destroy
-    render json: {}, status:  :no_content
+    render json: {}, status: 200
   end
 
   def set_invoice

@@ -2,7 +2,7 @@
 // Fail delete when parent order completed
 
 var frisby = require('frisby');
-var url = 'http://localhost:3000';
+var url = 'http://tocat.opsway.com';
 
 frisby.create('Correct order creation')
     .post(url + '/order',
@@ -50,7 +50,6 @@ frisby.create('Correct order creation')
           frisby.create('Invoiced budget should be equal to allocatable')
             .get(url + '/order/' + subOrder.id)
             .expectStatus(200)
-            // .inspectBody()
             .expectJSON({'invoiced_budget' : 50, 'free_budget' : 50, 'parent_order' : {'id' : order.id, "href" : "/order/" + subOrder.id}})
             .toss();
 
@@ -93,7 +92,6 @@ frisby.create('Correct order creation')
             .afterJSON(function(){
               frisby.create('Allocatable budget on parent order should decrease')
                 .get(url + '/order/' + order.id)
-                //.inspectBody()
                 .expectStatus(200)
                 .expectJSON({'allocatable_budget' : 28, 'free_budget' : 28})
                 .toss()
@@ -109,7 +107,7 @@ frisby.create('Correct order creation')
 
           frisby.create('Delete suborder')
             .delete(url + '/order/' + subOrder.id)
-            .expectStatus(204)
+            .expectStatus(200)
             .afterJSON(function(){
               frisby.create('Allocatable budget on parent order should increase')
                 .get(url + '/order/' + order.id)
