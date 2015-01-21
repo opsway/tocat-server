@@ -50,10 +50,11 @@ class Order < ActiveRecord::Base
   end
 
   def increase_budgets
-    # if new_record? && parent.present?
-    #   val = parent.allocatable_budget - allocatable_budget
-    #   parent.update_attributes(allocatable_budget: val)
-    # end
+  #  binding.pry
+    if parent.present?
+      val = parent.allocatable_budget + allocatable_budget
+      parent.update_attributes(allocatable_budget: val)
+    end
   end
 
   def decrease_budgets
