@@ -1,5 +1,5 @@
-// Fail delete when financing issues
-// Fail delete when parent order completed
+//TODO Fail delete when financing issues
+//TODO Fail delete when parent order completed
 
 var frisby = require('frisby');
 var url = 'http://tocat.opsway.com';
