@@ -1,5 +1,5 @@
 var frisby = require('frisby');
-var url = 'http://localhost:3000';
+var url = 'http://tocat.opsway.com';
 
 
 frisby.create('Create Order: set allocatable budget more than invoiced')
@@ -157,7 +157,7 @@ frisby.create('Correct order creation')
 
       frisby.create('Update order with correct allocatable budget')
         .patch(url + '/order/' + order.id, {allocatable_budget: 120})
-        .expectStatus(204)
+        .expectStatus(200)
         .toss();
 
       frisby.create('Update order with allocatable budget greater than invoiced')
