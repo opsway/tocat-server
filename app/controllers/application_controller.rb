@@ -1,4 +1,8 @@
 class ApplicationController < ActionController::API
+  rescue_from ActionController::RoutingError, with: :render_405
+  rescue_from ActionController::UnknownHttpMethod, with: :render_405
+  rescue_from StandardError, with: :render_405
+  rescue_from Exception, with: :render_405
   #before_filter :check_format
   include ActionController::Serialization
 
@@ -15,11 +19,19 @@ class ApplicationController < ActionController::API
     { error: "#{object.class.name.upcase}_ERROR", message: message }
   end
 
+  def no_method
+    path  = '/' unless params[:path]
+    raise ActionController::RoutingError.new(path)
+  end
+
   private
+
+  def render_405
+    render json: { error: "ERROR", message: "Method #{request.method} on #{request.path} is not allowed" }, status: 405
+  end
 
   def check_format
     return true if %w(GET DELETE).include? request.method
-    #binding.pry
     if request.format != Mime::JSON || request.content_type != 'application/json'
       render json: { error: 'ERROR', message: "Format #{request.content_type} not supported for #{request.path}" }
       return 0
