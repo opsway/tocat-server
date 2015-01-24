@@ -13,7 +13,7 @@ frisby.create('Correct task creation')
       .expectJSON({'budget' : 0, 'paid' : false, 'resolver' : {}, 'accepted' : false, 'external_id' : 'TST-101'})
       .afterJSON(function(){
           frisby.create('Fields should not be updatable directly')
-            .post(url + '/task/' + task.id, 
+            .post(url + '/task/' + task.id,
             {
               'paid' : true,
               'budget' : 10,
@@ -22,7 +22,7 @@ frisby.create('Correct task creation')
               },
               'accepted' : true
             })
-            .expectStatus(405)
+            .expectStatus(404)
             .afterJSON(function(){
               frisby.create('Check that settings are not changed')
                 .get(url + '/task/' + task.id)
@@ -37,11 +37,7 @@ frisby.create('Correct task creation')
  .toss();
 
 frisby.create('Missed task external id')
-  .post(url + '/task',
-    {
-      "external_id": "TST-101"
-    }
-  )
+  .post(url + '/task',{})
  .expectStatus(422)
  .expectJSON({error:'TASK_ERROR'})
  .expectBodyContains('Missing external task ID')
@@ -85,7 +81,7 @@ frisby.create('Correct order creation')
                       },
                       {
                         'order_id' : order2.id,
-                        'budget'   : 150                        
+                        'budget'   : 150
                       }
                     ]})
                   .expectStatus(200)
@@ -97,7 +93,7 @@ frisby.create('Correct order creation')
                         .toss();
 
                       frisby.create('Check budgets')
-                        .get(url + '/task' + task.id + '/budget')
+                        .get(url + '/task/' + task.id + '/budget')
                         .expectStatus(200)
                         .expectJSON({
                           'budget' : [
@@ -107,7 +103,7 @@ frisby.create('Correct order creation')
                             },
                             {
                               'order_id' : order2.id,
-                              'budget'   : 150                        
+                              'budget'   : 150
                             }
                           ]}
                         )
