@@ -1,5 +1,3 @@
-//Test task financing from wrong team order
-
 var frisby = require('frisby');
 var url = 'http://tocat.opsway.com';
 
@@ -103,10 +101,17 @@ frisby.create('Correct order creation')
                             },
                             {
                               'order_id' : order2.id,
-                              'budget'   : 150
+                              'budget'   : 15000
                             }
                           ]}
                         )
+                        .afterJSON(function(){
+                          frisby.create()
+                            .post()
+                            .expectStatus(422)
+                            .expectJSON({error:'TASK_ERROR'})
+                            .expectBodyContains('You can not assign more budget than is available on order')
+                        })
                         .toss();
                   })
                   .toss();
@@ -118,3 +123,148 @@ frisby.create('Correct order creation')
       .toss();
   })
   .toss();
+
+
+  frisby.create('Missed task external id')
+  .post(url + '/task',{})
+ .expectStatus(422)
+ .expectJSON({error:'TASK_ERROR'})
+ .expectBodyContains('Missing external task ID')
+ .toss();
+
+
+frisby.create('Correct order creation for unusual team')
+  .post(url + '/order',
+       {
+          "invoiced_budget": 1500.00,
+          "allocatable_budget": 1000.00,
+          "name" : "Test",
+          "description" : "This is just a test order for SuperClient",
+          "team":  {
+            "id" : 2
+          }
+       })
+  .expectStatus(201)
+  .afterJSON(function(order) {
+    frisby.create('Second order creation')
+      .post(url + '/order',
+       {
+          "invoiced_budget": 2000.00,
+          "allocatable_budget": 500.00,
+          "name" : "Test2",
+          "description" : "This is just a test order for SuperClient",
+          "team":  {
+            "id" : 1
+          }
+       })
+      .afterJSON(function(order2){
+      frisby.create('Correct task creation')
+        .post(url + '/task', {"external_id": "TST-103" })
+        .expectStatus(201)
+        .afterJSON(function(task){
+          frisby.create('Set task Resolver from different team than we will try to budget')
+            .post(url + '/task/' + task.id + '/resolver', {'id' : 2})
+            .expectStatus(200)
+            .afterJSON(function(){
+              frisby.create('Check task Resolver')
+                .get(url + '/task/' + task.id)
+                .expectStatus(200)
+                .expectJSON({'resolver' : {'id' : 2}})
+                .afterJSON(function(){
+                  frisby.create('Set task budgets')
+                    .post(url + '/task/' + task.id + '/budget', {'budget' : [
+                      {
+                        'order_id' : order.id,
+                        'budget'   : 100
+                      },
+                      {
+                              'order_id' : order2.id,
+                              'budget'   : 150
+                      }
+                    ]})
+                    .expectStatus(422)
+                    .expectJSON({error:'TASK_ERROR'})
+                    .expectBodyContains('Task resolver is from different team than order')
+                    .afterJSON(function(){
+                      frisby.create('Remove resolver from task')
+                        .delete(url + '/task/' + task.id + '/resolver')
+                        .expectStatus(200)
+                        .afterJSON(function(){
+                          frisby.create('Check that there is no resolver in task')
+                            .get(url + '/task/' + task.id)
+                            .expectStatus(200)
+                            .expectJSON({'resolver' : {}})
+                            .afterJSON(function(){
+                              frisby.create('Set task budgets without resolver')
+                                .post(url + '/task/' + task.id + '/budget', {'budget' : [
+                                  {
+                                    'order_id' : order.id,
+                                    'budget'   : 100
+                                  },
+                                  {
+                                    'order_id' : order2.id,
+                                    'budget'   : 150
+                                  } 
+                                ]})
+                                .expectStatus(422)
+                                .expectJSON({error: 'TASK_ERROR'})
+                                .expectBodyContains('Orders are create for different teams')
+                                .afterJSON(function(){
+                                  frisby.create('Set correct task budget')
+                                    .post(url + '/task/' + task.id + '/budget', {'budget' : [
+                                      {
+                                        'order_id' : order2.id,
+                                        'budget'   : 300
+                                      }]})
+                                      .expectStatus(200)
+                                      .afterJSON(function(){
+                                        frisby.create('Increase budget from the same order')
+                                          .post(url + '/task/' + task.id + '/budget',  {'budget' : [
+                                            {
+                                              'order_id' : order.id,
+                                              'budget'   : 450
+                                            }]})
+                                          .expectStatus(200)
+                                          .afterJSON(function(){
+                                            frisby.create()
+                                              .post(url + '/task/' + task.id + '/budget',  {'budget' : [
+                                                {
+                                                  'order_id' : order.id,
+                                                  'budget'   : 501
+                                                }]})
+                                              .expectStatus(422)
+                                              .expectJSON({error: 'TASK_ERROR'})
+                                              .expectBodyContains('You can not assign more budget than is available on order')
+                                              .afterJSON(function(){
+                                                frisby.create('Set task Resolver from different team than we set budget')
+                                                  .post(url + '/task/' + task.id + '/resolver', {'id' : 1})
+                                                  .expectStatus(422)
+                                                  .expectJSON({error:'TASK_ERROR'})
+                                                  .expectBodyContains('Task resolver is from different team than order')
+                                                  .toss();
+                                              })
+                                              .toss();
+                                          })
+                                          .toss();
+                                      })
+                                      .toss();
+                                  })
+                                .toss();
+                            })
+                            .toss();
+                        })
+                        .toss();
+                    })
+                    .toss();
+
+                })
+                .toss();
+
+            })
+            .toss();
+        })
+        .toss();
+  })
+  .toss();
+})
+.toss();
