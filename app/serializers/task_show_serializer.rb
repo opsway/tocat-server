@@ -15,7 +15,7 @@ class TaskShowSerializer < ActiveModel::Serializer
   end
 
   def budget
-    object.budget
+    object.budget.to_f
   end
 
   def resolver

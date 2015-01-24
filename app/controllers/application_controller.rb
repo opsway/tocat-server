@@ -12,7 +12,7 @@ class ApplicationController < ActionController::API
     else
       message = object.errors[:base][0]
     end
-    { error: 'ORDER_ERROR', message: message }
+    { error: "#{object.class.name.upcase}_ERROR", message: message }
   end
 
   private
