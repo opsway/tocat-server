@@ -1,5 +1,5 @@
 class Task < ActiveRecord::Base
-  validates :external_id, presence: true
+  validates :external_id,  presence: { message: "Missing external task ID" }
 
   has_many :task_orders, class_name: 'TaskOrders'
   has_many :orders, through: :task_orders

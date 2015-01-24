@@ -18,7 +18,7 @@ class OrdersController < ApplicationController
     if params[:team].present? && params[:team][:id]
       @order.team_id = params[:team][:id]
       if @order.save
-        render json: @order, serializer: OrderAfterCreationSerializer, status: 201
+        render json: @order, serializer: AfterCreationSerializer, status: 201
       else
         render json: error_builder(@order), status: :unprocessable_entity
       end
@@ -29,7 +29,7 @@ class OrdersController < ApplicationController
 
   def update
     if @order.update(order_params)
-      render json: @order, serializer: OrderAfterCreationSerializer, status: 200
+      render json: @order, serializer: AfterCreationSerializer, status: 200
     else
       render json: error_builder(@order), status: :unprocessable_entity
     end
