@@ -22,7 +22,7 @@ frisby.create('Correct task creation')
               },
               'accepted' : true
             })
-            .expectStatus(404)
+            .expectStatus(405)
             .afterJSON(function(){
               frisby.create('Check that settings are not changed')
                 .get(url + '/task/' + task.id)
