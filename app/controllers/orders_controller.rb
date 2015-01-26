@@ -95,7 +95,7 @@ class OrdersController < ApplicationController
     @order.invoiced_budget = order_params[:allocatable_budget]
     @order.parent = Order.find(params[:id])
     if @order.save
-      render json: @order, serializer: OrderAfterCreationSerializer, status: 201 # conflict
+      render json: @order, serializer: AfterCreationSerializer, status: 201 # conflict
     else
       render json: error_builder(@order), status: :unprocessable_entity
     end

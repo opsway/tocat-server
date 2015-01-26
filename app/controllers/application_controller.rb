@@ -1,8 +1,8 @@
 class ApplicationController < ActionController::API
   rescue_from ActionController::RoutingError, with: :render_405
   rescue_from ActionController::UnknownHttpMethod, with: :render_405
-  rescue_from StandardError, with: :render_405
-  rescue_from Exception, with: :render_405
+  #rescue_from StandardError, with: :render_405
+  #rescue_from Exception, with: :render_405
   #before_filter :check_format
   include ActionController::Serialization
 
