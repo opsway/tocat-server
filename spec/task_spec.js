@@ -1,3 +1,6 @@
+//TODO Accepted set/remove
+//DELETE task - not allowed
+
 var frisby = require('frisby');
 var url = 'http://tocat.opsway.com';
 
@@ -84,10 +87,48 @@ frisby.create('Correct order creation')
                     ]})
                   .expectStatus(200)
                   .afterJSON(function(){
+                      frisby.create('Test accepted status setup')
+                        .post(url + '/task' + task.id + '/accept')
+                        .expectStatus(200)
+                        .afterJSON(function(){
+                          frisby.create('Check accepted status in task')
+                            .get(url + '/task' + task.id)
+                            .expectJSON({'accepted' : true})
+                            .expectStatus(200)
+                            .toss();
+
+                          frisby.create('Remove accepted status')
+                            .delete(url + '/task' + task.id + '/accept')
+                            .expectStatus(200)
+                            .afterJSON(function(){
+                              frisby.create('Check accepted status in task')
+                                .get(url + '/task' + task.id)
+                                .expectJSON({'accepted' : false})
+                                .expectStatus(200)
+                                .toss();
+                            })
+                            .toss();
+                        })
+                        .toss();
+
                       frisby.create('Check updated budget')
                         .get(url + '/task/' + task.id)
                         .expectStatus(200)
                         .expectJSON({'budget' : 250})
+                        .toss();
+
+                      frisby.create('Do not delete order, when budget is used for tasks')
+                        .delete(url + '/order/' + order.id)
+                        .expectStatus(422)
+                        .expectJSON({error:'ORDER_ERROR'})
+                        .expectBodyContains('You can not delete order that is used in task budgeting')
+                        .toss();
+
+                      frisby.create('Do not delete order, when budget is used for tasks')
+                        .delete(url + '/order/' + order2.id)
+                        .expectStatus(422)
+                        .expectJSON({error:'ORDER_ERROR'})
+                        .expectBodyContains('You can not delete order that is used in task budgeting')
                         .toss();
 
                       frisby.create('Check budgets')
@@ -111,6 +152,7 @@ frisby.create('Correct order creation')
                             .expectStatus(422)
                             .expectJSON({error:'TASK_ERROR'})
                             .expectBodyContains('You can not assign more budget than is available on order')
+                            .toss();
                         })
                         .toss();
                   })
@@ -208,7 +250,7 @@ frisby.create('Correct order creation for unusual team')
                                 ]})
                                 .expectStatus(422)
                                 .expectJSON({error: 'TASK_ERROR'})
-                                .expectBodyContains('Orders are create for different teams')
+                                .expectBodyContains('Orders are created for different teams')
                                 .afterJSON(function(){
                                   frisby.create('Set correct task budget')
                                     .post(url + '/task/' + task.id + '/budget', {'budget' : [

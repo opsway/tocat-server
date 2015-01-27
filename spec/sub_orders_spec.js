@@ -1,5 +1,5 @@
-//TODO Fail delete when financing issues
 //TODO Fail delete when parent order completed
+//Uncomplete parent order when changing budget
 
 var frisby = require('frisby');
 var url = 'http://tocat.opsway.com';
@@ -74,7 +74,12 @@ frisby.create('Correct order creation')
             .expectBodyContains('Suborder can not be invoiced more than parent free budget')
             .toss();
 
-
+          frisby.create('Do not delete order, when there is a suborder')
+            .delete(url + '/order/' + order.id)
+            .expectStatus(422)
+            .expectJSON({error:'ORDER_ERROR'})
+            .expectBodyContains('You can not delete order when there is a suborder')
+            .toss();
 
           frisby.create('Create second suborder from parent order')
             .post(url + '/order/' + order.id + '/suborder', {'allocatable_budget': 20, 'team' : {'id' : 2}, 'name' : 'super order'})
