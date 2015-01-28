@@ -1,6 +1,3 @@
-//TODO Accepted set/remove
-//DELETE task - not allowed
-
 var frisby = require('frisby');
 var url = 'http://tocat.opsway.com';
 
@@ -13,6 +10,11 @@ frisby.create('Correct task creation')
       .expectStatus(200)
       .expectJSON({'budget' : 0, 'paid' : false, 'resolver' : {}, 'accepted' : false, 'external_id' : 'TST-101'})
       .afterJSON(function(){
+          frisby.create('DELETE task - not allowed')
+            .delete(url + '/task' + task.id)
+            .expectStatus(405)
+            .toss();
+            
           frisby.create('Fields should not be updatable directly')
             .post(url + '/task/' + task.id,
             {
