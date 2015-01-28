@@ -21,7 +21,7 @@ class TasksController < ApplicationController
 
   # def update
   #   if @task.update(task_params)
-  #     render nothing: true, status: 202
+  #     render json: {}, status: 202
   #   else
   #     render json: error_builder(@task), status: :unprocessable_entity
   #   end
@@ -29,13 +29,13 @@ class TasksController < ApplicationController
 
   def destroy
     @task.destroy
-    render nothing: true, status: 204
+    render json: {}, status: 204
   end
 
   def set_accepted
     @task.accepted = true
     if @task.save
-      render nothing: true, status: 202
+      render json: {}, status: 200
     else
       render json: error_builder(@task), status: :unprocessable_entity
     end
@@ -44,7 +44,7 @@ class TasksController < ApplicationController
   def delete_accepted
     @task.accepted = false
     if @task.save
-      render nothing: true, status: 202
+      render json: {}, status: 200
     else
       render json: error_builder(@task), status: :unprocessable_entity
     end
@@ -55,7 +55,7 @@ class TasksController < ApplicationController
     if user.present?
       @task.user = user.first
       if @task.save
-        render nothing: true, status: 202
+        render json: {}, status: 200
       else
         render json: error_builder(@task), status: :unprocessable_entity
       end
@@ -67,7 +67,7 @@ class TasksController < ApplicationController
   def delete_resolver
     @task.user_id = nil
     if @task.save
-      render nothing: true, status: 202
+      render json: {}, status: 200
     else
       render json: error_builder(@task), status: :unprocessable_entity
     end
@@ -77,13 +77,12 @@ class TasksController < ApplicationController
     if @task.task_orders.present?
       render json: @task.task_orders, each_serializer: TaskOrdersSerializer, root: "budget"
     else
-      render nothing: true, status: 204
+      render json: {}, status: 204
     end
   end
 
   def set_budgets
     errors = {}
-    #binding.pry
     params[:budget].each do |record|
       db_record = TaskOrders.where(task_id: @task.id, order_id: record[1]['order_id']).first
       if db_record.present?
