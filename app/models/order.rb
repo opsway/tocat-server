@@ -28,8 +28,16 @@ class Order < ActiveRecord::Base
   before_save :set_free_budget
   before_save :decrease_budgets
   after_destroy :increase_budgets
+  before_destroy :check_if_order_has_tasks
 
   private
+
+  def check_if_order_has_tasks
+    if tasks.present?
+      errors[:base] << 'You can not delete order that is used in task budgeting'
+      return false
+    end
+  end
 
   def check_sub_order_after_update
     if parent.present?
@@ -50,7 +58,6 @@ class Order < ActiveRecord::Base
   end
 
   def increase_budgets
-  #  binding.pry
     if parent.present?
       val = parent.allocatable_budget + allocatable_budget
       parent.update_attributes(allocatable_budget: val)

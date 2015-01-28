@@ -14,7 +14,7 @@ frisby.create('Correct task creation')
             .delete(url + '/task' + task.id)
             .expectStatus(405)
             .toss();
-            
+
           frisby.create('Fields should not be updatable directly')
             .post(url + '/task/' + task.id,
             {
@@ -90,21 +90,21 @@ frisby.create('Correct order creation')
                   .expectStatus(200)
                   .afterJSON(function(){
                       frisby.create('Test accepted status setup')
-                        .post(url + '/task' + task.id + '/accept')
+                        .post(url + '/task/' + task.id + '/accept')
                         .expectStatus(200)
                         .afterJSON(function(){
                           frisby.create('Check accepted status in task')
-                            .get(url + '/task' + task.id)
+                            .get(url + '/task/' + task.id)
                             .expectJSON({'accepted' : true})
                             .expectStatus(200)
                             .toss();
 
                           frisby.create('Remove accepted status')
-                            .delete(url + '/task' + task.id + '/accept')
+                            .delete(url + '/task/' + task.id + '/accept')
                             .expectStatus(200)
                             .afterJSON(function(){
                               frisby.create('Check accepted status in task')
-                                .get(url + '/task' + task.id)
+                                .get(url + '/task/' + task.id)
                                 .expectJSON({'accepted' : false})
                                 .expectStatus(200)
                                 .toss();
@@ -144,7 +144,7 @@ frisby.create('Correct order creation')
                             },
                             {
                               'order_id' : order2.id,
-                              'budget'   : 15000
+                              'budget'   : 150
                             }
                           ]}
                         )
@@ -207,7 +207,7 @@ frisby.create('Correct order creation for unusual team')
         .expectStatus(201)
         .afterJSON(function(task){
           frisby.create('Set task Resolver from different team than we will try to budget')
-            .post(url + '/task/' + task.id + '/resolver', {'id' : 2})
+            .post(url + '/task/' + task.id + '/resolver', {'user_id' : 2})
             .expectStatus(200)
             .afterJSON(function(){
               frisby.create('Check task Resolver')
@@ -248,7 +248,7 @@ frisby.create('Correct order creation for unusual team')
                                   {
                                     'order_id' : order2.id,
                                     'budget'   : 150
-                                  } 
+                                  }
                                 ]})
                                 .expectStatus(422)
                                 .expectJSON({error: 'TASK_ERROR'})
@@ -281,7 +281,7 @@ frisby.create('Correct order creation for unusual team')
                                               .expectBodyContains('You can not assign more budget than is available on order')
                                               .afterJSON(function(){
                                                 frisby.create('Set task Resolver from different team than we set budget')
-                                                  .post(url + '/task/' + task.id + '/resolver', {'id' : 1})
+                                                  .post(url + '/task/' + task.id + '/resolver', {'user_id' : 1})
                                                   .expectStatus(422)
                                                   .expectJSON({error:'TASK_ERROR'})
                                                   .expectBodyContains('Task resolver is from different team than order')

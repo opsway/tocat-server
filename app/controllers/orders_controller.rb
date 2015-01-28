@@ -36,8 +36,11 @@ class OrdersController < ApplicationController
   end
 
   def destroy
-    @order.destroy
-    render json: {}, status: 200
+    if @order.destroy
+      render json: {}, status: 200
+    else
+      render json: error_builder(@order), status: :unprocessable_entity
+    end
   end
 
   def set_invoice
