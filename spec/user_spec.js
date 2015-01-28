@@ -1,0 +1,1 @@
+//Manager as resolver - no balance changes
