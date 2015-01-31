@@ -44,12 +44,15 @@ class OrdersController < ApplicationController
   end
 
   def set_invoice
-    @order.invoice = Invoice.find(params[:invoice_id])
+    @order.invoices << Invoice.find(params[:invoice_id])
     if @order.save
-      render json: {}, status: 202
+      render json: {}, status: 200
     else
       render json: error_builder(@order), status: :unprocessable_entity
     end
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: 'ORDER_ERROR', message: 'Invoice does not exist'},
+           status: :unprocessable_entity
   end
 
   def delete_invoice

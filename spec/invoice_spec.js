@@ -45,14 +45,14 @@ frisby.create('Correct invoice')
         .expectStatus(201)
         .afterJSON(function(order){
           frisby.create('Invoice order with inexistent invoice')
-            .post(url + '/order/' + order.id + '/invoice', {'id' : 99999999})
+            .post(url + '/order/' + order.id + '/invoice', {'invoice_id' : 99999999})
             .expectStatus(422)
             .expectJSON({error:'ORDER_ERROR'})
             .expectBodyContains('Invoice does not exist')
             .toss();
 
           frisby.create('Invoice order with correct invoice')
-            .post(url + '/order/' + order.id + '/invoice', {'id' : invoice.id})
+            .post(url + '/order/' + order.id + '/invoice', {'invoice_id' : invoice.id})
             .expectStatus(200)
             .toss();
 
@@ -89,7 +89,7 @@ frisby.create('Correct invoice')
                           .expectStatus(200)
                           .afterJSON(function(){
                             frisby.create('Set task Resolver')
-                              .post(url + '/task/' + task.id + '/resolver', {'id' : 1})
+                              .post(url + '/task/' + task.id + '/resolver', {'user_id' : 1})
                               .expectStatus(200)
                               .afterJSON(function(){
                                 frisby.create('Another task creation')
@@ -106,7 +106,8 @@ frisby.create('Correct invoice')
                                         .expectStatus(200)
                                         .afterJSON(function(){
                                           frisby.create('Set task Resolver')
-                                            .post(url + '/task/' + task2.id + '/resolver', {'id' : 2})
+                                            .post(url + '/task/' + task2.id + '/resolver', {'user_id' : 2})
+                                            .inspectBody()
                                             .expectStatus(200)
                                             .afterJSON(function(){
 
@@ -242,7 +243,7 @@ frisby.create('Correct invoice')
                                                                                                             .expectJSON({'paid' : false})
                                                                                                             .toss();
                                                                                                         })
-                                                                                                        .toss(); 
+                                                                                                        .toss();
                                                                                                   })
                                                                                                   .toss();
                                                                                             })
@@ -263,7 +264,7 @@ frisby.create('Correct invoice')
                                                               })
                                                               .toss();
                                                         })
-                                                        .toss();                                                    
+                                                        .toss();
                                                     })
                                                     .toss();
                                                 })
@@ -286,4 +287,3 @@ frisby.create('Correct invoice')
         .toss();
     })
     .toss();
-

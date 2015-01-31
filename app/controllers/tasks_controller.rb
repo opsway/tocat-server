@@ -34,6 +34,7 @@ class TasksController < ApplicationController
 
   def set_accepted
     @task.accepted = true
+    @task.paid = true
     if @task.save
       render json: {}, status: 200
     else
