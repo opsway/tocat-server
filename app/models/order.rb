@@ -19,7 +19,7 @@ class Order < ActiveRecord::Base
 
   belongs_to :team
   has_many :invoices
-  has_many :task_orders, class_name: 'TaskOrders'
+  has_many :task_orders, class_name: 'TaskOrders', dependent: :destroy
   has_many :tasks, through: :task_orders
 
   has_many :sub_orders, class_name: 'Order', foreign_key: 'parent_id'

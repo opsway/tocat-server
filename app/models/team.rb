@@ -1,7 +1,7 @@
 class Team < ActiveRecord::Base
   validates :name, presence: true
   has_many :orders
-  has_many :accounts, as: :accountable
+  has_many :accounts, as: :accountable, dependent: :destroy
   has_many :users
 
   after_create :create_accounts
