@@ -5,7 +5,7 @@
 
 
 var frisby = require('frisby');
-var url = 'http://tocat.opsway.com';
+var url = 'http://localhost:3000';
 
 
 frisby.create('Correct invoice')

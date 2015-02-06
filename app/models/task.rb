@@ -2,7 +2,7 @@ class Task < ActiveRecord::Base
   validates :external_id,  presence: { message: "Missing external task ID" }
   validate :check_resolver_team, if: Proc.new { |o| o.user_id_changed? }
 
-  has_many :task_orders, class_name: 'TaskOrders'
+  has_many :task_orders, class_name: 'TaskOrders', dependent: :destroy
   has_many :orders, through: :task_orders
 
   belongs_to :user

@@ -11,7 +11,7 @@ class User < ActiveRecord::Base
   belongs_to :role
 
   has_many :transactions
-  has_many :accounts, as: :accountable
+  has_many :accounts, as: :accountable, dependent: :destroy
   has_many :tasks
 
   before_save :normalize_data
