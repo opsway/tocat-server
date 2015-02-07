@@ -104,7 +104,7 @@ Rails.application.routes.draw do
        format: 'json'
 
   delete '/invoice/:id/paid',
-         to: 'invoicess#delete_paid',
+         to: 'invoices#delete_paid',
          as: 'invoice_remove_paid',
          format: 'json'
   match '*path', to: 'application#no_method', via: :all
