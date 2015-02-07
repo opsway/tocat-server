@@ -13,6 +13,10 @@ class UserShowSerializer < ActiveModel::Serializer
 
   private
 
+  def daily_rate
+    object.daily_rate.to_f
+  end
+
   def team
     data = {}
     data[:name] = object.team.name
@@ -39,10 +43,10 @@ class UserShowSerializer < ActiveModel::Serializer
   end
 
   def balance_account_state
-    { total: object.balance_account.balance }
+    object.balance_account.balance.to_f
   end
 
   def income_account_state
-    { total: object.income_account.balance }
+    object.income_account.balance.to_f
   end
 end
