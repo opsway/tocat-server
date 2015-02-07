@@ -5,6 +5,8 @@ class Task < ActiveRecord::Base
   has_many :task_orders, class_name: 'TaskOrders', dependent: :destroy
   has_many :orders, through: :task_orders
 
+  after_save :update_balance_accounts, if: Proc.new { |o| (o.paid_changed? || o.accepted_changed?) && user.present?}
+
   belongs_to :user
 
   def resolver
@@ -34,6 +36,13 @@ class Task < ActiveRecord::Base
     end
     if user.team != team
       errors[:base] << "Task resolver is from different team than order"
+    end
+  end
+
+  def update_balance_accounts
+    if accepted && paid
+      user.balance_account += bugdet
+      user.team.balance_account += budget
     end
   end
 end
