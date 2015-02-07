@@ -7,7 +7,6 @@
 var frisby = require('frisby');
 var url = 'http://localhost:3000';
 
-
 frisby.create('Correct invoice')
     .post(url + '/invoice',
 
@@ -147,14 +146,14 @@ frisby.create('Correct invoice')
                                                                   .get(url + '/user/3')
                                                                   .expectStatus(200)
                                                                   .afterJSON(function(user){
-                                                                      expect(user.balance_account_state).equals(balance_user_1 + 50);
+                                                                      expect(user.balance_account_state).toBe(balance_user_1 + 50);
                                                                   })
                                                                   .toss();
                                                                 frisby.create('Check that team3 balance is updated')
                                                                   .get(url + '/team/3')
                                                                   .expectStatus(200)
                                                                   .afterJSON(function(team){
-                                                                      expect(team.balance_account_state).equals(balance_team_1 + 50);
+                                                                      expect(team.balance_account_state).toBe(balance_team_1 + 50);
                                                                       frisby.create('Get balance account of resolver id=2')
                                                                         .get(url + '/user/2')
                                                                         .expectStatus(200)
@@ -182,14 +181,14 @@ frisby.create('Correct invoice')
                                                                                         .get(url + '/user/2')
                                                                                         .expectStatus(200)
                                                                                         .afterJSON(function(user){
-                                                                                            expect(user.balance_account_state).equals(balance_user_2 + 20);
+                                                                                            expect(user.balance_account_state).toBe(balance_user_2 + 20);
                                                                                         })
                                                                                         .toss();
                                                                                       frisby.create('Check that team2 balance is updated')
                                                                                         .get(url + '/team/2')
                                                                                         .expectStatus(200)
                                                                                         .afterJSON(function(team){
-                                                                                            expect(team.balance_account_state).equals(balance_team_2 + 20);
+                                                                                            expect(team.balance_account_state).toBe(balance_team_2 + 20);
                                                                                         })
                                                                                         .toss();
                                                                                       frisby.create('Unset resolver from task2')
@@ -205,14 +204,14 @@ frisby.create('Correct invoice')
                                                                                                   .get(url + '/user/2')
                                                                                                   .expectStatus(200)
                                                                                                   .afterJSON(function(user){
-                                                                                                      expect(user.balance_account_state).equals(balance_user_2);
+                                                                                                      expect(user.balance_account_state).toBe(balance_user_2);
                                                                                                   })
                                                                                                   .toss();
                                                                                                 frisby.create('Check that team2 balance is decreased')
                                                                                                   .get(url + '/team/2')
                                                                                                   .expectStatus(200)
                                                                                                   .afterJSON(function(team){
-                                                                                                      expect(team.balance_account_state).equals(balance_team_2);
+                                                                                                      expect(team.balance_account_state).toBe(balance_team_2);
                                                                                                       frisby.create('Set invoice unpaid')
                                                                                                         .delete(url + '/invoice/' + invoice.id + '/paid')
                                                                                                         .expectStatus(200)
