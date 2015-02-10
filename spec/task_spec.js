@@ -148,16 +148,7 @@ frisby.create('Correct order creation')
                               'order_id' : order2.id,
                               'budget'   : 150
                             }
-                          ]}
-                        )
-                        .afterJSON(function(){
-                          frisby.create()
-                            .post()
-                            .expectStatus(422)
-                            .expectJSON({error:'TASK_ERROR'})
-                            .expectBodyContains('You can not assign more budget than is available on order')
-                            .toss();
-                        })
+                          ]})
                         .toss();
                   })
                   .toss();
