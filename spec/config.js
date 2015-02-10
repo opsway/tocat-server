@@ -1,1 +1,1 @@
-exports.url = 'http://tocat.opsway.com';
+exports.url = 'http://test.tocat.opsway.com';
