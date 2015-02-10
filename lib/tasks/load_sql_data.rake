@@ -1,7 +1,7 @@
 namespace :sql_data do
   desc "Load data from sql file."
   task :load do
-    return puts "File not found" unless File.exist?('db/import.sql')
+    fail 'SQL file not found' unless File.exist?('db/import.sql')
     unless Rails.env.production?
       connection = ActiveRecord::Base.connection
       connection.tables.each do |table|
