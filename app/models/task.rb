@@ -41,9 +41,13 @@ class Task < ActiveRecord::Base
 
   def update_balance_accounts
     if accepted && paid
-      binding.pry
-      user.balance_account += bugdet
-      user.team.balance_account += budget
+      user.balance_account.transactions.create! total: budget,
+                                               comment: "#{self.id} accepted and paid",
+                                               user_id: 0
+      user.team.balance_account.transactions.create! total: budget,
+                                               comment: "#{self.id} accepted and paid",
+                                               user_id: 0
+
     end
   end
 end
