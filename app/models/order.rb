@@ -19,7 +19,7 @@ class Order < ActiveRecord::Base
 
   belongs_to :team
   has_many :invoices
-  has_many :task_orders, class_name: 'TaskOrders', dependent: :destroy
+  has_many :task_orders, class_name: 'TaskOrders'
   has_many :tasks, through: :task_orders
 
   has_many :sub_orders, class_name: 'Order', foreign_key: 'parent_id'
@@ -29,9 +29,16 @@ class Order < ActiveRecord::Base
   before_save :decrease_budgets
   after_destroy :increase_budgets
   before_destroy :check_if_order_has_tasks
+  before_destroy :check_for_suborder
 
   private
 
+  def check_for_suborder
+    if sub_orders.present?
+      errors[:base] << 'You can not delete order when there is a suborder'
+      return false
+    end
+  end
   def check_if_order_has_tasks
     if tasks.present?
       errors[:base] << 'You can not delete order that is used in task budgeting'
