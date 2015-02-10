@@ -29,7 +29,7 @@ class TasksController < ApplicationController
 
   def destroy
     @task.destroy
-    render json: {}, status: 204
+    render json: {}, status: 200
   end
 
   def set_accepted
@@ -78,7 +78,7 @@ class TasksController < ApplicationController
     if @task.task_orders.present?
       render json: @task.task_orders, each_serializer: TaskOrdersSerializer, root: "budget"
     else
-      render json: {}, status: 204
+      render json: {}, status: 200
     end
   end
 
