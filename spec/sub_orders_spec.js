@@ -2,7 +2,8 @@
 //Uncomplete parent order when changing budget
 
 var frisby = require('frisby');
-var url = 'http://tocat.opsway.com';
+var config = require('./config');
+var url = config.url;
 
 frisby.create('Correct order creation')
     .post(url + '/order',

@@ -1,0 +1,11 @@
+truncate users;
+truncate teams;
+truncate roles;
+insert into roles values (1, "Manager", now(), now());
+insert into roles values (2, "Developer", now(), now());
+insert into teams values (1, "OpsWay1", now(), now());
+insert into teams values (2, "OpsWay2", now(), now());
+insert into teams values (3, "OpsWay3", now(), now());
+insert into users values(1, "Dev1", 'dev1', 1, 50, now(), now(), 2);
+insert into users values(2, "Dev2", 'dev2', 2, 60, now(), now(), 2);
+insert into users values(3, "Dev3", 'dev3', 3, 70, now(), now(), 2);
