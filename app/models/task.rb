@@ -1,11 +1,12 @@
 class Task < ActiveRecord::Base
   validates :external_id,  presence: { message: "Missing external task ID" }
-  validate :check_resolver_team, if: Proc.new { |o| o.user_id_changed? && !o.orders.empty? && !o.user_id == nil }
+  validate :check_resolver_team, if: Proc.new { |o| o.user_id_changed? && !o.orders.empty? && !o.user_id.nil? }
 
   has_many :task_orders, class_name: 'TaskOrders'
   has_many :orders, through: :task_orders
 
-  after_save :update_balance_accounts, if: Proc.new { |o| (o.paid_changed? || o.accepted_changed?) && user.present?}
+  after_save :update_balance_accounts, if: Proc.new { |o| (o.paid_changed? || o.accepted_changed?) && o.user.present?}
+  after_save :decrease_accounts_balance, if: Proc.new { |o| o.user_id_changed? && o.user_id.nil?}
 
   belongs_to :user
 
@@ -26,6 +27,16 @@ class Task < ActiveRecord::Base
   end
 
   private
+  def decrease_accounts_balance
+    resolver = User.find(user_id_was)
+    resolver.balance_account.transactions.create! total: - budget,
+                                             comment: "#{self.id} accepted and paid",
+                                             user_id: 0
+    resolver.team.balance_account.transactions.create! total: - budget,
+                                             comment: "#{self.id} accepted and paid",
+                                             user_id: 0
+  end
+
 
   def check_resolver_team
     team = orders.first.team
