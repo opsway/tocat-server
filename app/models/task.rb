@@ -48,7 +48,6 @@ class Task < ActiveRecord::Base
   end
 
   def check_resolver_team
-    binding.pry if user.id == 1
     return true if orders.first.nil?
     team = orders.first.team
     orders.each do |order|
