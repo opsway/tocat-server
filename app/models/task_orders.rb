@@ -5,7 +5,7 @@ class TaskOrders < ActiveRecord::Base
             numericality: { greater_than: 0 },
             presence: true
   validate :check_resolver_team_after_budget_creation
-  #validate :resolver_presence
+  validate :resolver_presence
 
   belongs_to :order
   belongs_to :task
@@ -17,7 +17,9 @@ class TaskOrders < ActiveRecord::Base
   private
 
   def resolver_presence
-    unless task.user.present?
+    #binding.pry if budget.to_i == 151
+    return true if task.team.nil?
+    unless task.team == order.team
       errors[:base] << "Orders are created for different teams"
     end
   end

@@ -11,6 +11,14 @@ class Task < ActiveRecord::Base
 
   belongs_to :user
 
+  def team
+    if task_orders.present?
+      team = nil
+      task_orders.reload.each { |o| team = o.order.team if team != o.order.team}
+    end
+    team
+  end
+
   def resolver
     self.user
   end
