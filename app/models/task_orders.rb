@@ -4,6 +4,8 @@ class TaskOrders < ActiveRecord::Base
   validates :budget,
             numericality: { greater_than: 0 },
             presence: true
+  validate :check_resolver_team_after_budget_creation
+  #validate :resolver_presence
 
   belongs_to :order
   belongs_to :task
@@ -14,9 +16,22 @@ class TaskOrders < ActiveRecord::Base
 
   private
 
+  def resolver_presence
+    unless task.user.present?
+      errors[:base] << "Orders are created for different teams"
+    end
+  end
+
+  def check_resolver_team_after_budget_creation
+    return true unless task.user.present?
+    if task.user.team != order.team
+      errors[:base] << "Task resolver is from different team than order"
+    end
+  end
+
   def check_free_budget
     if self.budget > self.order.free_budget
-      errors[:base] << 'Budget must be lower than free budget from order'
+      errors[:base] << 'You can not assign more budget than is available on order'
       false
     end
   end

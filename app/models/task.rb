@@ -1,8 +1,9 @@
 class Task < ActiveRecord::Base
   validates :external_id,  presence: { message: "Missing external task ID" }
-  validate :check_resolver_team, if: Proc.new { |o| o.user_id_changed? && !o.orders.empty? && !o.user_id.nil? }
+  validate :check_resolver_team, if: Proc.new { |o| o.user_id_changed? && !o.user_id.nil?}
 
   has_many :task_orders, class_name: 'TaskOrders'
+
   has_many :orders, through: :task_orders
 
   after_save :update_balance_accounts, if: Proc.new { |o| (o.paid_changed? || o.accepted_changed?) && o.user.present?}
@@ -27,6 +28,7 @@ class Task < ActiveRecord::Base
   end
 
   private
+
   def decrease_accounts_balance
     resolver = User.find(user_id_was)
     resolver.balance_account.transactions.create! total: - budget,
@@ -37,12 +39,12 @@ class Task < ActiveRecord::Base
                                              user_id: 0
   end
 
-
   def check_resolver_team
+    return true if orders.first.nil?
     team = orders.first.team
     orders.each do |order|
       if team != order.team
-        errors[:base] << "Orders team are not equal. Please, contact your administrator."
+        errors[:base] << "Task resolver is from different team than order"
       end
     end
     if user.team != team
