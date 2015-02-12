@@ -105,7 +105,6 @@ frisby.create('Correct invoice')
                                   frisby.create('Set task1 Resolver')
                                     .post(url + '/task/' + task.id + '/resolver', {'user_id' : 2})
                                     .expectStatus(200)
-                                    .inspectBody()
                                     .afterJSON(function(){
                                       frisby.create('Another task creation')
                                         .post(url + '/task', {"external_id": "TST-102" })
@@ -122,7 +121,6 @@ frisby.create('Correct invoice')
                                               .afterJSON(function(){
                                                 frisby.create('Set task2 Resolver')
                                                   .post(url + '/task/' + task2.id + '/resolver', {'user_id' : 3})
-                                                  .inspectBody()
                                                   .expectStatus(200)
                                                   .afterJSON(function(){
                                                     frisby.create('Set invoice paid')
@@ -230,7 +228,7 @@ frisby.create('Correct invoice')
                                                                                                             frisby.create('Set invoice unpaid')
                                                                                                               .delete(url + '/invoice/' + invoice.id + '/paid')
                                                                                                               .expectStatus(200)
-                                                                                                              .expectJSON(function(){
+                                                                                                              .afterJSON(function(){
                                                                                                                  frisby.create('Parent order is unpaid')
                                                                                                                   .get(url + '/order/' + order.id)
                                                                                                                   .expectStatus(200)
