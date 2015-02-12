@@ -208,7 +208,7 @@ frisby.create('Correct order creation for unusual team')
                 .expectStatus(200)
                 .expectJSON({'resolver' : {'id' : 2}})
                 .afterJSON(function(){
-                  frisby.create('Set task budgets')
+                  frisby.create('Set task budgets for incorrect team orders')
                     .post(url + '/task/' + task.id + '/budget', {'budget' : [
                       {
                         'order_id' : order.id,
@@ -258,7 +258,7 @@ frisby.create('Correct order creation for unusual team')
                                         frisby.create('Increase budget from the same order')
                                           .post(url + '/task/' + task.id + '/budget',  {'budget' : [
                                             {
-                                              'order_id' : order.id,
+                                              'order_id' : order2.id,
                                               'budget'   : 450
                                             }]})
                                           .expectStatus(200)
@@ -266,7 +266,7 @@ frisby.create('Correct order creation for unusual team')
                                             frisby.create()
                                               .post(url + '/task/' + task.id + '/budget',  {'budget' : [
                                                 {
-                                                  'order_id' : order.id,
+                                                  'order_id' : order2.id,
                                                   'budget'   : 501
                                                 }]})
                                               .expectStatus(422)
