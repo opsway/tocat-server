@@ -84,20 +84,32 @@ class TasksController < ApplicationController
 
   def set_budgets
     invalid_record = nil
+    saved_records = []
     params[:budget].each do |record|
       db_record = TaskOrders.where(task_id: @task.id, order_id: record[1]['order_id']).first
       if db_record.present?
+        db_record.budget = 1
+        db_record.save
         db_record.budget = record[1]['budget']
-        invalid_record = db_record unless db_record.save
+        if db_record.save
+          saved_records << db_record
+        else
+          invalid_record = db_record
+        end
       else
         new_db_record = @task.task_orders.new order_id: record[1]['order_id'],
                                               budget: record[1]['budget']
-        invalid_record = new_db_record unless new_db_record.save
+        if new_db_record.save
+          saved_records << new_db_record
+        else
+          invalid_record = new_db_record
+        end
       end
     end
     if invalid_record.nil?
       render json: {}, status: 200
     else
+      saved_records.each { |r| r.destroy }
       render json: error_builder(invalid_record, 'TASK'), status: 422
     end
   end
