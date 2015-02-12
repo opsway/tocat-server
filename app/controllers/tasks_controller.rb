@@ -44,6 +44,7 @@ class TasksController < ApplicationController
 
   def delete_accepted
     @task.accepted = false
+    @task.paid = false
     if @task.save
       render json: {}, status: 200
     else

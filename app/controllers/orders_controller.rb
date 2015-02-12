@@ -44,7 +44,7 @@ class OrdersController < ApplicationController
   end
 
   def set_invoice
-    @order.invoices << Invoice.find(params[:invoice_id])
+    @order.invoice = Invoice.find(params[:invoice_id])
     if @order.save
       render json: {}, status: 200
     else

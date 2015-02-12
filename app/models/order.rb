@@ -18,7 +18,7 @@ class Order < ActiveRecord::Base
   validate :check_sub_order_after_update
 
   belongs_to :team
-  has_many :invoices
+  belongs_to :invoice
   has_many :task_orders, class_name: 'TaskOrders'
   has_many :tasks, through: :task_orders
 
@@ -30,8 +30,14 @@ class Order < ActiveRecord::Base
   after_destroy :increase_budgets
   before_destroy :check_if_order_has_tasks
   before_destroy :check_for_suborder
+  after_save :handle_paid_status, if: Proc.new { |o| o.paid_changed?}
 
   private
+
+  def handle_paid_status
+    sub_orders.each { |o| o.update_attributes(paid: paid)}
+    tasks.each { |o| o.update_attributes(paid: paid)}
+  end
 
   def check_for_suborder
     if sub_orders.present?

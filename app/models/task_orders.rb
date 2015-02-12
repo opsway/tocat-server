@@ -17,7 +17,6 @@ class TaskOrders < ActiveRecord::Base
   private
 
   def resolver_presence
-    #binding.pry if budget.to_i == 151
     return true if task.team.nil?
     unless task.team == order.team
       errors[:base] << "Orders are created for different teams"
