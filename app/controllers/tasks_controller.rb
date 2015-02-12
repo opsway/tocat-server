@@ -88,6 +88,8 @@ class TasksController < ApplicationController
     params[:budget].each do |record|
       db_record = TaskOrders.where(task_id: @task.id, order_id: record[1]['order_id']).first
       if db_record.present?
+        db_record.budget = 1
+        db_record.save
         db_record.budget = record[1]['budget']
         if db_record.save
           saved_records << db_record
