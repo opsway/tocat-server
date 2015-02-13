@@ -11,9 +11,29 @@ class Task < ActiveRecord::Base
 
   belongs_to :user
 
+  def can_be_paid?
+    can_be_paid = true
+    orders.each do |order|
+      can_be_paid = order.paid unless order.paid
+    end
+    can_be_paid
+  end
+
+  def handle_paid(paid)
+    if paid
+      if can_be_paid?
+        return self.update_attributes(paid: true)
+      else
+        return false
+      end
+    else
+      return self.update_attributes(paid: false)
+    end
+  end
+
   def team
+    team = nil
     if task_orders.present?
-      team = nil
       task_orders.reload.each { |o| team = o.order.team if team != o.order.team}
     end
     team

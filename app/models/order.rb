@@ -30,25 +30,39 @@ class Order < ActiveRecord::Base
   before_destroy :increase_budgets
   before_destroy :check_if_order_has_tasks
   before_destroy :check_for_suborder
-  before_save :handle_paid_status, if: Proc.new { |o| o.paid_changed?}
+  #before_save :handle_paid_status, if: Proc.new { |o| o.paid_changed?}
+
+  def handle_paid(paid)
+    return self.update_attributes(paid: paid)
+  end
 
   private
 
-  def handle_paid_status
-    sub_orders.each { |o| o.update_attributes(paid: paid)}
-    tasks.each { |o| o.update_attributes(paid: paid)}
-  end
+  # def handle_paid_status
+  #   Order.debug "#{self.id} был вызван."
+  #   sub_orders.each { |o| o.update_attributes(paid: paid)}
+  #   parent_tasks = []
+  #   if parent.present?
+  #     parent_tasks = parent.tasks
+  #   end
+  #   tasks.each do |task|
+  #     Order.debug "Таск #{task.id} обновленна. Статус Paid #{paid}"
+  #     #next if parent_tasks.include? task
+  #     task.update_attributes(paid: paid)
+  #   end
+  #   Order.debug "Обработка #{self.id} была завершена."
+  # end
 
   def check_for_suborder
     if sub_orders.present?
       errors[:base] << 'You can not delete order when there is a suborder'
-      return false
+      false
     end
   end
   def check_if_order_has_tasks
     if tasks.present?
       errors[:base] << 'You can not delete order that is used in task budgeting'
-      return false
+      false
     end
   end
 
