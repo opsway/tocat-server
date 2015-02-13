@@ -19,14 +19,6 @@ class TasksController < ApplicationController
     end
   end
 
-  # def update
-  #   if @task.update(task_params)
-  #     render json: {}, status: 202
-  #   else
-  #     render json: error_builder(@task), status: :unprocessable_entity
-  #   end
-  # end
-
   def destroy
     @task.destroy
     render json: {}, status: 200
@@ -84,34 +76,38 @@ class TasksController < ApplicationController
   end
 
   def set_budgets
-    invalid_record = nil
-    saved_records = []
-    params[:budget].each do |record|
-      db_record = TaskOrders.where(task_id: @task.id, order_id: record[1]['order_id']).first
-      if db_record.present?
-        db_record.budget = 1
-        db_record.save
-        db_record.budget = record[1]['budget']
-        if db_record.save
-          saved_records << db_record
+    TaskOrders.transaction do
+      invalid_record = nil
+      saved_records = []
+      params[:budget].each do |record|
+        db_record = TaskOrders.where(task_id: @task.id, order_id: record[1]['order_id']).first
+        if db_record.present?
+          db_record.transaction do
+            db_record.budget = 1
+            db_record.save
+            db_record.budget = record[1]['budget']
+            if db_record.save
+              saved_records << db_record
+            else
+              invalid_record = db_record
+            end
+          end
         else
-          invalid_record = db_record
-        end
-      else
-        new_db_record = @task.task_orders.new order_id: record[1]['order_id'],
-                                              budget: record[1]['budget']
-        if new_db_record.save
-          saved_records << new_db_record
-        else
-          invalid_record = new_db_record
+          new_db_record = @task.task_orders.new order_id: record[1]['order_id'],
+                                                budget: record[1]['budget']
+          if new_db_record.save
+            saved_records << new_db_record
+          else
+            invalid_record = new_db_record
+          end
         end
       end
-    end
-    if invalid_record.nil?
-      render json: {}, status: 200
-    else
-      saved_records.each { |r| r.destroy }
-      render json: error_builder(invalid_record, 'TASK'), status: 422
+      if invalid_record.nil?
+        render json: {}, status: 200
+      else
+        saved_records.each { |r| r.destroy }
+        render json: error_builder(invalid_record, 'TASK'), status: 422
+      end
     end
   end
 
