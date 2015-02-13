@@ -137,7 +137,7 @@ frisby.create('Correct invoice2')
                                                                 frisby.create('Check that order2 is not paid')
                                                                   .get(url + '/order/' + order2.id)
                                                                   .expectStatus(200)
-                                                                  .expectJSON({'paid' : false})
+                                                                  .expectJSON({'paid' : true})
                                                                   .afterJSON(function(){
                                                                     frisby.create('Check that task is not paid')
                                                                       .get(url + '/task/' + task.id)
