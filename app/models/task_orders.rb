@@ -12,7 +12,7 @@ class TaskOrders < ActiveRecord::Base
 
   before_save :check_free_budget
   before_save :decrease_free_budget
-  after_destroy :increase_free_budget
+  before_destroy :increase_free_budget
 
   private
 

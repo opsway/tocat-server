@@ -27,10 +27,10 @@ class Order < ActiveRecord::Base
 
   before_save :set_free_budget
   before_save :decrease_budgets
-  after_destroy :increase_budgets
+  before_destroy :increase_budgets
   before_destroy :check_if_order_has_tasks
   before_destroy :check_for_suborder
-  after_save :handle_paid_status, if: Proc.new { |o| o.paid_changed?}
+  before_save :handle_paid_status, if: Proc.new { |o| o.paid_changed?}
 
   private
 

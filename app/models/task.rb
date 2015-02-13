@@ -6,8 +6,8 @@ class Task < ActiveRecord::Base
 
   has_many :orders, through: :task_orders
 
-  after_save :update_balance_accounts, if: Proc.new { |o| (o.paid_changed? || o.accepted_changed?) && o.user.present?}
-  after_save :decrease_accounts_balance, if: Proc.new { |o| o.user_id_changed? && o.user_id.nil?}
+  before_save :update_balance_accounts, if: Proc.new { |o| (o.paid_changed? || o.accepted_changed?) && o.user.present?}
+  before_save :decrease_accounts_balance, if: Proc.new { |o| o.user_id_changed? && o.user_id.nil?}
 
   belongs_to :user
 
