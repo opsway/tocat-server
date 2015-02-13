@@ -1,8 +1,19 @@
-//Can not link to order already paid invoice ?????
-//when you can not remove invoice from order?
-//when you can not make-unpaid
-//internal orders
+//phase2
+//Internal order
+//* is a propery
+//* becomes expense for team (Income account)
+//* mark order as Paid
 
+//TODO phase2 Check that you can not complete parent order')
+//TODO phase2 Check that you CAN complete parent order')
+
+//phase3
+//internal orders can be created only with permission CAN_CREATE_INTERNAL_ORDER
+
+//Zoho books integration. 
+//  - create books invoice -> set TOCAT invoice as immutable -> set order budgets as immutable
+
+//Change resolver in one team - recalculate balances
 
 var frisby = require('frisby');
 var config = require('./config');
@@ -193,7 +204,7 @@ frisby.create('Correct invoice2')
                                                                                                             .expectStatus(200)
                                                                                                             .expectJSON({'paid' : false})
                                                                                                             .toss();
-                                                                                                          //TODO phase2 Check that you can not complete parent order')
+                                                                                                          
 
                                                                                                           frisby.create('Check that user balance is updated')
                                                                                                             .get(url + '/user/2')
@@ -207,11 +218,11 @@ frisby.create('Correct invoice2')
                                                                                                             .expectStatus(200)
                                                                                                             .afterJSON(function(team){
                                                                                                                 expect(team.balance_account_state).toBe(balance_team_2 + 50);
-                                                                                                                frisby.create('Get balance account of resolver id=3')
-                                                                                                                  .get(url + '/user/3')
+                                                                                                                frisby.create('Get balance account of user4')
+                                                                                                                  .get(url + '/user/4')
                                                                                                                   .expectStatus(200)
-                                                                                                                  .afterJSON(function(user){
-                                                                                                                    balance_user_3 = user.balance_account_state;
+                                                                                                                  .afterJSON(function(user4){
+                                                                                                                    balance_user_4 = user4.balance_account_state;
 
                                                                                                                     frisby.create('Get balance account of team3')
                                                                                                                       .get(url + '/team/3')
@@ -228,80 +239,112 @@ frisby.create('Correct invoice2')
                                                                                                                                   .expectJSON({'paid' : true, 'accepted' : true})
                                                                                                                                   .toss();
 
-                                                                                                                                //TODO phase2 Check that you CAN complete parent order')
 
                                                                                                                                 frisby.create('Check that user3 balance is updated')
                                                                                                                                   .get(url + '/user/3')
                                                                                                                                   .expectStatus(200)
                                                                                                                                   .afterJSON(function(user){
-                                                                                                                                      expect(user.balance_account_state).toBe(balance_user_3+ 20);
+                                                                                                                                      expect(user.balance_account_state).toBe(balance_user_3 + 20);
                                                                                                                                   })
                                                                                                                                   .toss();
-                                                                                                                                frisby.create('Check that team2 balance is updated')
+                                                                                                                                frisby.create('Check that team3 balance is updated')
                                                                                                                                   .get(url + '/team/3')
                                                                                                                                   .expectStatus(200)
                                                                                                                                   .afterJSON(function(team){
                                                                                                                                       expect(team.balance_account_state).toBe(balance_team_3 + 20);
                                                                                                                                   })
                                                                                                                                   .toss();
-                                                                                                                                frisby.create('Unset resolver from task2')
-                                                                                                                                  .delete(url + '/task/' + task2.id + '/resolver')
+
+                                                                                                                                frisby.create('Change resolver, but stay in the same team')
+                                                                                                                                  .post(url + '/task/' + task2.id + '/resolver', {'user_id' : 4})
                                                                                                                                   .expectStatus(200)
                                                                                                                                   .afterJSON(function(){
-                                                                                                                                    frisby.create('Check no resolver for task2')
-                                                                                                                                      .get(url + '/task/' + task2.id)
+
+                                                                                                                                    frisby.create('Check that user3 balance is decreased')
+                                                                                                                                    .get(url + '/user/3')
                                                                                                                                       .expectStatus(200)
-                                                                                                                                      .expectJSON({'resolver' : {}})
-                                                                                                                                      .afterJSON(function(){
-                                                                                                                                          frisby.create('Check that user3 balance is decreased')
-                                                                                                                                            .get(url + '/user/3')
+                                                                                                                                      .afterJSON(function(user3){
+                                                                                                                                          expect(user3.balance_account_state).toBe(balance_user_3);
+                                                                                                                                      })
+                                                                                                                                      .toss();
+
+                                                                                                                                    frisby.create('Check that team3 balance stays increased')
+                                                                                                                                      .get(url + '/team/3')
+                                                                                                                                      .expectStatus(200)
+                                                                                                                                      .afterJSON(function(team3){
+                                                                                                                                          expect(team.balance_account_state).toBe(balance_team_3 + 20);
+                                                                                                                                      })
+                                                                                                                                      .toss();
+                                                                                                                                    frisby.create('Check that user4 balance is increased')
+                                                                                                                                      .get(url + '/user/4')
+                                                                                                                                      .expectStatus(200)
+                                                                                                                                      .afterJSON(function(user4){
+                                                                                                                                          expect(user4.balance_account_state).toBe(balance_user_4 + 20);
+                                                                                                                                          
+                                                                                                                                          frisby.create('Unset resolver from task2')
+                                                                                                                                            .delete(url + '/task/' + task2.id + '/resolver')
                                                                                                                                             .expectStatus(200)
-                                                                                                                                            .afterJSON(function(user){
-                                                                                                                                                expect(user.balance_account_state).toBe(balance_user_3);
-                                                                                                                                            })
-                                                                                                                                            .toss();
-                                                                                                                                          frisby.create('Check that team3 balance is decreased')
-                                                                                                                                            .get(url + '/team/3')
-                                                                                                                                            .expectStatus(200)
-                                                                                                                                            .afterJSON(function(team){
-                                                                                                                                                expect(team.balance_account_state).toBe(balance_team_3);
-                                                                                                                                                frisby.create('Set invoice unpaid')
-                                                                                                                                                  .delete(url + '/invoice/' + invoice.id + '/paid')
-                                                                                                                                                  .expectStatus(200)
-                                                                                                                                                  .afterJSON(function(){
-                                                                                                                                                     frisby.create('Parent order is unpaid')
-                                                                                                                                                      .get(url + '/order/' + order.id)
+                                                                                                                                            .afterJSON(function(){
+                                                                                                                                              frisby.create('Check no resolver for task2')
+                                                                                                                                                .get(url + '/task/' + task2.id)
+                                                                                                                                                .expectStatus(200)
+                                                                                                                                                .expectJSON({'resolver' : {}})
+                                                                                                                                                .afterJSON(function(){
+                                                                                                                                                    frisby.create('Check that user4 balance is decreased')
+                                                                                                                                                      .get(url + '/user/3')
                                                                                                                                                       .expectStatus(200)
-                                                                                                                                                      .expectJSON({'paid' : false})
+                                                                                                                                                      .afterJSON(function(user){
+                                                                                                                                                          expect(user.balance_account_state).toBe(balance_user_4);
+                                                                                                                                                      })
                                                                                                                                                       .toss();
-                                                                                                                                                     frisby.create('Suborder1 is unpaid')
-                                                                                                                                                      .get(url + '/order/' + subOrder1.id)
+                                                                                                                                                    frisby.create('Check that team3 balance is decreased')
+                                                                                                                                                      .get(url + '/team/3')
                                                                                                                                                       .expectStatus(200)
-                                                                                                                                                      .expectJSON({'paid' : false})
+                                                                                                                                                      .afterJSON(function(team){
+                                                                                                                                                          expect(team.balance_account_state).toBe(balance_team_3);
+                                                                                                                                                          frisby.create('Set invoice unpaid')
+                                                                                                                                                            .delete(url + '/invoice/' + invoice.id + '/paid')
+                                                                                                                                                            .expectStatus(200)
+                                                                                                                                                            .afterJSON(function(){
+                                                                                                                                                               frisby.create('Parent order is unpaid')
+                                                                                                                                                                .get(url + '/order/' + order.id)
+                                                                                                                                                                .expectStatus(200)
+                                                                                                                                                                .expectJSON({'paid' : false})
+                                                                                                                                                                .toss();
+                                                                                                                                                               frisby.create('Suborder1 is unpaid')
+                                                                                                                                                                .get(url + '/order/' + subOrder1.id)
+                                                                                                                                                                .expectStatus(200)
+                                                                                                                                                                .expectJSON({'paid' : false})
+                                                                                                                                                                .toss();
+                                                                                                                                                               frisby.create('suborder2 is unpaid')
+                                                                                                                                                                .get(url + '/order/' + subOrder2.id)
+                                                                                                                                                                .expectStatus(200)
+                                                                                                                                                                .expectJSON({'paid' : false})
+                                                                                                                                                                .toss();
+                                                                                                                                                               frisby.create('Task1 is unpaid')
+                                                                                                                                                                .get(url + '/task/' + task.id)
+                                                                                                                                                                .expectStatus(200)
+                                                                                                                                                                .expectJSON({'paid' : false})
+                                                                                                                                                                .toss();
+                                                                                                                                                               frisby.create('Task2 is unpaid')
+                                                                                                                                                                .get(url + '/task/' + task2.id)
+                                                                                                                                                                .expectStatus(200)
+                                                                                                                                                                .expectJSON({'paid' : false})
+                                                                                                                                                                .toss();
+                                                                                                                                                            })
+                                                                                                                                                            .toss();
+                                                                                                                                                      })
                                                                                                                                                       .toss();
-                                                                                                                                                     frisby.create('suborder2 is unpaid')
-                                                                                                                                                      .get(url + '/order/' + subOrder2.id)
-                                                                                                                                                      .expectStatus(200)
-                                                                                                                                                      .expectJSON({'paid' : false})
-                                                                                                                                                      .toss();
-                                                                                                                                                     frisby.create('Task1 is unpaid')
-                                                                                                                                                      .get(url + '/task/' + task.id)
-                                                                                                                                                      .expectStatus(200)
-                                                                                                                                                      .expectJSON({'paid' : false})
-                                                                                                                                                      .toss();
-                                                                                                                                                     frisby.create('Task2 is unpaid')
-                                                                                                                                                      .get(url + '/task/' + task2.id)
-                                                                                                                                                      .expectStatus(200)
-                                                                                                                                                      .expectJSON({'paid' : false})
-                                                                                                                                                      .toss();
-                                                                                                                                                  })
-                                                                                                                                                  .toss();
+                                                                                                                                                })
+                                                                                                                                                .toss();
                                                                                                                                             })
                                                                                                                                             .toss();
                                                                                                                                       })
                                                                                                                                       .toss();
+
                                                                                                                                   })
                                                                                                                                   .toss();
+
                                                                                                                               })
                                                                                                                               .toss();
                                                                                                                           })
@@ -309,6 +352,8 @@ frisby.create('Correct invoice2')
 
                                                                                                                       })
                                                                                                                       .toss();
+                                                                                                                  })
+                                                                                                                  .toss();
                                                                                                                   })
                                                                                                                   .toss();
                                                                                                             })
@@ -375,8 +420,122 @@ frisby.create('Correct invoice2')
             .toss();
         })
         .toss();
-
-
     })
     .toss();
 
+frisby.create('Correct additional invoice')
+ .post(url + '/invoice',
+      {
+        "external_id": '67899000000303006'
+      })
+ .expectStatus(201)
+ .afterJSON(function(invoice2){
+    frisby.create('Correct invoice creation')
+    .post(url + '/invoice',
+      {
+        "external_id": '67899000000303005'
+      })
+    .expectStatus(201)
+    .afterJSON(function(invoice){
+      frisby.create('Correct new order creation')
+        .post(url + '/order',
+          {
+            "invoiced_budget": 150.00,
+            "allocatable_budget": 100.00,
+            "name" : "Test",
+            "description" : "This is just a test order for SuperClient",
+            "team":  {
+              "id" : 1
+            }
+          })
+        .expectStatus(201)
+        .afterJSON(function(order){
+
+          frisby.create('Can not set order as paid directly')
+            .post(url + '/order/' + order.id + '/paid')
+            .expectStatus(404)
+            .toss();
+
+          frisby.create('Invoice order')
+            .post(url + '/order/' + order.id + '/invoice', {'invoice_id' : invoice.id})
+            .expectStatus(200)
+            .afterJSON(function(){
+              frisby.create("Set invoice as paid")
+                .post(url + '/invoice/' + invoice.id + '/paid')
+                .expectStatus(200)
+                .afterJSON(function(){
+
+                  frisby.create('Can not change invoice for already paid order')
+                    .post(url + '/order/' + order.id + '/invoice', {'invoice_id' : invoice.id})
+                    .expectStatus(422)
+                    .expectJSON({error:'ORDER_ERROR'})
+                    .expectBodyContains('Order is already paid, can not change invoice')
+                    .toss();
+
+                  frisby.create('Can not delete order from paid invoice')
+                    .delete(url + '/order/' + order.id + '/invoice')
+                    .expectStatus(422)
+                    .expectJSON({error:'ORDER_ERROR'})
+                    .expectBodyContains('Order is already paid, can unlink it from invoice')
+                    .toss();
+
+                  frisby.create('Can not delete already paid invoice')
+                    .delete(url + '/order/' + order.id)
+                    .expectStatus(422)
+                    .expectJSON({error:'ORDER_ERROR'})
+                    .expectBodyContains('Can not delete already paid invoice')
+                    .toss();
+
+                  frisby.create('Can not update invoiced budget of paid order')
+                   .patch(url + '/order/' + order.id, {'allocatable_budget': 200, 'invoiced_budget' : 300})
+                   .expectStatus(422)
+                   .expectJSON({error:'ORDER_ERROR'})
+                   .expectBodyContains('Order is already paid, can not update invoiced budget')
+                   .toss();
+                  
+                  frisby.create('CAN update allocated budget of paid order')
+                   .patch(url + '/order/' + order.id, {'allocatable_budget': 90 })
+                   .expectStatus(200)
+                   .afterJSON(function(){
+                  
+                      frisby.create("Check new allocatable budget")
+                        .get(url + '/order/' + order.id)
+                        .expectStatus(200)
+                        .expectJSON({'allocatable_budget' : 90.00, 'invoiced_budget' : 150.00})
+                        .toss();
+
+                   })
+                   .toss();
+
+                  frisby.create("One more order")
+                    .post(url + '/order',
+                      {
+                        "invoiced_budget": 100.00,
+                        "allocatable_budget": 80.00,
+                        "name" : "Test2",
+                        "description" : "This is just a test order for SuperClient",
+                        "team":  {
+                          "id" : 2
+                        }
+                      })
+                    .expectStatus(201)
+                    .afterJSON(function(order2){
+                      frisby.create('Can not link order to already paid invoice')
+                        .post(url + '/order/' + order2.id + '/invoice', {'invoice_id' : invoice.id}) 
+                        .expectStatus(422)
+                        .expectJSON({error:'INVOICE_ERROR'})
+                        .expectBodyContains('Invoice is already paid, can not use it for new order')
+                        .toss();  
+                    })
+                    .toss();
+
+                })
+                .toss();
+            })
+            .toss();
+        })
+        .toss();
+    })
+    .toss();  
+   })
+ .toss();
