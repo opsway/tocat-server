@@ -3,7 +3,7 @@ class Invoice < ActiveRecord::Base
   has_many :orders
 
   before_destroy :check_if_invoice_used
-  after_save :handle_paid_status, if: Proc.new { |o| o.paid_changed?}
+  before_save :handle_paid_status, if: Proc.new { |o| o.paid_changed?}
 
   private
 
