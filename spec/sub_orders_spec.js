@@ -1,4 +1,5 @@
-//TODO Fail delete when parent order completed
+//phase2
+//Fail delete when parent order completed
 //Uncomplete parent order when changing budget
 
 var frisby = require('frisby');
