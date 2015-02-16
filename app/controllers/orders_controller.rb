@@ -28,7 +28,12 @@ class OrdersController < ApplicationController
   end
 
   def update
-    if @order.update(order_params)
+    if params[:team].present?
+      new_params = order_params.merge(:team_id => params[:team][:id])
+    else
+      new_params = order_params
+    end
+    if @order.update(new_params)
       render json: @order, serializer: AfterCreationSerializer, status: 200
     else
       render json: error_builder(@order), status: :unprocessable_entity
