@@ -1,6 +1,6 @@
 class ApplicationController < ActionController::API
-  rescue_from ActionController::RoutingError, with: :render_404
-  rescue_from ActionController::UnknownHttpMethod, with: :render_404
+  rescue_from ActionController::RoutingError, with: :render_404_or_405
+  rescue_from ActionController::UnknownHttpMethod, with: :render_404_or_405
   #rescue_from StandardError, with: :render_405
   #rescue_from Exception, with: :render_405
   #before_filter :check_format
@@ -27,8 +27,13 @@ class ApplicationController < ActionController::API
 
   private
 
-  def render_404
-    render json: {}, status: 404
+  def render_404_or_405
+    recognized_path = Rails.application.routes.recognize_path(request.env['ORIGINAL_FULLPATH'])
+    if recognized_path[:action] != 'no_method'
+      render json: {}, status: 405
+    else
+      render json: {}, status: 404
+    end
   end
 
   def check_format

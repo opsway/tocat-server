@@ -34,12 +34,20 @@ class Order < ActiveRecord::Base
   before_destroy :check_if_paid_before_destroy
   before_save :check_if_paid_on_budget_update, if: Proc.new { |o| o.invoiced_budget_changed? }
   before_save :check_if_invoice_already_paid, if: Proc.new { |o| o.invoice_id_changed? }
+  before_save :check_for_tasks_on_team_change, if: Proc.new { |o| o.team_id_changed? }
 
   def handle_paid(paid)
     return self.update_attributes(paid: paid)
   end
 
   private
+
+  def check_for_tasks_on_team_change
+    if tasks.present?
+      errors[:base] << 'Can not change order team - order is used in tasks'
+      false
+    end
+  end
 
   def check_if_invoice_already_paid
     if invoice.paid
@@ -79,6 +87,7 @@ class Order < ActiveRecord::Base
       false
     end
   end
+
   def check_if_order_has_tasks
     if tasks.present?
       errors[:base] << 'You can not delete order that is used in task budgeting'

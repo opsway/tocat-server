@@ -9,14 +9,14 @@
 role_list = %W(Manager Developer)
 role_list.each {|name| Role.create( name: name) }
 
-team_list = ['OpsWay1', 'OpsWay2', 'OpsWay3', 'OpsWay4']
+team_list = ['OpsWay1', 'OpsWay2', 'OpsWay3']
 team_list.each {|name| Team.create( name: name) }
 
 user_list = [
   [ "Dev1", 50,   'dev1', 'OpsWay1', 'Developer' ],
   [ "Dev2", 60,   'dev2', 'OpsWay2', 'Developer' ],
   [ "Dev3", 70,   'dev3', 'OpsWay3', 'Developer' ],
-  [ "Dev4", 80,   'dev4', 'OpsWay4', 'Developer' ]
+  [ "Dev4", 80,   'dev4', 'OpsWay3', 'Developer' ]
 ]
 
 user_list.each do |name, rate, login, team, role|

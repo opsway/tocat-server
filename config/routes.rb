@@ -46,7 +46,7 @@ Rails.application.routes.draw do
             controller: 'tasks',
             path: 'task',
             defaults: { format: 'json' },
-            only: [:index, :create, :show, :destroy]
+            only: [:index, :create, :show]
 
   post '/task/:id/accept',
        to: 'tasks#set_accepted',

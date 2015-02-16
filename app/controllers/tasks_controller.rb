@@ -19,11 +19,6 @@ class TasksController < ApplicationController
     end
   end
 
-  def destroy
-    @task.destroy
-    render json: {}, status: 200
-  end
-
   def set_accepted
     @task.accepted = true
     @task.paid = true
