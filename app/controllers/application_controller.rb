@@ -1,6 +1,6 @@
 class ApplicationController < ActionController::API
-  rescue_from ActionController::RoutingError, with: :render_405
-  rescue_from ActionController::UnknownHttpMethod, with: :render_405
+  rescue_from ActionController::RoutingError, with: :render_404
+  rescue_from ActionController::UnknownHttpMethod, with: :render_404
   #rescue_from StandardError, with: :render_405
   #rescue_from Exception, with: :render_405
   #before_filter :check_format
@@ -27,8 +27,8 @@ class ApplicationController < ActionController::API
 
   private
 
-  def render_405
-    render json: { error: "ERROR", message: "Method #{request.method} on #{request.path} is not allowed" }, status: 405
+  def render_404
+    render json: {}, status: 404
   end
 
   def check_format

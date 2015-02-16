@@ -57,10 +57,6 @@ class OrderShowSerializer < ActiveModel::Serializer
     link_to_self[:href] = order_path(object)
     link_to_self[:rel] = 'self'
     data << link_to_self
-    link_to_paid = {}
-    link_to_paid[:href] = set_paid_path(object)
-    link_to_paid[:rel] = 'setpaid'
-    data << link_to_paid
     link_to_invoice = {}
     link_to_invoice[:href] = set_invoice_path(object)
     link_to_invoice[:rel] = 'invoice'
