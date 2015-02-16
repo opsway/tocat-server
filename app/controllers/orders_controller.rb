@@ -64,24 +64,6 @@ class OrdersController < ApplicationController
     end
   end
 
-  def set_paid
-    @order.paid = true
-    if @order.save
-      render json: {}, status: 202
-    else
-      render json: error_builder(@order), status: :unprocessable_entity
-    end
-  end
-
-  def set_unpaid
-    @order.paid = false
-    if @order.save
-      render json: {}, status: 202
-    else
-      render json: error_builder(@order), status: :unprocessable_entity
-    end
-  end
-
   def suborders
     @suborders = @order.sub_orders.all
     render json: @suborders

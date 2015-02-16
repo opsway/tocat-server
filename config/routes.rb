@@ -14,16 +14,6 @@ Rails.application.routes.draw do
          as: 'delete_invoice',
          format: 'json'
 
-  post '/order/:id/paid',
-       to: 'orders#set_paid',
-       as: 'set_paid',
-       format: 'json'
-
-  delete '/order/:id/paid',
-         to: 'orders#set_unpaid',
-         as: 'set_unpaid',
-         format: 'json'
-
   get '/order/:id/suborder',
       to: 'orders#suborders',
       as: 'suborders',

@@ -30,7 +30,10 @@ class Order < ActiveRecord::Base
   before_destroy :increase_budgets
   before_destroy :check_if_order_has_tasks
   before_destroy :check_for_suborder
-  #before_save :handle_paid_status, if: Proc.new { |o| o.paid_changed?}
+  before_save :check_if_paid, if: Proc.new { |o| o.invoice_id_changed? }
+  before_destroy :check_if_paid_before_destroy
+  before_save :check_if_paid_on_budget_update, if: Proc.new { |o| o.invoiced_budget_changed? }
+  before_save :check_if_invoice_already_paid, if: Proc.new { |o| o.invoice_id_changed? }
 
   def handle_paid(paid)
     return self.update_attributes(paid: paid)
@@ -38,20 +41,37 @@ class Order < ActiveRecord::Base
 
   private
 
-  # def handle_paid_status
-  #   Order.debug "#{self.id} был вызван."
-  #   sub_orders.each { |o| o.update_attributes(paid: paid)}
-  #   parent_tasks = []
-  #   if parent.present?
-  #     parent_tasks = parent.tasks
-  #   end
-  #   tasks.each do |task|
-  #     Order.debug "Таск #{task.id} обновленна. Статус Paid #{paid}"
-  #     #next if parent_tasks.include? task
-  #     task.update_attributes(paid: paid)
-  #   end
-  #   Order.debug "Обработка #{self.id} была завершена."
-  # end
+  def check_if_invoice_already_paid
+    if invoice.paid
+      errors[:base] << 'Invoice is already paid, can not use it for new order'
+      false
+    end
+  end
+
+  def check_if_paid_on_budget_update
+    if paid
+      errors[:base] << 'Order is already paid, can not update invoiced budget'
+      return false
+    end
+  end
+
+  def check_if_paid_before_destroy
+    if paid
+      errors[:base] << 'Can not delete already paid invoice'
+      return false
+    end
+  end
+
+  def check_if_paid
+    if paid
+      if invoice_id.nil?
+        errors[:base] << 'Order is already paid, can unlink it from invoice'
+      else
+        errors[:base] << 'Order is already paid, can not change invoice'
+      end
+      false
+    end
+  end
 
   def check_for_suborder
     if sub_orders.present?
