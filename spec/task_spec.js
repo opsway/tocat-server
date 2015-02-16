@@ -13,7 +13,7 @@ frisby.create('Correct task creation')
       .expectJSON({'budget' : 0, 'paid' : false, 'resolver' : {}, 'accepted' : false, 'external_id' : 'TST-101'})
       .afterJSON(function(){
           frisby.create('DELETE task - not allowed')
-            .delete(url + '/task' + task.id)
+            .delete(url + '/task/' + task.id)
             .expectStatus(405)
             .toss();
 
