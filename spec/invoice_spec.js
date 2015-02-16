@@ -254,8 +254,9 @@ frisby.create('Correct invoice2')
                                                           frisby.create('Get balance account of team3')
                                                             .get(url + '/team/3')
                                                             .expectStatus(200)
-                                                            .afterJSON(function(team){
-                                                              balance_team_3 = team.balance_account_state;
+                                                            
+                                                            .afterJSON(function(team3){
+                                                              balance_team_3 = team3.balance_account_state;
 
                                                               frisby.create('Set task2 accepted')
                                                                 .post(url + '/task/' + task2.id + '/accept')
@@ -302,7 +303,7 @@ frisby.create('Correct invoice2')
                                                                 .get(url + '/team/3')
                                                                 .expectStatus(200)
                                                                 .afterJSON(function(team3){
-                                                                  expect(team.balance_account_state).toBe(balance_team_3 + 20);
+                                                                  expect(team3.balance_account_state).toBe(balance_team_3 + 20);
                                                                 })
                                                                 .toss();
                                                                                                                        
@@ -326,7 +327,7 @@ frisby.create('Correct invoice2')
                                                                 .toss();
 
                                                               frisby.create('Check that user4 balance is decreased')
-                                                                .get(url + '/user/3')
+                                                                .get(url + '/user/4')
                                                                 .expectStatus(200)
                                                                 .afterJSON(function(user){
                                                                   expect(user.balance_account_state).toBe(balance_user_4);
