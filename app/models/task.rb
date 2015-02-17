@@ -6,8 +6,8 @@ class Task < ActiveRecord::Base
 
   has_many :orders, through: :task_orders
 
-  before_save :update_balance_accounts, if: Proc.new { |o| (o.paid_changed? || o.accepted_changed?) && o.user.present?}
-  before_save :decrease_accounts_balance, if: Proc.new { |o| o.user_id_changed? && o.user_id.nil?}
+  before_save :handle_balance_after_changing_resolver, if: Proc.new { |o| o.paid && o.user_id_changed? }
+  before_save :handle_balance_after_changing_paid_status, if: Proc.new { |o| o.paid_changed? && user_id.present? }
 
   belongs_to :user
 
@@ -57,14 +57,42 @@ class Task < ActiveRecord::Base
 
   private
 
-  def decrease_accounts_balance
-    resolver = User.find(user_id_was)
-    resolver.balance_account.transactions.create! total: - budget,
-                                             comment: "#{self.id} accepted and paid",
-                                             user_id: 0
-    resolver.team.balance_account.transactions.create! total: - budget,
-                                             comment: "#{self.id} accepted and paid",
-                                             user_id: 0
+  def handle_balance_after_changing_paid_status
+    if paid
+      user.balance_account.transactions.create! total: budget,
+                                               comment: "#{self.id} accepted and paid",
+                                               user_id: 0
+      user.team.balance_account.transactions.create! total: budget,
+                                               comment: "#{self.id} accepted and paid",
+                                               user_id: 0
+    else
+      user.balance_account.transactions.create! total: - budget,
+                                               comment: "#{self.id} unaccepted and unpaid",
+                                               user_id: 0
+      user.team.balance_account.transactions.create! total: - budget,
+                                               comment: "#{self.id} unaccepted and unpaid",
+                                               user_id: 0
+    end
+  end
+
+  def handle_balance_after_changing_resolver
+    if user_id_was != nil
+      old_user = User.find(user_id_was)
+      old_user.balance_account.transactions.create! total: - budget,
+                                                    comment: "User was removed from #{id} task",
+                                                    user_id: 0
+      old_user.team.balance_account.transactions.create! total: - budget,
+                                                         comment: "User #{old_user.login} was removed from #{id} task",
+                                                         user_id: 0
+    end
+    if user_id != nil
+      user.balance_account.transactions.create! total: budget,
+                                               comment: "User was setted as resolver for #{id} task",
+                                               user_id: 0
+      user.team.balance_account.transactions.create! total: budget,
+                                               comment: "User #{user.login} was setted as resolver for #{id} task",
+                                               user_id: 0
+    end
   end
 
   def check_resolver_team
@@ -77,18 +105,6 @@ class Task < ActiveRecord::Base
     end
     if user.team != team
       errors[:base] << "Task resolver is from different team than order"
-    end
-  end
-
-  def update_balance_accounts
-    if accepted && paid
-      user.balance_account.transactions.create! total: budget,
-                                               comment: "#{self.id} accepted and paid",
-                                               user_id: 0
-      user.team.balance_account.transactions.create! total: budget,
-                                               comment: "#{self.id} accepted and paid",
-                                               user_id: 0
-
     end
   end
 end
