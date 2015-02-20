@@ -101,6 +101,13 @@ frisby.create('Correct invoice2')
                                     .post(url + '/order/' + order2.id + '/invoice', {'invoice_id' : invoice2.id})
                                     .expectStatus(200)
                                     .toss();
+                                    
+                                  frisby.create('Suborder can not be invoiced')
+                                    .post(url + '/order/' + subOrder1.id + '/invoice', {'invoice_id' : invoice2.id})
+                                    .expectStatus(422)
+                                    .expectJSON({error:'ORDER_ERROR'})
+                                    .expectBodyContains('Suborder can not be invoiced')
+                                    .toss();
                                   
                                   frisby.create('Set task1 budgets')
                                     .post(url + '/task/' + task.id + '/budget', {'budget' : [
