@@ -39,7 +39,10 @@ class OrderShowSerializer < ActiveModel::Serializer
 
   def invoice
     data = {}
-    data[:href] = '/invoice/2' # TODO refactor
+    if object.invoice.present?
+      data[:href] = invoice_path(object.invoice)
+      data[:id] = object.invoice.id
+    end
     data
   end
 
