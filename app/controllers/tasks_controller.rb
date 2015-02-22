@@ -2,8 +2,18 @@ class TasksController < ApplicationController
   before_action :set_task, except: [:index, :create]
 
   def index
-    @tasks = Task.all
-    render json: @tasks
+    @filterrific = initialize_filterrific(
+     Task,
+     params,
+     select_options: {
+       sorted_by: Task.options_for_sorted_by,
+     }
+   ) or return
+
+   @tasks = @filterrific.find
+
+
+   paginate json: @tasks, per_page: 10
   end
 
   def show
