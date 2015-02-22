@@ -60,9 +60,9 @@ class Transaction < ActiveRecord::Base
       sort_option.split(',').each do |option|
         direction = (option =~ /desc$/) ? 'desc' : 'asc'
         case option.to_s
-        when /^total_/
+        when /^total/
           order_params << "trsansactions.total #{ direction }"
-        when /^created_at_/
+        when /^created_at/
           order_params << "transactions.created_at #{ direction }"
         else
           raise(ArgumentError, "Invalid sort option: #{ option.inspect }")
@@ -72,9 +72,9 @@ class Transaction < ActiveRecord::Base
     else
       direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
       case sort_option.to_s
-      when /^total_/
+      when /^total/
         order("trsansactions.total #{ direction }")
-      when /^created_at_/
+      when /^created_at/
         order("transactions.created_at #{ direction }")
       else
         raise(ArgumentError, "Invalid sort option: #{ sort_option.inspect }")

@@ -74,15 +74,15 @@ class Order < ActiveRecord::Base
       sort_option.split(',').each do |option|
         direction = (option =~ /desc$/) ? 'desc' : 'asc'
         case option.to_s
-        when /^invoiced_budget_/
+        when /^invoiced_budget/
           order_params << "orders.invoiced_budget #{ direction }"
-        when /^created_at_/
+        when /^created_at/
           order_params << "orders.created_at #{ direction }"
-        when /^free_budget_/
+        when /^free_budget/
           order_params << "orders.free_budget #{ direction }"
-        when /^allocatable_budget_/
+        when /^allocatable_budget/
           order_params <<  "orders.allocatable_budget #{ direction }"
-        when /^name_/
+        when /^name/
           order_params <<  "LOWER(orders.name) #{ direction }"
         else
           raise(ArgumentError, "Invalid sort option: #{ option.inspect }")
@@ -92,15 +92,15 @@ class Order < ActiveRecord::Base
     else
       direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
       case sort_option.to_s
-      when /^invoiced_budget_/
+      when /^invoiced_budget/
         order("orders.invoiced_budget #{ direction }")
-      when /^created_at_/
+      when /^created_at/
         order("orders.created_at #{ direction }")
-      when /^free_budget_/
+      when /^free_budget/
         order("orders.free_budget #{ direction }")
-      when /^allocatable_budget_/
+      when /^allocatable_budget/
         order("orders.allocatable_budget #{ direction }")
-      when /^name_/
+      when /^name/
         order("LOWER(orders.name) #{ direction }")
       else
         raise(ArgumentError, "Invalid sort option: #{ sort_option.inspect }")
