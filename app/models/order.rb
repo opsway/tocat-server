@@ -35,12 +35,20 @@ class Order < ActiveRecord::Base
   before_save :check_if_paid_on_budget_update, if: Proc.new { |o| o.invoiced_budget_changed? }
   before_save :check_if_invoice_already_paid, if: Proc.new { |o| o.invoice_id_changed? }
   before_save :check_for_tasks_on_team_change, if: Proc.new { |o| o.team_id_changed? }
+  before_save :check_if_suborder, if: Proc.new { |o| o.invoice_id_changed? }
 
   def handle_paid(paid)
     return self.update_attributes(paid: paid)
   end
 
   private
+
+  def check_if_suborder
+    if parent.present?
+      errors[:base] << 'Suborder can not be invoiced'
+      false
+    end
+  end
 
   def check_for_tasks_on_team_change
     if tasks.present?
