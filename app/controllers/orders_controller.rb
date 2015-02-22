@@ -2,8 +2,18 @@ class OrdersController < ApplicationController
   before_action :set_order, except: [:index, :create, :create_suborder]
 
   def index
-    @orders = Order.all
-    render json: @orders
+    @filterrific = initialize_filterrific(
+     Order,
+     params,
+     select_options: {
+       sorted_by: Order.options_for_sorted_by,
+     }
+   ) or return
+
+   @orders = @filterrific.find
+
+
+   paginate json: @orders, per_page: 10
   end
 
   def show

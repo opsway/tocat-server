@@ -37,6 +37,86 @@ class Order < ActiveRecord::Base
   before_save :check_for_tasks_on_team_change, if: Proc.new { |o| o.team_id_changed? }
   before_save :check_if_suborder, if: Proc.new { |o| o.invoice_id_changed? }
 
+  filterrific(
+    default_filter_params: { sorted_by: 'created_at_asc' },
+    available_filters: [
+      :sorted_by,
+      :search_query
+    ]
+  )
+
+  scope :search_query, lambda { |query|
+      # see http://filterrific.clearcove.ca/pages/active_record_scope_patterns.html
+      # for details
+    return nil  if query.blank?
+    terms = query.downcase.split(/\s+/)
+    terms = terms.map { |e|
+      (e.gsub('*', '%') + '%').gsub(/%+/, '%')
+    }
+    num_or_conds = 2
+    where(
+      terms.map { |term|
+        "(LOWER(orders.name) LIKE ? OR LOWER(orders.description) LIKE ?)"
+      }.join(' AND '),
+      *terms.map { |e| [e] * num_or_conds }.flatten
+    )
+  }
+
+  scope :sorted_by, lambda { |sort_option|
+    if sort_option.split(',').count > 1
+      sort_option.gsub!(/\s/, '')
+      order_params = []
+      sort_option.split(',').each do |option|
+        direction = (option =~ /desc$/) ? 'desc' : 'asc'
+        case option.to_s
+        when /^invoiced_budget_/
+          order_params << "orders.invoiced_budget #{ direction }"
+        when /^created_at_/
+          order_params << "orders.created_at #{ direction }"
+        when /^free_budget_/
+          order_params << "orders.free_budget #{ direction }"
+        when /^allocatable_budget_/
+          order_params <<  "orders.allocatable_budget #{ direction }"
+        when /^name_/
+          order_params <<  "LOWER(orders.name) #{ direction }"
+        else
+          raise(ArgumentError, "Invalid sort option: #{ option.inspect }")
+        end
+      end
+      order(order_params.join(', '))
+    else
+      direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
+      case sort_option.to_s
+      when /^invoiced_budget_/
+        order("orders.invoiced_budget #{ direction }")
+      when /^created_at_/
+        order("orders.created_at #{ direction }")
+      when /^free_budget_/
+        order("orders.free_budget #{ direction }")
+      when /^allocatable_budget_/
+        order("orders.allocatable_budget #{ direction }")
+      when /^name_/
+        order("LOWER(orders.name) #{ direction }")
+      else
+        raise(ArgumentError, "Invalid sort option: #{ sort_option.inspect }")
+      end
+    end
+
+  }
+
+  def self.options_for_sorted_by
+    [
+      ['Name (a-z)', 'name_asc'],
+      ['Name (Z-A)', 'name_desc'],
+      ['Invoiced Budget (lower first)', 'invoiced_budget_desc'],
+      ['Invoiced Budget (greather first)', 'invoiced_budget_asc'],
+      ['Free Budget (lower first)', 'free_budget_desc'],
+      ['Free Budget (greather first)', 'free_budget_asc'],
+      ['Allocatable Budget (lower first)', 'allocatable_budget_desc'],
+      ['Allocatable Budget (greather first)', 'allocatable_budget_asc']
+    ]
+  end
+
   def handle_paid(paid)
     return self.update_attributes(paid: paid)
   end
