@@ -15,7 +15,8 @@ class Task < ActiveRecord::Base
     default_filter_params: { sorted_by: 'created_at_asc' },
     available_filters: [
       :sorted_by,
-      :search_query
+      :search_query,
+      :paid
     ]
   )
 
@@ -23,7 +24,7 @@ class Task < ActiveRecord::Base
       # see http://filterrific.clearcove.ca/pages/active_record_scope_patterns.html
       # for details
     return nil  if query.blank?
-    terms = query.downcase.split(/\s+/)
+    terms = query.to_s.downcase.split(/\s+/)
     terms = terms.map { |e|
       (e.gsub('*', '%') + '%').gsub(/%+/, '%')
     }
@@ -34,6 +35,10 @@ class Task < ActiveRecord::Base
       }.join(' AND '),
       *terms.map { |e| [e] * num_or_conds }.flatten
     )
+  }
+
+  scope :paid, lambda { |flag|
+    where(paid: ActiveRecord::Type::Boolean.new.type_cast_from_user(flag))
   }
 
   scope :sorted_by, lambda { |sort_option|
@@ -65,13 +70,6 @@ class Task < ActiveRecord::Base
     end
 
   }
-
-  def self.options_for_sorted_by
-    [
-      ['External ID (a-z)', 'external_id_asc'],
-      ['External ID (z-a)', 'external_id_desc']
-    ]
-  end
 
   def can_be_paid?
     can_be_paid = true

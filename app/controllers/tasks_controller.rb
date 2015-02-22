@@ -4,16 +4,13 @@ class TasksController < ApplicationController
   def index
     @filterrific = initialize_filterrific(
      Task,
-     params,
-     select_options: {
-       sorted_by: Task.options_for_sorted_by,
-     }
+     params
    ) or return
 
    @tasks = @filterrific.find
 
 
-   paginate json: @tasks, per_page: 10
+   paginate json: @tasks, per_page: params[:limit]
   end
 
   def show
