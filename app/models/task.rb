@@ -48,9 +48,9 @@ class Task < ActiveRecord::Base
       sort_option.split(',').each do |option|
         direction = (option =~ /desc$/) ? 'desc' : 'asc'
         case option.to_s
-        when /^external_id_/
+        when /^external_id/
           order_params << "LOWER(tasks.external_id) #{ direction }"
-        when /^budget_/
+        when /^budget/
           order_params << "tasks.budget #{ direction }"
         else
           raise(ArgumentError, "Invalid sort option: #{ option.inspect }")
@@ -60,9 +60,9 @@ class Task < ActiveRecord::Base
     else
       direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
       case sort_option.to_s
-      when /^external_id_/
+      when /^external_id/
         order("LOWER(tasks.external_id) #{ direction }")
-      when /^budget_/
+      when /^budget/
         order("tasks.budget #{ direction }")
       else
         raise(ArgumentError, "Invalid sort option: #{ sort_option.inspect }")

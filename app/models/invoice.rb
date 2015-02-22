@@ -42,9 +42,9 @@ class Invoice < ActiveRecord::Base
       sort_option.split(',').each do |option|
         direction = (option =~ /desc$/) ? 'desc' : 'asc'
         case option.to_s
-        when /^comment_/
+        when /^comment/
           order_params << "invoices.external_id #{ direction }"
-        when /^client_/
+        when /^client/
           order_params << "invoices.client #{ direction }"
         else
           raise(ArgumentError, "Invalid sort option: #{ option.inspect }")
@@ -54,9 +54,9 @@ class Invoice < ActiveRecord::Base
     else
       direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
       case sort_option.to_s
-      when /^comment_/
+      when /^comment/
         order("invoices.external_id #{ direction }")
-      when /^client_/
+      when /^client/
         order("invoices.client #{ direction }")
       else
         raise(ArgumentError, "Invalid sort option: #{ sort_option.inspect }")

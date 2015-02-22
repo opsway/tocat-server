@@ -1,5 +1,5 @@
 class OrdersController < ApplicationController
-  before_action :set_order, except: [:index, :create, :create_suborder]
+  before_action :set_order, except: [:index, :create, :create_suborder, :new]
 
   def index
     @filterrific = initialize_filterrific(
@@ -97,6 +97,11 @@ class OrdersController < ApplicationController
     else
       render json: error_builder(@order), status: :unprocessable_entity
     end
+  end
+
+  def new
+    @order = Order.new
+    render json: @order, serializer: OrderShowSerializer
   end
 
   private
