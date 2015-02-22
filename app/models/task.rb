@@ -11,6 +11,68 @@ class Task < ActiveRecord::Base
 
   belongs_to :user
 
+  filterrific(
+    default_filter_params: { sorted_by: 'created_at_asc' },
+    available_filters: [
+      :sorted_by,
+      :search_query
+    ]
+  )
+
+  scope :search_query, lambda { |query|
+      # see http://filterrific.clearcove.ca/pages/active_record_scope_patterns.html
+      # for details
+    return nil  if query.blank?
+    terms = query.downcase.split(/\s+/)
+    terms = terms.map { |e|
+      (e.gsub('*', '%') + '%').gsub(/%+/, '%')
+    }
+    num_or_conds = 1
+    where(
+      terms.map { |term|
+        "LOWER(tasks.external_id) LIKE ?"
+      }.join(' AND '),
+      *terms.map { |e| [e] * num_or_conds }.flatten
+    )
+  }
+
+  scope :sorted_by, lambda { |sort_option|
+    if sort_option.split(',').count > 1
+      sort_option.gsub!(/\s/, '')
+      order_params = []
+      sort_option.split(',').each do |option|
+        direction = (option =~ /desc$/) ? 'desc' : 'asc'
+        case option.to_s
+        when /^external_id_/
+          order_params << "LOWER(tasks.external_id) #{ direction }"
+        when /^budget_/
+          order_params << "tasks.budget #{ direction }"
+        else
+          raise(ArgumentError, "Invalid sort option: #{ option.inspect }")
+        end
+      end
+      order(order_params.join(', '))
+    else
+      direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
+      case sort_option.to_s
+      when /^external_id_/
+        order("LOWER(tasks.external_id) #{ direction }")
+      when /^budget_/
+        order("tasks.budget #{ direction }")
+      else
+        raise(ArgumentError, "Invalid sort option: #{ sort_option.inspect }")
+      end
+    end
+
+  }
+
+  def self.options_for_sorted_by
+    [
+      ['External ID (a-z)', 'external_id_asc'],
+      ['External ID (z-a)', 'external_id_desc']
+    ]
+  end
+
   def can_be_paid?
     can_be_paid = true
     orders.each do |order|
