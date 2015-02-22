@@ -3,6 +3,8 @@ class InvoiceShowSerializer < ActiveModel::Serializer
 
   attributes :id, :external_id, :paid, :links
 
+  has_many :orders
+
   private
 
   def links
