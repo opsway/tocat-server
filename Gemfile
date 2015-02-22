@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 ruby '2.1.1'
-gem 'rails', '4.1.7'
+gem 'rails', '4.2'
 gem 'rails-api'
 gem 'active_model_serializers'
 gem 'mysql2'
@@ -9,6 +9,10 @@ gem "rails_config"
 gem 'turbolinks'
 # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
 gem 'spring',        group: :development
+gem 'filterrific'
+gem 'will_paginate', '~> 3.0.6'
+gem 'api-pagination'
+
 
 group :development do
   gem 'guard-rubocop'
