@@ -3,14 +3,12 @@ class InvoicesController < ApplicationController
 
   def index
     @filterrific = initialize_filterrific(
-     Invoice,
-     params
-   ) or return
+    Invoice,
+    params
+    ) or return
 
-   @invoices = @filterrific.find
-
-
-   paginate json: @invoices, per_page: params[:limit]
+    @invoices = @filterrific.find
+    paginate json: @invoices, per_page: params[:limit]
   end
 
   def show
@@ -60,6 +58,6 @@ class InvoicesController < ApplicationController
 
   def invoice_params
     params.permit(:external_id,
-                  :client)
+    :client)
   end
 end

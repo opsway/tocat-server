@@ -3,14 +3,12 @@ class TasksController < ApplicationController
 
   def index
     @filterrific = initialize_filterrific(
-     Task,
-     params
-   ) or return
+    Task,
+    params
+    ) or return
 
-   @tasks = @filterrific.find
-
-
-   paginate json: @tasks, per_page: params[:limit]
+    @tasks = @filterrific.find
+    paginate json: @tasks, per_page: params[:limit]
   end
 
   def show
@@ -96,7 +94,7 @@ class TasksController < ApplicationController
           end
         else
           new_db_record = @task.task_orders.new order_id: record[1]['order_id'],
-                                                budget: record[1]['budget']
+          budget: record[1]['budget']
           if new_db_record.save
             saved_records << new_db_record
           else
