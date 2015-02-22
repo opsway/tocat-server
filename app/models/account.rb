@@ -11,6 +11,12 @@ class Account < ActiveRecord::Base
   belongs_to :accountable, polymorphic: true
   has_many :transactions
 
+  scope :with_accountable, -> (id, type) { Account.where(accountable_id: id, accountable_type: type.upcase) }
+
+
+
+
+
   def balance
     value = BigDecimal.new 0
     transactions.each { |t| value += t.total }

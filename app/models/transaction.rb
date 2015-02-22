@@ -7,4 +7,6 @@ class Transaction < ActiveRecord::Base
 
   belongs_to :user
   belongs_to :account
+
+  scope :with_account_id, -> (account_id) { Transaction.where(account_id: account_id) }
 end
