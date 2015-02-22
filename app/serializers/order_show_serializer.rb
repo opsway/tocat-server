@@ -14,6 +14,10 @@ class OrderShowSerializer < ActiveModel::Serializer
              :links,
              :team
 
+  has_many :tasks
+  has_many :sub_orders
+
+
   private
 
   def free_budget
