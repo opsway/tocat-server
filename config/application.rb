@@ -11,6 +11,17 @@ module TocatServer
     config.generators do |g|
       g.test_framework :rspec
     end
+
+    ApiPagination.configure do |config|
+      # If you have both gems included, you can choose a paginator.
+      config.paginator = :will_paginate # or :kaminari
+
+      # By default, this is set to 'Total'
+      config.total_header = 'X-Total'
+
+      # By default, this is set to 'Per-Page'
+      config.per_page_header = 'X-Per-Page'
+    end
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded.
