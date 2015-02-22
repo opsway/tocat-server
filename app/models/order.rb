@@ -49,7 +49,7 @@ class Order < ActiveRecord::Base
       # see http://filterrific.clearcove.ca/pages/active_record_scope_patterns.html
       # for details
     return nil  if query.blank?
-    terms = query.downcase.split(/\s+/)
+    terms = query.to_s.downcase.split(/\s+/)
     terms = terms.map { |e|
       (e.gsub('*', '%') + '%').gsub(/%+/, '%')
     }
@@ -103,19 +103,6 @@ class Order < ActiveRecord::Base
     end
 
   }
-
-  def self.options_for_sorted_by
-    [
-      ['Name (a-z)', 'name_asc'],
-      ['Name (Z-A)', 'name_desc'],
-      ['Invoiced Budget (lower first)', 'invoiced_budget_desc'],
-      ['Invoiced Budget (greather first)', 'invoiced_budget_asc'],
-      ['Free Budget (lower first)', 'free_budget_desc'],
-      ['Free Budget (greather first)', 'free_budget_asc'],
-      ['Allocatable Budget (lower first)', 'allocatable_budget_desc'],
-      ['Allocatable Budget (greather first)', 'allocatable_budget_asc']
-    ]
-  end
 
   def handle_paid(paid)
     return self.update_attributes(paid: paid)

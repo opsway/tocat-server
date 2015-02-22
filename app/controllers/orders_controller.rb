@@ -4,16 +4,13 @@ class OrdersController < ApplicationController
   def index
     @filterrific = initialize_filterrific(
      Order,
-     params,
-     select_options: {
-       sorted_by: Order.options_for_sorted_by,
-     }
+     params
    ) or return
 
    @orders = @filterrific.find
 
 
-   paginate json: @orders, per_page: 10
+   paginate json: @orders, per_page: params[:limit]
   end
 
   def show
