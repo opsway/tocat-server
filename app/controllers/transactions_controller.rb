@@ -2,8 +2,13 @@ class TransactionsController < ApplicationController
   before_action :set_transaction, except: [:index]
 
   def index
-    @transactions = Transaction.all
-    render json: @transactions
+    @filterrific = initialize_filterrific(
+    Transaction,
+    params
+    ) or return
+
+    @transactions = @filterrific.find
+    paginate json: @transactions, per_page: params[:limit]
   end
 
   def show
