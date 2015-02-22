@@ -41,9 +41,14 @@ class Order < ActiveRecord::Base
     default_filter_params: { sorted_by: 'created_at_asc' },
     available_filters: [
       :sorted_by,
-      :search_query
+      :search_query,
+      :paid
     ]
   )
+
+  scope :paid, lambda { |flag|
+    where(paid: ActiveRecord::Type::Boolean.new.type_cast_from_user(flag))
+  }
 
   scope :search_query, lambda { |query|
       # see http://filterrific.clearcove.ca/pages/active_record_scope_patterns.html

@@ -3,14 +3,12 @@ class OrdersController < ApplicationController
 
   def index
     @filterrific = initialize_filterrific(
-     Order,
-     params
-   ) or return
+    Order,
+    params
+    ) or return
 
-   @orders = @filterrific.find
-
-
-   paginate json: @orders, per_page: params[:limit]
+    @orders = @filterrific.find
+    paginate json: @orders, per_page: params[:limit]
   end
 
   def show
@@ -64,7 +62,7 @@ class OrdersController < ApplicationController
     end
   rescue ActiveRecord::RecordNotFound
     render json: { error: 'ORDER_ERROR', message: 'Invoice does not exist'},
-           status: :unprocessable_entity
+    status: :unprocessable_entity
   end
 
   def delete_invoice
@@ -109,10 +107,10 @@ class OrdersController < ApplicationController
 
   def order_params
     params.permit(:name,
-                  :description,
-                  :team,
-                  :invoiced_budget,
-                  :allocatable_budget,
-                  :invoice_id)
+    :description,
+    :team,
+    :invoiced_budget,
+    :allocatable_budget,
+    :invoice_id)
   end
 end
