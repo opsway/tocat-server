@@ -21,6 +21,7 @@ class UserShowSerializer < ActiveModel::Serializer
     data = {}
     data[:name] = object.team.name
     data[:href] = team_path(object.team)
+    data[:id] = object.team.id
     data
   end
 

@@ -65,6 +65,12 @@ class Invoice < ActiveRecord::Base
 
   }
 
+  def total
+    value = BigDecimal.new 0
+    orders.each { |o| value += o.invoiced_budget }
+    value
+  end
+
   private
 
   def handle_paid_status
