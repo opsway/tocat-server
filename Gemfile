@@ -12,6 +12,7 @@ gem 'spring',        group: :development
 gem 'filterrific'
 gem 'will_paginate', '~> 3.0.6'
 gem 'api-pagination'
+gem 'shiftplanning', '~> 0.0.3'
 
 
 group :development do
