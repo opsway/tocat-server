@@ -152,36 +152,36 @@ frisby.create('Correct order creation')
     .expectStatus(201)
     .afterJSON(function(order) {
       frisby.create("Check free budget upon order creation")
-        .get(url + '/orders/' + order.id)
+        .get(url + '/order/' + order.id)
         .expectStatus(200)
         .expectJSON({'free_budget' : 100})
         .toss();
 
       frisby.create('Update order with correct allocatable budget')
-        .patch(url + '/orders/' + order.id, {allocatable_budget: 120})
+        .patch(url + '/order/' + order.id, {allocatable_budget: 120})
         .expectStatus(200)
         .toss();
 
       frisby.create('Update order with allocatable budget greater than invoiced')
-        .patch(url + '/orders/' + order.id, {allocatable_budget: 200})
+        .patch(url + '/order/' + order.id, {allocatable_budget: 200})
         .expectStatus(422)
         .expectJSON({error:'ORDER_ERROR'})
         .toss();
 
       frisby.create('Update order with allocatable budget less than zero')
-        .patch(url + '/orders/' + order.id, {allocatable_budget: -10})
+        .patch(url + '/order/' + order.id, {allocatable_budget: -10})
         .expectStatus(422)
         .expectJSON({error:'ORDER_ERROR'})
         .toss();
 
       frisby.create('Update order with invoiced budget less than zero')
-        .patch(url + '/orders/' + order.id, {invoiced_budget: -10})
+        .patch(url + '/order/' + order.id, {invoiced_budget: -10})
         .expectStatus(422)
         .expectJSON({error:'ORDER_ERROR'})
         .toss();
 
       frisby.create('Update order with invoiced budget set to zero')
-        .patch(url + '/orders/' + order.id, {invoiced_budget: 0})
+        .patch(url + '/order/' + order.id, {invoiced_budget: 0})
         .expectStatus(422)
         .expectJSON({error:'ORDER_ERROR'})
         .toss();
