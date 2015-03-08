@@ -79,26 +79,28 @@ class TasksController < ApplicationController
     budgets = {}
     budgets[:task_orders_attributes] = task_params[:budget]
     passed_ids = []
-    task_params[:budget].each do |record|
-      passed_ids << record['id']
-    end
-    @task.task_order_ids.each do |record|
-      unless passed_ids.include? record
-        budgets[:task_orders_attributes] << {'id' => record, '_destroy' => true}
+    if task_params[:budget].present?
+      task_params[:budget].each do |record|
+        passed_ids << record['id']
       end
-    end
-    TaskOrders.transaction do
-      @task.update(budgets)
-      errors = {}
-      @task.task_orders.each do |task_order|
-        if task_order.errors.present?
-          errors[task_order.order_id] = task_order.errors.full_messages
+      @task.task_order_ids.each do |record|
+        unless passed_ids.include? record
+          budgets[:task_orders_attributes] << {'id' => record, '_destroy' => true}
         end
       end
-      if errors.empty?
-        render json: {}, status: 200
-      else
-        render json: errors, status: :unprocessable_entity
+      TaskOrders.transaction do
+        @task.update(budgets)
+        errors = {}
+        @task.task_orders.each do |task_order|
+          if task_order.errors.present?
+            errors[task_order.order_id] = task_order.errors.full_messages
+          end
+        end
+        if errors.empty?
+          render json: {}, status: 200
+        else
+          render json: errors, status: :unprocessable_entity
+        end
       end
     end
   end

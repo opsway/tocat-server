@@ -1,1 +1,1 @@
-exports.url = 'http://localhost:3001';
+exports.url = 'http://test.tocat.opsway.com';
