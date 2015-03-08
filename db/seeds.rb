@@ -56,3 +56,12 @@ user_list = [
 user_list.each do |name, rate, login, team, role|
   User.create( name: name, daily_rate: rate, login: login, team: Team.find_by_name(team), role: Role.find_by_name(role) )
 end
+
+
+3.times do
+  Invoice.create client:('a'..'z').to_a.shuffle[0,8].join, external_id:('a'..'z').to_a.shuffle[0,8].join, paid:false
+end
+
+5.times do
+  Order.create name:('a'..'z').to_a.shuffle[0,8].join, description: ('a'..'z').to_a.shuffle[0,8].join, team:Team.all.sample, invoice: Invoice.all.sample, invoiced_budget:1000, allocatable_budget:1000
+end
