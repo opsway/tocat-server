@@ -91,7 +91,7 @@ class OrdersController < ApplicationController
     end
     @order.team_id = params[:team][:id]
     @order.invoiced_budget = order_params[:allocatable_budget]
-    @order.parent = Order.find(params[:id])
+    @order.parent = Order.find(params[:order_id])
     if @order.save
       render json: @order, serializer: AfterCreationSerializer, status: 201 # conflict
     else
@@ -102,7 +102,11 @@ class OrdersController < ApplicationController
   private
 
   def set_order
-    @order = Order.find(params[:id])
+    if params[:order_id].present?
+      @order = Order.find(params[:order_id])
+    else
+      @order = Order.find(params[:id])
+    end
   end
 
   def order_params

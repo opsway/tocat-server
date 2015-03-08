@@ -53,7 +53,11 @@ class InvoicesController < ApplicationController
   private
 
   def set_invoice
-    @invoice = Invoice.find(params[:id])
+    if params[:invoice_id].present?
+      @invoice = Invoice.find(params[:invoice_id])
+    else
+      @invoice = Invoice.find(params[:id])
+    end
   end
 
   def invoice_params
