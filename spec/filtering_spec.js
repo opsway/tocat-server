@@ -1,4 +1,3 @@
-var frisby = require('frisby');
 var config = require('./config');
 var url = config.url;
 
@@ -23,11 +22,6 @@ frisby.create('Main invoice')
         })
     .expectStatus(201)
     .afterJSON(function(invoice){
-
-    	frisby.create('Set invoice paid')
-                            .post(url + '/invoice/' + invoice.id + '/paid')
-                            .expectStatus(200)
-                            .toss();
 
 		frisby.create('Second order creation')
 		      .post(url + '/orders',
@@ -57,12 +51,7 @@ frisby.create('Main invoice')
 		              	.expectStatus(201)
 		              	.afterJSON(function(task){
 		                 	    frisby.create('Set task budgets')
-    		                   		.post(url + '/task/' + task.id + '/budget', {'budget' : [
-    		                       		{
-    		                         		'order_id' : order.id,
-    		                         		'budget'   : 100
-    		                       		}
-    		                     	]})
+    		                   		.post(url + '/task/' + task.id + '/budget', { budget : [{order_id : order.id, budget   : 100 }]})
     		                   		.expectStatus(200)
     		                   		.toss();
 

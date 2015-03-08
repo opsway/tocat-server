@@ -12,8 +12,6 @@
 
 //Zoho books integration.
 //  - create books invoice -> set TOCAT invoice as immutable -> set order budgets as immutable
-
-var frisby = require('frisby');
 var config = require('./config');
 var url = config.url;
 
@@ -109,6 +107,58 @@ frisby.create('Correct invoice2')
                                     .toss();
 
                                   frisby.create('Set task1 budgets')
+                                    .post(url + '/task/' + task.id + '/budget', {'budget' : [
+                                      {
+                                        'order_id' : subOrder1.id,
+                                        'budget'   : 30
+                                      }
+                                      ,
+                                      {
+                                        'order_id' : order2.id,
+                                        'budget'   : 20
+                                      }
+                                      ]})
+                                    .expectStatus(200)
+                                    .toss();
+
+                                  frisby.create('Remove one order from budget')
+                                    .post(url + '/task/' + task.id + '/budget', {'budget' : [
+                                      {
+                                        'order_id' : subOrder1.id,
+                                        'budget'   : 30
+                                      }
+                                      ]})
+                                    .expectStatus(200)
+                                    .toss();
+
+                                  frisby.create("Check that budget is decreased")
+                                    .get(url + '/task/' + task.id)
+                                    .expectStatus(200)
+                                    .expectJSON('budget' : 30)
+                                    .afterJSON(function(task){
+                                      expect(task.orders.length).toEqual(1)
+                                    })
+                                    .toss();
+
+                                  frisby.create('Remove all orders from budget')
+                                    .post(url + '/task/' + task.id + '/budget', {'budget' : [
+                                      {
+                                        
+                                      }
+                                      ]})
+                                    .expectStatus(200)
+                                    .toss();
+
+                                  frisby.create("Check that budget is zero")
+                                    .get(url + '/task/' + task.id)
+                                    .expectStatus(200)
+                                    .expectJSON('budget' : 0)
+                                    .afterJSON(function(task){
+                                      expect(task.orders.length).toEqual(0)
+                                    })
+                                    .toss();
+
+                                  frisby.create('Set again task1 budgets')
                                     .post(url + '/task/' + task.id + '/budget', {'budget' : [
                                       {
                                         'order_id' : subOrder1.id,
