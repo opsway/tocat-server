@@ -1,4 +1,3 @@
-var frisby = require('frisby');
 var config = require('./config');
 var url = config.url;
 
@@ -78,6 +77,39 @@ frisby.create('Correct order creation')
               .post(url + '/tasks', {"external_id": "TST-102" })
               .expectStatus(201)
               .afterJSON(function(task){
+
+                frisby.create('Set negative task budget')
+                  .post(url + '/task/' + task.id + '/budget', {'budget' : [
+                      {
+                        'order_id' : order.id,
+                        'budget'   : -1
+                      }]})
+                  .expectStatus(422)
+                  .expectJSON({error:'TASK_ERROR'})
+                  .expectBodyContains('Budget can not be negative')
+                  .toss();
+        
+                frisby.create('Invalid budget data')
+                  .post(url + '/task/' + task.id + '/budget', {'budget' : [
+                      {
+                        'order_id' : order.id,
+                        'budget'   : -1
+                      }, 
+                      
+                      { 'budget' : 10},
+                      
+                      {
+                        'order_id' : order2.id,
+                        'budget'   : 150
+                      }
+                      ]
+                    })
+                  .expectStatus(422)
+                  .expectJSON({error:'TASK_ERROR'})
+                  .expectBodyContains('Invalid data')
+                  .toss();
+
+
                 frisby.create('Set task budgets')
                   .post(url + '/task/' + task.id + '/budget', {'budget' : [
                       {
@@ -298,6 +330,7 @@ frisby.create('Correct order creation for unusual team')
                                               .expectStatus(422)
                                               .expectJSON({error: 'TASK_ERROR'})
                                               .expectBodyContains('You can not assign more budget than is available on order')
+
                                               .afterJSON(function(){
                                                 frisby.create('Set task Resolver from different team than we set budget')
                                                   .post(url + '/task/' + task.id + '/resolver', {'user_id' : 2})

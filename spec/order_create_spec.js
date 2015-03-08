@@ -1,4 +1,3 @@
-var frisby = require('frisby');
 var config = require('./config');
 var url = config.url;
 
