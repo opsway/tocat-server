@@ -78,17 +78,9 @@ class TasksController < ApplicationController
   def set_budgets
     budgets = {}
     budgets[:task_orders_attributes] = task_params[:budget]
-    passed_ids = []
     if task_params[:budget].present?
-      task_params[:budget].each do |record|
-        passed_ids << record['id']
-      end
-      @task.task_order_ids.each do |record|
-        unless passed_ids.include? record
-          budgets[:task_orders_attributes] << {'id' => record, '_destroy' => true}
-        end
-      end
       TaskOrders.transaction do
+        @task.task_orders.destroy_all
         @task.update(budgets)
         errors = {}
         @task.task_orders.each do |task_order|
@@ -120,6 +112,6 @@ class TasksController < ApplicationController
   end
 
   def task_params
-    params.permit(:external_id, budget:[:id, :order_id, :budget, :_destroy])
+    params.permit(:external_id, budget:[:order_id, :budget])
   end
 end

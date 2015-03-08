@@ -13,6 +13,9 @@ class Task < ActiveRecord::Base
   belongs_to :user
 
   accepts_nested_attributes_for :task_orders, reject_if: :all_blank, allow_destroy: true
+  validates_associated :task_orders
+  validate :validate_unique_task_orders
+
 
   filterrific(
     default_filter_params: { sorted_by: 'created_at_asc' },
@@ -120,15 +123,9 @@ class Task < ActiveRecord::Base
 
   private
 
-  def validate_nested_attributes
-    task_orders.each do |record|
-      unless record.task.present?
-        errors[:base] << ""
-      end
-      unless task.team == order.team
-        errors[:base] << "Orders are created for different teams"
-      end
-    end
+  def validate_unique_task_orders
+    validate_uniqueness_of_in_memory(
+      task_orders, [:order_id, :task_id], 'Duplicate Budgets.')
   end
 
   def handle_balance_after_changing_paid_status
@@ -179,6 +176,29 @@ class Task < ActiveRecord::Base
     end
     if user.team != team
       errors[:base] << "Task resolver is from different team than order"
+    end
+  end
+end
+
+
+
+module ActiveRecord
+  class Base
+    # Validate that the the objects in +collection+ are unique
+    # when compared against all their non-blank +attrs+. If not
+    # add +message+ to the base errors.
+    def validate_uniqueness_of_in_memory(collection, attrs, message)
+      hashes = collection.inject({}) do |hash, record|
+        key = attrs.map {|a| record.send(a).to_s }.join
+        if key.blank? || record.marked_for_destruction?
+          key = record.object_id
+        end
+        hash[key] = record unless hash[key]
+        hash
+      end
+      if collection.length > hashes.length
+        raise message
+      end
     end
   end
 end
