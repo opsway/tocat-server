@@ -1,15 +1,18 @@
 class Task < ActiveRecord::Base
   validates :external_id,  presence: { message: "Missing external task ID" }
   validate :check_resolver_team, if: Proc.new { |o| o.user_id_changed? && !o.user_id.nil?}
+  validates_associated :task_orders
 
-  has_many :task_orders, class_name: 'TaskOrders'
+  has_many :task_orders, class_name: 'TaskOrders', :autosave => true
 
-  has_many :orders, through: :task_orders
+  has_many :orders, through: :task_orders, :autosave => true
 
   before_save :handle_balance_after_changing_resolver, if: Proc.new { |o| o.paid && o.user_id_changed? }
   before_save :handle_balance_after_changing_paid_status, if: Proc.new { |o| o.paid_changed? && user_id.present? }
 
   belongs_to :user
+
+  accepts_nested_attributes_for :task_orders, reject_if: :all_blank, allow_destroy: true
 
   filterrific(
     default_filter_params: { sorted_by: 'created_at_asc' },
@@ -116,6 +119,17 @@ class Task < ActiveRecord::Base
   end
 
   private
+
+  def validate_nested_attributes
+    task_orders.each do |record|
+      unless record.task.present?
+        errors[:base] << ""
+      end
+      unless task.team == order.team
+        errors[:base] << "Orders are created for different teams"
+      end
+    end
+  end
 
   def handle_balance_after_changing_paid_status
     if paid

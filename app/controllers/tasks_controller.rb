@@ -76,37 +76,29 @@ class TasksController < ApplicationController
   end
 
   def set_budgets
+    budgets = {}
+    budgets[:task_orders_attributes] = task_params[:budget]
+    passed_ids = []
+    task_params[:budget].each do |record|
+      passed_ids << record['id']
+    end
+    @task.task_order_ids.each do |record|
+      unless passed_ids.include? record
+        budgets[:task_orders_attributes] << {'id' => record, '_destroy' => true}
+      end
+    end
     TaskOrders.transaction do
-      invalid_record = nil
-      saved_records = []
-      params[:budget].each do |record|
-        db_record = TaskOrders.where(task_id: @task.id, order_id: record[1]['order_id']).first
-        if db_record.present?
-          db_record.transaction do
-            db_record.budget = 1
-            db_record.save
-            db_record.budget = record[1]['budget']
-            if db_record.save
-              saved_records << db_record
-            else
-              invalid_record = db_record
-            end
-          end
-        else
-          new_db_record = @task.task_orders.new order_id: record[1]['order_id'],
-          budget: record[1]['budget']
-          if new_db_record.save
-            saved_records << new_db_record
-          else
-            invalid_record = new_db_record
-          end
+      @task.update(budgets)
+      errors = {}
+      @task.task_orders.each do |task_order|
+        if task_order.errors.present?
+          errors[task_order.order_id] = task_order.errors.full_messages
         end
       end
-      if invalid_record.nil?
+      if errors.empty?
         render json: {}, status: 200
       else
-        saved_records.each { |r| r.destroy }
-        render json: error_builder(invalid_record, 'TASK'), status: 422
+        render json: errors, status: :unprocessable_entity
       end
     end
   end
@@ -126,6 +118,6 @@ class TasksController < ApplicationController
   end
 
   def task_params
-    params.permit(:external_id)
+    params.permit(:external_id, budget:[:id, :order_id, :budget, :_destroy])
   end
 end
