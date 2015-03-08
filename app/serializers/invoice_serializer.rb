@@ -1,7 +1,7 @@
 class InvoiceSerializer < ActiveModel::Serializer
   include Rails.application.routes.url_helpers
 
-  attributes :id,:external_id, :paid, :links
+  attributes :id,:external_id, :total, :paid, :links
 
   private
 
