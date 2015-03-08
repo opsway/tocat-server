@@ -65,11 +65,11 @@ class OrderShowSerializer < ActiveModel::Serializer
     link_to_self[:rel] = 'self'
     data << link_to_self
     link_to_invoice = {}
-    link_to_invoice[:href] = set_invoice_path(object)
+    link_to_invoice[:href] = order_set_invoice_path(object)
     link_to_invoice[:rel] = 'invoice'
     data << link_to_invoice
     link_to_suborder = {}
-    link_to_suborder[:href] = suborders_path(object)
+    link_to_suborder[:href] = order_suborders_path(object)
     link_to_suborder[:rel] = 'suborder'
     data << link_to_suborder
     data

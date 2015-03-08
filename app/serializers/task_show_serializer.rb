@@ -8,6 +8,8 @@ class TaskShowSerializer < ActiveModel::Serializer
              :resolver,
              :links
 
+  has_many :orders
+
   private
 
   def accepted
