@@ -7,6 +7,9 @@ class TaskOrders < ActiveRecord::Base
   validate :check_resolver_team_after_budget_creation
   validate :resolver_presence
 
+  validates_uniqueness_of :task_id, :scope => [:order_id]
+  validates_uniqueness_of :order_id, :scope => [:task_id]
+
   belongs_to :order
   belongs_to :task
 
