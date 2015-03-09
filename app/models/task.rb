@@ -55,7 +55,7 @@ class Task < ActiveRecord::Base
         direction = (option =~ /desc$/) ? 'desc' : 'asc'
         case option.to_s
         when /^external_id/
-          order_params << "LOWER(tasks.external_id) #{ direction }"
+          order_params << "tasks.external_id #{ direction }"
         when /^budget/
           order_params << "tasks.budget #{ direction }"
         else
@@ -67,7 +67,7 @@ class Task < ActiveRecord::Base
       direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
       case sort_option.to_s
       when /^external_id/
-        order("LOWER(tasks.external_id) #{ direction }")
+        order("tasks.external_id #{ direction }")
       when /^budget/
         order("tasks.budget #{ direction }")
       else

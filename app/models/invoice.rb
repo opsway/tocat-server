@@ -42,7 +42,7 @@ class Invoice < ActiveRecord::Base
       sort_option.split(',').each do |option|
         direction = (option =~ /desc$/) ? 'desc' : 'asc'
         case option.to_s
-        when /^comment/
+        when /^external_id/
           order_params << "invoices.external_id #{ direction }"
         when /^client/
           order_params << "invoices.client #{ direction }"
@@ -54,7 +54,7 @@ class Invoice < ActiveRecord::Base
     else
       direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
       case sort_option.to_s
-      when /^comment/
+      when /^external_id/
         order("invoices.external_id #{ direction }")
       when /^client/
         order("invoices.client #{ direction }")
