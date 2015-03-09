@@ -104,10 +104,14 @@ class TasksController < ApplicationController
   private
 
   def set_task
-    if params[:task_id].present?
-      @task = Task.find(params[:task_id])
-    else
-      @task = Task.find(params[:id])
+    begin
+      if params[:task_id].present?
+        @task = Task.find(params[:task_id])
+      else
+        @task = Task.find(params[:id])
+      end
+    rescue ActiveRecord::RecordNotFound
+      return render json: {}, status: 404
     end
   end
 
