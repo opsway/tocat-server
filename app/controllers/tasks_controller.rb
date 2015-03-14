@@ -2,13 +2,14 @@ class TasksController < ApplicationController
   before_action :set_task, except: [:index, :create]
 
   def index
-    @filterrific = initialize_filterrific(
-    Task,
-    params
-    ) or return
+    if params[:search].present?
+      tasks = Task.search_for(params[:search])
+    else
+      tasks = Task.all
+    end
 
-    @tasks = @filterrific.find
-    paginate json: @tasks, per_page: params[:limit]
+    @articles = tasks.order(sort)
+    paginate json: @articles, per_page: params[:limit]
   end
 
   def show

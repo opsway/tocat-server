@@ -15,67 +15,12 @@ class Task < ActiveRecord::Base
   accepts_nested_attributes_for :task_orders, reject_if: :all_blank, allow_destroy: true
   validates_associated :task_orders
   validate :validate_unique_task_orders
+  scoped_search on: [:external_id]
+  scoped_search :in => :user, :on => :name
+  scoped_search :in => :orders, :on => :name
 
 
-  filterrific(
-    default_filter_params: { sorted_by: 'created_at_asc' },
-    available_filters: [
-      :sorted_by,
-      :search_query,
-      :paid
-    ]
-  )
 
-  scope :search_query, lambda { |query|
-      # see http://filterrific.clearcove.ca/pages/active_record_scope_patterns.html
-      # for details
-    return nil  if query.blank?
-    terms = query.to_s.downcase.split(/\s+/)
-    terms = terms.map { |e|
-      (e.gsub('*', '%') + '%').gsub(/%+/, '%')
-    }
-    num_or_conds = 1
-    where(
-      terms.map { |term|
-        "LOWER(tasks.external_id) LIKE ?"
-      }.join(' AND '),
-      *terms.map { |e| [e] * num_or_conds }.flatten
-    )
-  }
-
-  scope :paid, lambda { |flag|
-    where(paid: ActiveRecord::Type::Boolean.new.type_cast_from_user(flag))
-  }
-
-  scope :sorted_by, lambda { |sort_option|
-    if sort_option.split(',').count > 1
-      sort_option.gsub!(/\s/, '')
-      order_params = []
-      sort_option.split(',').each do |option|
-        direction = (option =~ /desc$/) ? 'desc' : 'asc'
-        case option.to_s
-        when /^external_id/
-          order_params << "tasks.external_id #{ direction }"
-        when /^budget/
-          order_params << "tasks.budget #{ direction }"
-        else
-          raise(ArgumentError, "Invalid sort option: #{ option.inspect }")
-        end
-      end
-      order(order_params.join(', '))
-    else
-      direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
-      case sort_option.to_s
-      when /^external_id/
-        order("tasks.external_id #{ direction }")
-      when /^budget/
-        order("tasks.budget #{ direction }")
-      else
-        raise(ArgumentError, "Invalid sort option: #{ sort_option.inspect }")
-      end
-    end
-
-  }
 
   def can_be_paid?
     can_be_paid = true
@@ -129,20 +74,22 @@ class Task < ActiveRecord::Base
   end
 
   def handle_balance_after_changing_paid_status
-    if paid
-      user.balance_account.transactions.create! total: budget,
-                                               comment: "#{self.id} accepted and paid",
-                                               user_id: 0
-      user.team.balance_account.transactions.create! total: budget,
-                                               comment: "#{self.id} accepted and paid",
-                                               user_id: 0
-    else
-      user.balance_account.transactions.create! total: - budget,
-                                               comment: "#{self.id} unaccepted and unpaid",
-                                               user_id: 0
-      user.team.balance_account.transactions.create! total: - budget,
-                                               comment: "#{self.id} unaccepted and unpaid",
-                                               user_id: 0
+    self.transaction do
+      if paid
+        user.balance_account.transactions.create! total: budget,
+                                                 comment: "#{self.external_id} accepted and paid",
+                                                 user_id: 0
+        user.team.balance_account.transactions.create! total: budget,
+                                                 comment: "#{self.external_id} accepted and paid",
+                                                 user_id: 0
+      else
+        user.balance_account.transactions.create! total: - budget,
+                                                 comment: "#{self.external_id} unaccepted and unpaid",
+                                                 user_id: 0
+        user.team.balance_account.transactions.create! total: - budget,
+                                                 comment: "#{self.external_id} unaccepted and unpaid",
+                                                 user_id: 0
+      end
     end
   end
 
