@@ -2,13 +2,14 @@ class InvoicesController < ApplicationController
   before_action :set_invoice, except: [:index, :create]
 
   def index
-    @filterrific = initialize_filterrific(
-    Invoice,
-    params
-    ) or return
+    if params[:search].present?
+      invoices = Invoice.search_for(params[:search])
+    else
+      invoices = Invoice.all
+    end
 
-    @invoices = @filterrific.find
-    paginate json: @invoices, per_page: params[:limit]
+    @articles = invoices.order(sort)
+    paginate json: @articles, per_page: params[:limit]
   end
 
   def show
