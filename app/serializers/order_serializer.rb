@@ -12,13 +12,13 @@ class OrderSerializer < ActiveModel::Serializer
              :links
 
   private
-  
+
   def suborder
     object.parent_id.present?
   end
 
   def team
-    {name: object.team.name, id: object.team.id}
+    #{name: object.team.name, id: object.team.id}
   end
 
   def links
