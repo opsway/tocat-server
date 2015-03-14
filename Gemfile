@@ -13,7 +13,7 @@ gem 'will_paginate', '~> 3.0.6'
 gem 'api-pagination'
 gem 'shiftplanning', '~> 0.0.3'
 gem "scoped_search"
-gem 'rest_client'
+gem 'rest-client'
 
 group :development do
   gem 'guard-rubocop'
@@ -38,3 +38,8 @@ group :test do
   gem 'guard-rspec'
   gem 'capybara'
 end
+
+# FIXME
+
+gem 'activerecord'
+gem 'sqlite3'
