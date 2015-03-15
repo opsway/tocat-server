@@ -5,7 +5,7 @@ class Invoice < ActiveRecord::Base
   before_destroy :check_if_invoice_used
   before_save :handle_paid_status, if: Proc.new { |o| o.paid_changed? }
 
-  scoped_search on: [:external_id, :client]
+  scoped_search on: [:external_id, :client, :paid]
 
   def total
     value = BigDecimal.new 0
