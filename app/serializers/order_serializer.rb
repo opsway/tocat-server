@@ -18,7 +18,7 @@ class OrderSerializer < ActiveModel::Serializer
   end
 
   def team
-    #{name: object.team.name, id: object.team.id}
+    {name: object.team.name, id: object.team.id}
   end
 
   def links
