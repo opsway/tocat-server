@@ -7,8 +7,15 @@ class InvoicesController < ApplicationController
     else
       invoices = Invoice.all
     end
-
     @articles = invoices.order(sort)
+    if params[:sort].present?
+      params[:sort].split.each do |o|
+        if o == 'total:asc' || o == 'total:desc'
+          @articles = Invoice.sorted_by_total(o.split(':').second)
+        end
+      end
+    end
+
     paginate json: @articles, per_page: params[:limit]
   end
 
