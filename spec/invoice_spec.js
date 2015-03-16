@@ -12,6 +12,9 @@
 
 //Zoho books integration.
 //  - create books invoice -> set TOCAT invoice as immutable -> set order budgets as immutable
+
+//TODO phase1: split paid order -> check paid status in suborder
+
 var config = require('./config');
 var url = config.url;
 
@@ -134,7 +137,7 @@ frisby.create('Correct invoice2')
                                   frisby.create("Check that budget is decreased")
                                     .get(url + '/task/' + task.id)
                                     .expectStatus(200)
-                                    .expectJSON('budget' : 30)
+                                    .expectJSON({'budget' : 30})
                                     .afterJSON(function(task){
                                       expect(task.orders.length).toEqual(1)
                                     })
@@ -152,7 +155,7 @@ frisby.create('Correct invoice2')
                                   frisby.create("Check that budget is zero")
                                     .get(url + '/task/' + task.id)
                                     .expectStatus(200)
-                                    .expectJSON('budget' : 0)
+                                    .expectJSON({'budget' : 0})
                                     .afterJSON(function(task){
                                       expect(task.orders.length).toEqual(0)
                                     })
