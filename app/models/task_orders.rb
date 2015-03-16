@@ -28,9 +28,9 @@ class TaskOrders < ActiveRecord::Base
 
   def check_resolver_team_after_budget_creation
     return true unless task.user.present?
-    if task.user.team != order.team
-      errors[:base] << "Task resolver is from different team than order"
-    end
+    # if task.user.team != order.team
+    #   errors[:base] << "Task resolver is from different team than order"
+    # end
   end
 
   def check_free_budget

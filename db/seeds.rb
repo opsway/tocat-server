@@ -6,9 +6,9 @@
 #   cities = City.create([{ name: 'Chicago' }, { name: 'Copenhagen' }])
 #   Mayor.create(name: 'Emanuel', city: cities.first)
 
-# role_list = %W(Manager Developer)
-# role_list.each {|name| Role.create( name: name) }
-#
+role_list = %W(Manager Developer)
+role_list.each {|name| Role.create( name: name) }
+
 # team_list = ['OpsWay1', 'OpsWay2', 'OpsWay3']
 # team_list.each {|name| Team.create( name: name) }
 #
@@ -24,48 +24,39 @@
 # end
 
 
-# team_list = ['OpsWay1', 'OpsWay2', 'OpsWay3', 'OpsWay4', 'OpsWay5', 'Central Office']
-# team_list.each {|name| Team.create( name: name) }
-#
-# role_list = %W(Manager Developer)
-# role_list.each {|name| Role.create( name: name) }
-#
-# user_list = [
-#   [ "Dmitriy Ivanenko",       62,   'dmiva', 'OpsWay1', 'Developer' ],
-#   [ "Aleksandr Ishchenko",    27,   'altis', 'OpsWay1', 'Developer' ],
-#   [ "Volodymir Rudakov",      38,   'vorud', 'OpsWay2', 'Developer' ],
-#   [ "Stanislav Derebcinschi", 52,   'stder', 'OpsWay2', 'Developer' ],
-#   [ "Yuriy Kobrynyuk",        39,   'yukob', 'OpsWay2', 'Developer' ],
-#   [ "Stanislav Pivovartsev",  67,   'stpiv', 'OpsWay2', 'Developer' ],
-#   [ "Oksana Melnik",          69,   'okmel', 'OpsWay2', 'Manager' ],
-#   [ "Andrey Lebedinskiy",     78,   'anleb', 'OpsWay3', 'Manager' ],
-#   [ "Sergiy Morin",            0,   'morin.sergey1', 'OpsWay2', 'Manager' ],
-#   [ "Yurii Lunhol",           31,   'yulun', 'OpsWay2', 'Developer' ],
-#   [ "Ruslan Abdullaev",       62,   'ruabd', 'OpsWay2', 'Developer' ],
-#   [ "Nikita Kushnir",         52,   'nikus', 'OpsWay2', 'Developer' ],
-#   [ "Stas Morgun",            26,   'stmor', 'OpsWay3', 'Developer'],
-#   [ "Peter Kurbatsky",        31,   'pekub', 'OpsWay4', 'Developer' ],
-#   [ "Max Voronov",            57,   'mavor', 'OpsWay1', 'Developer' ],
-#   [ "Dmitrii Mikhailov",      49,   'dimih', 'OpsWay1', 'Developer' ],
-#   [ "Andriy Zherebchenko",    98,   'anzhe', 'OpsWay1', 'Developer' ],
-#   [ "Alexandr Vronskiy",      104,  'alvro', 'OpsWay1', 'Developer' ],
-#   [ "Alexander Dmitrienko",   72,   'aldmi', 'OpsWay1', 'Developer' ],
-#   [ "Alexander Gornov",       69,   'algor', 'OpsWay3', 'Developer' ],
-#   [ "Sergey Gorchakov",       52,   'segor', 'OpsWay1', 'Manager' ],
-#   [ "Andriy Samilyak",        00,   'verlgoff', 'OpsWay4', 'Manager' ]
-#
-# ]
-#
-#
-# user_list.each do |name, rate, login, team, role|
-#   User.create( name: name, daily_rate: rate, login: login, team: Team.find_by_name(team), role: Role.find_by_name(role) )
-# end
+team_list = ['OpsWay1', 'OpsWay2', 'OpsWay3', 'OpsWay4', 'OpsWay5', 'Central Office']
+team_list.each {|name| Team.create( name: name) }
 
-#
-# 3.times do
-#   Invoice.create client:('a'..'z').to_a.shuffle[0,8].join, external_id:('a'..'z').to_a.shuffle[0,8].join, paid:false
-# end
-#
-# 5.times do
-#   Order.create name:('a'..'z').to_a.shuffle[0,8].join, description: ('a'..'z').to_a.shuffle[0,8].join, team:Team.all.sample, invoice: Invoice.all.sample, invoiced_budget:1000, allocatable_budget:1000
-# end
+role_list = %W(Manager Developer)
+role_list.each {|name| Role.create( name: name) }
+
+user_list = [
+  [ "Dmitriy Ivanenko",       62,   'dmiva', 'OpsWay1', 'Developer' ],
+  [ "Aleksandr Ishchenko",    27,   'altis', 'OpsWay1', 'Developer' ],
+  [ "Volodymir Rudakov",      38,   'vorud', 'OpsWay2', 'Developer' ],
+  [ "Stanislav Derebcinschi", 52,   'stder', 'OpsWay2', 'Developer' ],
+  [ "Yuriy Kobrynyuk",        39,   'yukob', 'OpsWay2', 'Developer' ],
+  [ "Stanislav Pivovartsev",  67,   'stpiv', 'OpsWay2', 'Developer' ],
+  [ "Oksana Melnik",          69,   'okmel', 'OpsWay2', 'Manager' ],
+  [ "Andrey Lebedinskiy",     78,   'anleb', 'OpsWay3', 'Manager' ],
+  [ "Sergiy Morin",            0,   'morin.sergey1', 'OpsWay2', 'Manager' ],
+  [ "Yurii Lunhol",           31,   'yulun', 'OpsWay2', 'Developer' ],
+  [ "Ruslan Abdullaev",       62,   'ruabd', 'OpsWay2', 'Developer' ],
+  [ "Nikita Kushnir",         52,   'nikus', 'OpsWay2', 'Developer' ],
+  [ "Stas Morgun",            26,   'stmor', 'OpsWay3', 'Developer'],
+  [ "Peter Kurbatsky",        31,   'pekub', 'OpsWay4', 'Developer' ],
+  [ "Max Voronov",            57,   'mavor', 'OpsWay1', 'Developer' ],
+  [ "Dmitrii Mikhailov",      49,   'dimih', 'OpsWay1', 'Developer' ],
+  [ "Andriy Zherebchenko",    98,   'anzhe', 'OpsWay1', 'Developer' ],
+  [ "Alexandr Vronskiy",      104,  'alvro', 'OpsWay1', 'Developer' ],
+  [ "Alexander Dmitrienko",   72,   'aldmi', 'OpsWay1', 'Developer' ],
+  [ "Alexander Gornov",       69,   'algor', 'OpsWay3', 'Developer' ],
+  [ "Sergey Gorchakov",       52,   'segor', 'OpsWay1', 'Manager' ],
+  [ "Andriy Samilyak",        00,   'verlgoff', 'OpsWay4', 'Manager' ]
+
+]
+
+
+user_list.each do |name, rate, login, team, role|
+  User.create( name: name, daily_rate: rate, login: login, team: Team.find_by_name(team), role: Role.find_by_name(role) )
+end
