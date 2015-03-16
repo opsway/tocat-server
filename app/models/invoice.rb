@@ -1,3 +1,4 @@
+require 'will_paginate/array'
 class Invoice < ActiveRecord::Base
   validates_presence_of :external_id
   has_many :orders
@@ -11,6 +12,12 @@ class Invoice < ActiveRecord::Base
     value = BigDecimal.new 0
     orders.each { |o| value += o.invoiced_budget }
     value
+  end
+
+  def self.sorted_by_total(order)
+    order == 'asc' ?
+      Invoice.all.sort_by(&:total) :
+      Invoice.all.sort_by(&:total).reverse!
   end
 
   private

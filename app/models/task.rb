@@ -1,3 +1,4 @@
+require 'will_paginate/array'
 class Task < ActiveRecord::Base
   validates :external_id,  presence: { message: "Missing external task ID" }
   validate :check_resolver_team, if: Proc.new { |o| o.user_id_changed? && !o.user_id.nil?}
@@ -61,6 +62,12 @@ class Task < ActiveRecord::Base
       budget += record.budget
     end
     budget
+  end
+
+  def self.sorted_by_budget(order)
+    order == 'asc' ?
+      Task.all.sort_by(&:budget) :
+      Task.all.sort_by(&:budget).reverse!
   end
 
   def external_url
