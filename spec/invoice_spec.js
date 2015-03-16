@@ -63,8 +63,7 @@ frisby.create('Correct invoice2')
               frisby.create('Invoice order with inexistent invoice')
                 .post(url + '/order/' + order.id + '/invoice', {'invoice_id' : 99999999})
                 .expectStatus(422)
-                .expectJSON({error:'ORDER_ERROR'})
-                .expectBodyContains('Invoice does not exist')
+                .expectJSON({error:'ORDER_ERROR', message:'Invoice does not exist'})
                 .toss();
 
               frisby.create('Invoice order with correct invoice')
@@ -105,8 +104,7 @@ frisby.create('Correct invoice2')
                                   frisby.create('Suborder can not be invoiced')
                                     .post(url + '/order/' + subOrder1.id + '/invoice', {'invoice_id' : invoice2.id})
                                     .expectStatus(422)
-                                    .expectJSON({error:'ORDER_ERROR'})
-                                    .expectBodyContains('Suborder can not be invoiced')
+                                    .expectJSON({error:'ORDER_ERROR', message: 'Suborder can not be invoiced'})
                                     .toss();
 
                                   frisby.create('Set task1 budgets')
@@ -146,7 +144,7 @@ frisby.create('Correct invoice2')
                                   frisby.create('Remove all orders from budget')
                                     .post(url + '/task/' + task.id + '/budget', {'budget' : [
                                       {
-                                        
+
                                       }
                                       ]})
                                     .expectStatus(200)
@@ -439,8 +437,7 @@ frisby.create('Correct invoice2')
                                                               frisby.create('Delete used invoice is not allowed')
                                                                 .delete(url + '/invoice/' + invoice.id)
                                                                 .expectStatus(422)
-                                                                .expectJSON({error:'ORDER_ERROR'})
-                                                                .expectBodyContains('Invoice is linked to orders')
+                                                                .expectJSON({error:'ORDER_ERROR', message:'Invoice is linked to orders'})
                                                                 .toss();
                                                             })
                                                             .toss();
@@ -517,29 +514,25 @@ frisby.create('Correct additional invoice')
                 frisby.create('Can not change invoice for already paid order')
                   .post(url + '/order/' + order.id + '/invoice', {'invoice_id' : invoice2.id})
                   .expectStatus(422)
-                  .expectJSON({error:'ORDER_ERROR'})
-                  .expectBodyContains('Order is already paid, can not change invoice')
+                  .expectJSON({error:'ORDER_ERROR', message:'Order is already paid, can not change invoice'})
                   .toss();
 
                 frisby.create('Can not delete order from paid invoice')
                   .delete(url + '/order/' + order.id + '/invoice')
                   .expectStatus(422)
-                  .expectJSON({error:'ORDER_ERROR'})
-                  .expectBodyContains('Order is already paid, can unlink it from invoice')
+                  .expectJSON({error:'ORDER_ERROR', message:'Order is already paid, can unlink it from invoice'})
                   .toss();
 
                 frisby.create('Can not delete already paid invoice')
                   .delete(url + '/order/' + order.id)
                   .expectStatus(422)
-                  .expectJSON({error:'ORDER_ERROR'})
-                  .expectBodyContains('Can not delete already paid invoice')
+                  .expectJSON({error:'ORDER_ERROR', message: 'Can not delete already paid invoice'})
                   .toss();
 
                 frisby.create('Can not update invoiced budget of paid order')
                   .patch(url + '/order/' + order.id, {'allocatable_budget': 200, 'invoiced_budget' : 300})
                   .expectStatus(422)
-                  .expectJSON({error:'ORDER_ERROR'})
-                  .expectBodyContains('Order is already paid, can not update invoiced budget')
+                  .expectJSON({error:'ORDER_ERROR', message: 'Order is already paid, can not update invoiced budget'})
                   .toss();
 
                 frisby.create('CAN update allocated budget of paid order')
@@ -569,8 +562,7 @@ frisby.create('Correct additional invoice')
                     frisby.create('Can not link order to already paid invoice')
                       .post(url + '/order/' + order2.id + '/invoice', {'invoice_id' : invoice.id})
                       .expectStatus(422)
-                      .expectJSON({error:'ORDER_ERROR'})
-                      .expectBodyContains('Invoice is already paid, can not use it for new order')
+                      .expectJSON({error:'ORDER_ERROR', message:'Invoice is already paid, can not use it for new order'})
                       .toss();
                   })
                   .toss();

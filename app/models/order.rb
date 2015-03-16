@@ -9,6 +9,10 @@ class Order < ActiveRecord::Base
                             message: "Allocatable should be more than zero"
   validates_presence_of :invoiced_budget
   validates_presence_of :allocatable_budget
+  scoped_search on: [:name, :description, :invoiced_budget, :allocatable_budget, :free_budget, :paid, :completed]
+  scoped_search :in => :team, :on => :name, :rename => :team, :only_explicit => true
+
+
 
   validate :check_budgets
   validate :check_if_team_exists
@@ -36,78 +40,6 @@ class Order < ActiveRecord::Base
   before_save :check_if_invoice_already_paid, if: Proc.new { |o| o.invoice_id_changed? }
   before_save :check_for_tasks_on_team_change, if: Proc.new { |o| o.team_id_changed? }
   before_save :check_if_suborder, if: Proc.new { |o| o.invoice_id_changed? }
-
-  filterrific(
-    default_filter_params: { sorted_by: 'created_at_asc' },
-    available_filters: [
-      :sorted_by,
-      :search_query,
-      :paid
-    ]
-  )
-
-  scope :paid, lambda { |flag|
-    where(paid: ActiveRecord::Type::Boolean.new.type_cast_from_user(flag))
-  }
-
-  scope :search_query, lambda { |query|
-      # see http://filterrific.clearcove.ca/pages/active_record_scope_patterns.html
-      # for details
-    return nil  if query.blank?
-    terms = query.to_s.downcase.split(/\s+/)
-    terms = terms.map { |e|
-      (e.gsub('*', '%') + '%').gsub(/%+/, '%')
-    }
-    num_or_conds = 2
-    where(
-      terms.map { |term|
-        "(LOWER(orders.name) LIKE ? OR LOWER(orders.description) LIKE ?)"
-      }.join(' AND '),
-      *terms.map { |e| [e] * num_or_conds }.flatten
-    )
-  }
-
-  scope :sorted_by, lambda { |sort_option|
-    if sort_option.split(',').count > 1
-      sort_option.gsub!(/\s/, '')
-      order_params = []
-      sort_option.split(',').each do |option|
-        direction = (option =~ /desc$/) ? 'desc' : 'asc'
-        case option.to_s
-        when /^invoiced_budget/
-          order_params << "orders.invoiced_budget #{ direction }"
-        when /^created_at/
-          order_params << "orders.created_at #{ direction }"
-        when /^free_budget/
-          order_params << "orders.free_budget #{ direction }"
-        when /^allocatable_budget/
-          order_params <<  "orders.allocatable_budget #{ direction }"
-        when /^name/
-          order_params <<  "LOWER(orders.name) #{ direction }"
-        else
-          raise(ArgumentError, "Invalid sort option: #{ option.inspect }")
-        end
-      end
-      order(order_params.join(', '))
-    else
-      direction = (sort_option =~ /desc$/) ? 'desc' : 'asc'
-      case sort_option.to_s
-      when /^invoiced_budget/
-        order("orders.invoiced_budget #{ direction }")
-      when /^created_at/
-        order("orders.created_at #{ direction }")
-      when /^free_budget/
-        order("orders.free_budget #{ direction }")
-      when /^allocatable_budget/
-        order("orders.allocatable_budget #{ direction }")
-      when /^name/
-        order("LOWER(orders.name) #{ direction }")
-      else
-        raise(ArgumentError, "Invalid sort option: #{ sort_option.inspect }")
-      end
-    end
-
-  }
 
   def handle_paid(paid)
     return self.update_attributes(paid: paid)

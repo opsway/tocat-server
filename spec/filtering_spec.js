@@ -46,6 +46,7 @@ frisby.create('Main invoice')
                             .expectStatus(201)
                             .toss();
 
+
 		            frisby.create('Correct task creation')
 		              	.post(url + '/tasks', {"external_id": "TST-102" })
 		              	.expectStatus(201)
@@ -67,7 +68,7 @@ frisby.create('Main invoice')
                                      .toss();
 
                                  frisby.create("Filtering on tasks - paid")
-                                 	.get(url + '/tasks' + '?paid=true')
+                                 	.get(url + '/tasks' + '?search=paid=true')
                                  	.expectStatus(200)
                                  	.afterJSON(function(tasks){
                                  			expect(tasks.length).toBeEqualOrGreater(1);
@@ -81,7 +82,7 @@ frisby.create('Main invoice')
 
 
 											            frisby.create("Get only paid tasks with boolean as 1")
-			                                 	.get(url + '/tasks/' + '?paid=1')
+			                                 	.get(url + '/tasks/' + '?search=paid=1')
 			                                 	.expectStatus(200)
 			                                 	.afterJSON(function(tasks2){
 			                                 			expect(tasks.length).toBeEqual(tasks2.length);
@@ -92,7 +93,7 @@ frisby.create('Main invoice')
                                  	.toss();
 
                                  frisby.create("Filtering on tasks - not paid")
-                                 	.get(url + '/tasks/' + '?paid=false')
+                                 	.get(url + '/tasks/' + '?search=paid=false')
                                  	.expectStatus(200)
                                  	.afterJSON(function(tasks){
                                  			expect(tasks.length).toBeEqualOrGreater(1);
@@ -107,7 +108,7 @@ frisby.create('Main invoice')
                                   .toss();
 
                                  frisby.create("Get only paid tasks with boolean as 0")
-                                                 .get(url + '/tasks' + '?paid=0')
+                                                 .get(url + '/tasks' + '?search=paid=0')
                                                  .expectStatus(200)
                                                  .afterJSON(function(tasks2){
                                                          expect(tasks.length).toBeEqual(tasks2.length);
@@ -115,7 +116,7 @@ frisby.create('Main invoice')
                                                  .toss();
 
                                  frisby.create("Sorting on tasks")
-                                 	.get(url + '/tasks' + '?sorted_by=budget_desc')
+                                 	.get(url + '/tasks' + '?sort=budget:desc')
                                  	.expectStatus(200)
                                  	.afterJSON(function(tasks){
                                  		previousTaskBudget = 0;

@@ -18,8 +18,7 @@ frisby.create('Create Order: set allocatable budget more than invoiced')
 
         )
     .expectStatus(422)
-    .expectJSON({error:'ORDER_ERROR'})
-    .expectBodyContains('Allocatable budget should be less or equal')
+    .expectJSON({error:'ORDER_ERROR', message:'Allocatable budget should be less or equal'})
     .toss();
 
 
@@ -55,8 +54,7 @@ frisby.create('Create Order: set allocatable budget less than zero')
 
         )
     .expectStatus(422)
-    .expectJSON({error:'ORDER_ERROR'})
-    .expectBodyContains('Allocatable should be more than zero')
+    .expectJSON({error:'ORDER_ERROR', message:'Allocatable should be more than zero'})
     .toss();
 
 frisby.create('Create Order: set allocatable budget to zero')
@@ -91,8 +89,7 @@ frisby.create('Create Order: set invoiced budget less than zero')
 
         )
     .expectStatus(422)
-    .expectJSON({error:'ORDER_ERROR'})
-    .expectBodyContains('Invoiced budget should be greater or equal to 0')
+    .expectJSON({error:'ORDER_ERROR', message:'Invoiced budget should be greater or equal to 0'})
     .toss();
 
 
@@ -111,8 +108,7 @@ frisby.create('Create Order: name can not be empty')
 
         )
     .expectStatus(422)
-    .expectJSON({error:'ORDER_ERROR'})
-    .expectBodyContains('Order name can not be empty')
+    .expectJSON({error:'ORDER_ERROR', message: 'Order name can not be empty'})
     .toss();
 
 frisby.create('Create Order: check team exists')
@@ -130,8 +126,7 @@ frisby.create('Create Order: check team exists')
 
         )
     .expectStatus(422)
-    .expectJSON({error:'ORDER_ERROR'})
-    .expectBodyContains('Team does not exists')
+    .expectJSON({error:'ORDER_ERROR', message: 'Team does not exists'})
     .toss();
 
 frisby.create('Correct order creation')

@@ -9,11 +9,11 @@ gem "rails_config"
 gem 'turbolinks'
 # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
 gem 'spring',        group: :development
-gem 'filterrific'
 gem 'will_paginate', '~> 3.0.6'
 gem 'api-pagination'
 gem 'shiftplanning', '~> 0.0.3'
-
+gem "scoped_search"
+gem 'rest-client'
 
 group :development do
   gem 'guard-rubocop'
@@ -38,3 +38,8 @@ group :test do
   gem 'guard-rspec'
   gem 'capybara'
 end
+
+# FIXME
+
+gem 'activerecord'
+gem 'sqlite3'

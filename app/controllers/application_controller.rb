@@ -27,6 +27,23 @@ class ApplicationController < ActionController::API
 
   private
 
+  def sort
+    if params[:sort].present?
+      order = []
+      query = params[:sort].split(', ')
+      [*query].each do |option|
+        direction = (option =~ /desc$/) ? 'desc' : 'asc'
+        column = option.split(':').first
+        if controller_name.classify.constantize.column_names.include?(column)
+          order << "#{column} #{direction}"
+        end
+      end
+      order.join(', ')
+    else
+      "#{controller_name.classify.downcase.pluralize}.created_at asc"
+    end
+  end
+
   def render_404_or_405
     recognized_path = Rails.application.routes.recognize_path(request.env['ORIGINAL_FULLPATH'])
     if recognized_path[:action] != 'no_method'
