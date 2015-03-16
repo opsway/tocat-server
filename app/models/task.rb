@@ -1,23 +1,24 @@
 class Task < ActiveRecord::Base
   validates :external_id,  presence: { message: "Missing external task ID" }
-  #validate :check_resolver_team, if: Proc.new { |o| o.user_id_changed? && !o.user_id.nil?}
+  validate :check_resolver_team, if: Proc.new { |o| o.user_id_changed? && !o.user_id.nil?}
   validates_associated :task_orders
 
   has_many :task_orders, class_name: 'TaskOrders', :autosave => true
 
   has_many :orders, through: :task_orders, :autosave => true
 
-  #before_save :handle_balance_after_changing_resolver, if: Proc.new { |o| o.paid && o.user_id_changed? }
-  #before_save :handle_balance_after_changing_paid_status, if: Proc.new { |o| o.paid_changed? && user_id.present? }
+  before_save :handle_balance_after_changing_resolver, if: Proc.new { |o| o.paid && o.user_id_changed? }
+  before_save :handle_balance_after_changing_paid_status, if: Proc.new { |o| o.paid_changed? && user_id.present? }
+  before_save :handle_invoice_paid_status , if: Proc.new { |o| o.task_orders.present? }
 
   belongs_to :user
 
   accepts_nested_attributes_for :task_orders, reject_if: :all_blank, allow_destroy: true
   validates_associated :task_orders
   validate :validate_unique_task_orders
-  scoped_search on: [:external_id]
-  scoped_search :in => :user, :on => :name
-  scoped_search :in => :orders, :on => :name
+  scoped_search on: [:external_id, :paid]
+  scoped_search :in => :user, :on => :name, :rename => :user, :only_explicit => true
+  scoped_search :in => :orders, :on => :name, :rename => :order, :only_explicit => true
 
 
 
@@ -68,6 +69,13 @@ class Task < ActiveRecord::Base
 
   private
 
+  def handle_invoice_paid_status
+    orders.each do |order|
+      next unless order.invoice.present?
+      self.paid = order.invoice.paid
+    end
+  end
+
   def validate_unique_task_orders
     validate_uniqueness_of_in_memory(
       task_orders, [:order_id, :task_id], 'Duplicate Budgets.')
@@ -94,36 +102,36 @@ class Task < ActiveRecord::Base
   end
 
   def handle_balance_after_changing_resolver
-    # if user_id_was != nil
-    #   old_user = User.find(user_id_was)
-    #   old_user.balance_account.transactions.create! total: - budget,
-    #                                                 comment: "User was removed from #{id} task",
-    #                                                 user_id: 0
-    #   old_user.team.balance_account.transactions.create! total: - budget,
-    #                                                      comment: "User #{old_user.login} was removed from #{id} task",
-    #                                                      user_id: 0
-    # end
-    # if user_id != nil
-    #   user.balance_account.transactions.create! total: budget,
-    #                                            comment: "User was setted as resolver for #{id} task",
-    #                                            user_id: 0
-    #   user.team.balance_account.transactions.create! total: budget,
-    #                                            comment: "User #{user.login} was setted as resolver for #{id} task",
-    #                                            user_id: 0
-    # end
+    if user_id_was != nil
+      old_user = User.find(user_id_was)
+      old_user.balance_account.transactions.create! total: - budget,
+                                                    comment: "User was removed from #{id} task",
+                                                    user_id: 0
+      old_user.team.balance_account.transactions.create! total: - budget,
+                                                         comment: "User #{old_user.login} was removed from #{id} task",
+                                                         user_id: 0
+    end
+    if user_id != nil
+      user.balance_account.transactions.create! total: budget,
+                                               comment: "User was setted as resolver for #{id} task",
+                                               user_id: 0
+      user.team.balance_account.transactions.create! total: budget,
+                                               comment: "User #{user.login} was setted as resolver for #{id} task",
+                                               user_id: 0
+    end
   end
 
   def check_resolver_team
     return true if orders.first.nil?
-  #   team = orders.first.team
-  #   orders.each do |order|
-  #     if team != order.team
-  #       errors[:base] << "Task resolver is from different team than order"
-  #     end
-  #   end
-  #   if user.team != team
-  #     errors[:base] << "Task resolver is from different team than order"
-  #   end
+    team = orders.first.team
+    orders.each do |order|
+      if team != order.team
+        errors[:base] << "Task resolver is from different team than order"
+      end
+    end
+    if user.team != team
+      errors[:base] << "Task resolver is from different team than order"
+    end
   end
 end
 

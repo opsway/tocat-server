@@ -9,7 +9,9 @@ class Order < ActiveRecord::Base
                             message: "Allocatable should be more than zero"
   validates_presence_of :invoiced_budget
   validates_presence_of :allocatable_budget
-  scoped_search on: [:name, :description, :invoiced_budget, :allocatable_budget, :free_budget, :paid]
+  scoped_search on: [:name, :description, :invoiced_budget, :allocatable_budget, :free_budget, :paid, :completed]
+  scoped_search :in => :team, :on => :name, :rename => :team, :only_explicit => true
+
 
 
   validate :check_budgets
