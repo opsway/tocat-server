@@ -1,8 +1,22 @@
 class TaskSerializer < ActiveModel::Serializer
   include Rails.application.routes.url_helpers
-  attributes :id, :external_id, :links
+  attributes :id, :external_id, :links, :budget, :resolver
 
   private
+  def budget
+    object.budget.to_f
+  end
+
+  def resolver
+    user = object.user
+    data = {}
+    if user.present?
+      data[:name] = user.name
+      data[:href] = user_path(user)
+      data[:id] = user.id
+    end
+    data
+  end
 
   def links
     data = []
