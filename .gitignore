@@ -1,3 +1,4 @@
+spec/config.js
 sftp-config.json
 output.html
 *.rbc
