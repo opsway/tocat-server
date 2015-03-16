@@ -8,8 +8,8 @@ class Task < ActiveRecord::Base
 
   has_many :orders, through: :task_orders, :autosave => true
 
-  before_save :handle_balance_after_changing_resolver, if: Proc.new { |o| o.paid && o.user_id_changed? }
-  before_save :handle_balance_after_changing_paid_status, if: Proc.new { |o| o.paid_changed? && user_id.present? }
+  # before_save :handle_balance_after_changing_resolver, if: Proc.new { |o| o.paid && o.user_id_changed? }
+  # before_save :handle_balance_after_changing_paid_status, if: Proc.new { |o| o.paid_changed? && user_id.present? }
   before_save :handle_invoice_paid_status , if: Proc.new { |o| o.task_orders.present? }
 
   belongs_to :user
@@ -130,15 +130,15 @@ class Task < ActiveRecord::Base
 
   def check_resolver_team
     return true if orders.first.nil?
-    team = orders.first.team
-    orders.each do |order|
-      if team != order.team
-        errors[:base] << "Task resolver is from different team than order"
-      end
-    end
-    if user.team != team
-      errors[:base] << "Task resolver is from different team than order"
-    end
+    # team = orders.first.team
+    # orders.each do |order|
+    #   if team != order.team
+    #     errors[:base] << "Task resolver is from different team than order"
+    #   end
+    # end
+    # if user.team != team
+    #   errors[:base] << "Task resolver is from different team than order"
+    # end
   end
 end
 
