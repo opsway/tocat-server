@@ -2,13 +2,20 @@ class TransactionsController < ApplicationController
   before_action :set_transaction, except: [:index]
 
   def index
-    @filterrific = initialize_filterrific(
-    Transaction,
-    params
-    ) or return
+    if params[:search].present?
+      transactions = Transaction.search_for(params[:search])
+    else
+      transactions = Transaction.all
+    end
 
-    @transactions = @filterrific.find
-    paginate json: @transactions, per_page: params[:limit]
+    if params[:user].present?
+      transactions = transactions.user(params[:user])
+    elsif params[:team].present?
+      transactions = transactions.user(params[:team])
+    end
+
+    @articles = transactions.order(sort)
+    paginate json: @articles, per_page: params[:limit]
   end
 
   def show

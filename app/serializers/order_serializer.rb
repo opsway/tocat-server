@@ -6,9 +6,15 @@ class OrderSerializer < ActiveModel::Serializer
              :invoiced_budget,
              :allocatable_budget,
              :free_budget,
+             :suborder,
+             :paid,
              :links
 
   private
+
+  def suborder
+    object.parent_id.present?
+  end
 
   def links
     data = {}

@@ -1,14 +1,17 @@
 class OrdersController < ApplicationController
   before_action :set_order, except: [:index, :create, :create_suborder, :new]
+  helper_method :sort
+
 
   def index
-    @filterrific = initialize_filterrific(
-    Order,
-    params
-    ) or return
+    if params[:search].present?
+      orders = Order.search_for(params[:search])
+    else
+      orders = Order.all
+    end
 
-    @orders = @filterrific.find
-    paginate json: @orders, per_page: params[:limit]
+    @articles = orders.order(sort)
+    paginate json: @articles, per_page: params[:limit]
   end
 
   def show
@@ -120,6 +123,7 @@ class OrdersController < ApplicationController
     :team,
     :invoiced_budget,
     :allocatable_budget,
-    :invoice_id)
+    :invoice_id,
+    :parent_id)
   end
 end
