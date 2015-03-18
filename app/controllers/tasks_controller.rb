@@ -124,6 +124,6 @@ class TasksController < ApplicationController
   end
 
   def task_params
-    params.permit(:external_id, budget:[:order_id, :budget])
+    params.permit(:external_id, :accepted, budget:[:order_id, :budget])
   end
 end
