@@ -11,7 +11,7 @@ class TransactionsController < ApplicationController
     if params[:user].present?
       transactions = transactions.user(params[:user])
     elsif params[:team].present?
-      transactions = transactions.user(params[:team])
+      transactions = transactions.team(params[:team])
     end
 
     @articles = transactions.order(sort)

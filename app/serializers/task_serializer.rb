@@ -1,6 +1,6 @@
 class TaskSerializer < ActiveModel::Serializer
   include Rails.application.routes.url_helpers
-  attributes :id, :external_id, :links, :budget, :resolver
+  attributes :id, :external_id, :accepted, :paid, :links, :budget, :resolver
 
   private
   def budget

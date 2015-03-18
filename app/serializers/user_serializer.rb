@@ -7,8 +7,10 @@ class UserSerializer < ActiveModel::Serializer
 
   def team
     data = {}
-    data[:name] = object.team.name
-    data[:href] = team_path(object.team)
+    team = object.team
+    data[:id] = team.id
+    data[:name] = team.name
+    data[:href] = team_path(team)
     data
   end
 
