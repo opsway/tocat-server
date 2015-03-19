@@ -106,6 +106,24 @@ frisby.create('Correct order creation')
                   .expectJSON({error:'TASK_ERROR', message:'Invalid data'})
                   .toss();
 
+                frisby.create('Invalid budget data - negative budgets')
+                  .post(url + '/task/' + task.id + '/budget', {'budget' : [
+                      {
+                        'order_id' : order.id,
+                        'budget'   : -1
+                      },
+                      
+                      {
+                        'order_id' : order2.id,
+                        'budget'   : 150
+                      }
+                      ]
+                    })
+                  .expectStatus(422)
+                  .expectJSON({error:'TASK_ERROR', message:'Invalid data'})
+                  .toss();
+
+
 
                 frisby.create('Set task budgets')
                   .post(url + '/task/' + task.id + '/budget', {'budget' : [

@@ -23,6 +23,11 @@ frisby.create('Main invoice')
     .expectStatus(201)
     .afterJSON(function(invoice){
 
+    frisby.create('Set invoice2 as paid')
+      .post(url + '/invoice/' + invoice.id + '/paid')
+      .expectStatus(200)
+      .toss();
+
 		frisby.create('Second order creation')
 		      .post(url + '/orders',
 		       {
@@ -71,7 +76,7 @@ frisby.create('Main invoice')
                                  	.get(url + '/tasks' + '?search=paid=true')
                                  	.expectStatus(200)
                                  	.afterJSON(function(tasks){
-                                 			expect(tasks.length).toBeEqualOrGreater(1);
+                                 			expect(tasks.length >= 1 ).toBe(true);
                                  			tasks.foreach(function(task){
                                  				frisby.create('Check that found task is paid')
                                  					.get(url + '/task' + task.id)
@@ -96,7 +101,7 @@ frisby.create('Main invoice')
                                  	.get(url + '/tasks/' + '?search=paid=false')
                                  	.expectStatus(200)
                                  	.afterJSON(function(tasks){
-                                 			expect(tasks.length).toBeEqualOrGreater(1);
+                                 			expect(tasks.length >= 1).toBe(true);
                                  			tasks.forEach(function(task) {
                                  				frisby.create('Check that found task is paid')
                                  					.get(url + '/task' + task.id)
@@ -104,16 +109,18 @@ frisby.create('Main invoice')
                                  					.expectJSON({'paid' : true})
                                           .toss();
                                  			})
+
+                                      frisby.create("Get only paid tasks with boolean as 0")
+                                        .get(url + '/tasks' + '?search=paid=0')
+                                        .expectStatus(200)
+                                        .afterJSON(function(tasks2){
+                                          expect(tasks.length).toBeEqual(tasks2.length);
+                                        })
+                                        .toss();
                                   })
                                   .toss();
 
-                                 frisby.create("Get only paid tasks with boolean as 0")
-                                                 .get(url + '/tasks' + '?search=paid=0')
-                                                 .expectStatus(200)
-                                                 .afterJSON(function(tasks2){
-                                                         expect(tasks.length).toBeEqual(tasks2.length);
-                                                     })
-                                                 .toss();
+                                 
 
                                  frisby.create("Sorting on tasks")
                                  	.get(url + '/tasks' + '?sort=budget:desc')
@@ -124,7 +131,7 @@ frisby.create('Main invoice')
                                    			if (previousTaskBudget == 0) {
                                    				previousTaskBudget == task.budget;
                                    			} else {
-                                   				expect(task.budget).toBeEqualOrGreater(previousTaskBudget);
+                                   				expect(task.budget >= previousTaskBudget).toBe(true);
                                    			}
                                    		}
                                    	)
@@ -135,7 +142,7 @@ frisby.create('Main invoice')
                                  	.get(url + '/tasks' + '?limit=10')
                                  	.expectStatus(200)
                                  	.afterJSON(function(tasks){
-                                 		expect(tasks.length).toBe(10);
+                                 		expect(tasks.length < 10 ).toBe(true);
                                  	})
                                  	.toss();
 
