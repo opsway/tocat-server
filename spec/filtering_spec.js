@@ -23,11 +23,6 @@ frisby.create('Main invoice')
     .expectStatus(201)
     .afterJSON(function(invoice){
 
-    frisby.create('Set invoice2 as paid')
-      .post(url + '/invoice/' + invoice.id + '/paid')
-      .expectStatus(200)
-      .toss();
-
 		frisby.create('Second order creation')
 		      .post(url + '/orders',
 		       {
@@ -41,10 +36,15 @@ frisby.create('Main invoice')
 		       })
 		      .afterJSON(function(order){
 
-			    	frisby.create('Invoice order with correct invoice')
-			                .post(url + '/order/' + order.id + '/invoice', {'invoice_id' : invoice.id})
-			                .expectStatus(200)
-			                .toss();
+			    frisby.create('Invoice order with correct invoice')
+			      .post(url + '/order/' + order.id + '/invoice', {'invoice_id' : invoice.id})
+			      .expectStatus(200)
+			      .toss();
+          
+          frisby.create('Set invoice as paid')
+            .post(url + '/invoice/' + invoice.id + '/paid')
+            .expectStatus(200)
+            .toss();
 
 					frisby.create('Another task creation')
                             .post(url + '/tasks', {"external_id": "TST-102" })
@@ -114,7 +114,7 @@ frisby.create('Main invoice')
                                         .get(url + '/tasks' + '?search=paid=0')
                                         .expectStatus(200)
                                         .afterJSON(function(tasks2){
-                                          expect(tasks.length).toBeEqual(tasks2.length);
+                                          expect(tasks.length == tasks2.length).toBe(true);
                                         })
                                         .toss();
                                   })
