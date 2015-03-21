@@ -24,19 +24,19 @@ frisby.create('Correct order creation')
       frisby.create('No team specified in suborder creation')
         .post(url + '/order/' + order.id + '/suborder', {'allocatable_budget': 50, 'name' : "new order"})
         .expectStatus(422)
-        .expectJSON({error:'ORDER_ERROR', message: 'Team value is missing'})
+        .expectJSON({errors:['Team value is missing']})
         .toss();
 
       frisby.create('No allocatable_budget specified in suborder creation')
         .post(url + '/order/' + order.id + '/suborder', {'team': {'id' : 2}, 'name' : "new order"})
         .expectStatus(422)
-        .expectJSON({error:'ORDER_ERROR', message: 'Allocatable budget is missing'})
+        .expectJSON({errors:['Allocatable budget is missing']})
         .toss();
 
       frisby.create('No order name specified in suborder creation')
         .post(url + '/order/' + order.id + '/suborder', {'allocatable_budget': 50, 'team': {'id' : 2}})
         .expectStatus(422)
-        .expectJSON({error:'ORDER_ERROR', message: 'Order name can not be empty'})
+        .expectJSON({errors:['Order name can not be empty']})
         .toss();
 
 
@@ -61,19 +61,19 @@ frisby.create('Correct order creation')
           frisby.create('Suborder can not be created from suborder')
             .post(url + '/order/' + subOrder.id + '/suborder', {'allocatable_budget': 50, 'team' : {'id' : 3},  'name' : 'super order'})
             .expectStatus(422)
-            .expectJSON({error:'ORDER_ERROR', message: 'Suborder can not be created from another suborder'})
+            .expectJSON({errors:['Suborder can not be created from another suborder']})
             .toss();
 
           frisby.create('Suborder can not be invoiced more than parent free budget')
             .post(url + '/order/' + order.id + '/suborder', {'allocatable_budget': 500, 'team' : {'id' : 3}, 'name' : 'super order'})
             .expectStatus(422)
-            .expectJSON({error:'ORDER_ERROR', message:'Suborder can not be invoiced more than parent free budget'})
+            .expectJSON({errors:['Suborder can not be invoiced more than parent free budget']})
             .toss();
 
           frisby.create('Do not delete order, when there is a suborder')
             .delete(url + '/order/' + order.id)
             .expectStatus(422)
-            .expectJSON({error:'ORDER_ERROR', message: 'You can not delete order when there is a suborder'})
+            .expectJSON({errors:['You can not delete order when there is a suborder']})
             .toss();
 
           frisby.create('Create second suborder from parent order')
@@ -102,7 +102,7 @@ frisby.create('Correct order creation')
           frisby.create('Update suborder budget to more than available')
             .patch(url + '/order/' + subOrder.id, {'allocatable_budget': 500 , 'invoiced_budget' : 500})
             .expectStatus(422)
-            .expectJSON({error:'ORDER_ERROR', message: 'Suborder can not be invoiced more than parent free budget'})
+            .expectJSON({errors:['Suborder can not be invoiced more than parent free budget']})
             .toss();
 
           frisby.create('Delete suborder')
@@ -125,7 +125,7 @@ frisby.create('Correct order creation')
         frisby.create('Suborder can not be created for the same team as parent order')
             .post(url + '/order/' + order.id + '/suborder', {'allocatable_budget': 50, 'team' : {'id' : 1},  'name' : 'super order'})
             .expectStatus(422)
-            .expectJSON({error:'ORDER_ERROR', message: 'Suborder can not be created for the same team as parent order'})
+            .expectJSON({errors:['Suborder can not be created for the same team as parent order']})
             .toss();
 
     })
@@ -139,6 +139,12 @@ frisby.create('Correct invoice')
     })
     .expectStatus(201)
     .afterJSON(function(invoice){
+
+        frisby.create('Set invoice paid')
+            .post(url + '/invoice/' + invoice.id + '/paid')
+            .expectStatus(200)
+            .toss();
+
         frisby.create('Correct order creation')
             .post(url + '/orders',
             {
