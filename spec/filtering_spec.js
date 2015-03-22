@@ -73,7 +73,7 @@ frisby.create('Main invoice')
                                      .toss();
 
                                  frisby.create("Filtering on tasks - paid")
-                                 	.get(url + '/tasks' + '?search=paid=true')
+                                 	.get(url + '/tasks' + '?paid=true')
                                  	.expectStatus(200)
                                  	.afterJSON(function(tasks){
                                  			expect(tasks.length >= 1 ).toBe(true);
@@ -87,7 +87,7 @@ frisby.create('Main invoice')
 
 
 											            frisby.create("Get only paid tasks with boolean as 1")
-			                                 	.get(url + '/tasks/' + '?search=paid=1')
+			                                 	.get(url + '/tasks/' + '?paid=1')
 			                                 	.expectStatus(200)
 			                                 	.afterJSON(function(tasks2){
 			                                 			expect(tasks.length).toBeEqual(tasks2.length);
@@ -98,7 +98,7 @@ frisby.create('Main invoice')
                                  	.toss();
 
                                  frisby.create("Filtering on tasks - not paid")
-                                 	.get(url + '/tasks/' + '?search=paid=false')
+                                 	.get(url + '/tasks/' + '?paid=false')
                                  	.expectStatus(200)
                                  	.afterJSON(function(tasks){
                                  			expect(tasks.length >= 1).toBe(true);
@@ -111,7 +111,7 @@ frisby.create('Main invoice')
                                  			})
 
                                       frisby.create("Get only paid tasks with boolean as 0")
-                                        .get(url + '/tasks' + '?search=paid=0')
+                                        .get(url + '/tasks' + '?paid=0')
                                         .expectStatus(200)
                                         .afterJSON(function(tasks2){
                                           expect(tasks.length == tasks2.length).toBe(true);
@@ -120,10 +120,21 @@ frisby.create('Main invoice')
                                   })
                                   .toss();
 
+                                 frisby.create("Filtering on bugdet and paid")
+                                  .get(url + '/tasks/' + '?budget>90&paid=1')
+                                  .expectStatus(200)
+                                  .afterJSON(function(tasks){
+                                    tasks.forEach(function(task){
+                                            expect(task.budget > 90 ).toBe(true);
+                                            expect(task.paid).toBe(true);
+                                        }
+                                      )  
+                                  })
+                                  .toss();
                                  
 
                                  frisby.create("Sorting on tasks")
-                                 	.get(url + '/tasks' + '?sort=budget:desc')
+                                 	.get(url + '/tasks/' + '?sort=budget:desc')
                                  	.expectStatus(200)
                                  	.afterJSON(function(tasks){
                                  		previousTaskBudget = 0;
@@ -139,7 +150,7 @@ frisby.create('Main invoice')
                                  	.toss();
 
                                  frisby.create("Limit results on tasks")
-                                 	.get(url + '/tasks' + '?limit=10')
+                                 	.get(url + '/tasks/' + '?limit=10')
                                  	.expectStatus(200)
                                  	.afterJSON(function(tasks){
                                  		expect(tasks.length < 10 ).toBe(true);
@@ -147,7 +158,7 @@ frisby.create('Main invoice')
                                  	.toss();
 
                                  frisby.create("Unexistent page for results on tasks")
-                                 	.get(url + '/tasks' + '?limit=10&page=100000000')
+                                 	.get(url + '/tasks/' + '?limit=10&page=100000000')
                                  	.expectStatus(200)
                                  	.afterJSON(function(tasks){
                                  		expect(tasks.length).toBe(0);

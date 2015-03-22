@@ -7,8 +7,6 @@
 //TODO phase2 Check that you can not complete suborder order')
 //TODO phase2 Check that you CAN complete parent order')
 
-//phase3
-//internal orders can be created only with permission CAN_CREATE_INTERNAL_ORDER
 
 //Zoho books integration.
 //  - create books invoice -> set TOCAT invoice as immutable -> set order budgets as immutable
@@ -432,6 +430,7 @@ frisby.create('Correct invoice2')
                                                                 .expectStatus(422)
                                                                 .expectJSON({errors:['Invoice is linked to orders']})
                                                                 .toss();
+
                                                             })
                                                             .toss();
                                                         })
@@ -513,7 +512,7 @@ frisby.create('Correct additional invoice')
                 frisby.create('Can not delete order from paid invoice')
                   .delete(url + '/order/' + order.id + '/invoice')
                   .expectStatus(422)
-                  .expectJSON({errors:['Order is already paid, can unlink it from invoice']})
+                  .expectJSON({errors:['Order is already paid, can not unlink it from invoice']})
                   .toss();
 
                 frisby.create('Can not delete already paid invoice')
@@ -565,3 +564,6 @@ frisby.create('Correct additional invoice')
         .toss();
     })
     .toss();
+
+
+
