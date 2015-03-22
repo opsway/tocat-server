@@ -140,11 +140,6 @@ frisby.create('Correct invoice')
     .expectStatus(201)
     .afterJSON(function(invoice){
 
-        frisby.create('Set invoice paid')
-            .post(url + '/invoice/' + invoice.id + '/paid')
-            .expectStatus(200)
-            .toss();
-
         frisby.create('Correct order creation')
             .post(url + '/orders',
             {
@@ -164,6 +159,11 @@ frisby.create('Correct invoice')
                 .expectStatus(200)
                 .toss();
     
+              frisby.create('Set invoice paid')
+                .post(url + '/invoice/' + invoice.id + '/paid')
+                .expectStatus(200)
+                .toss();
+
               frisby.create('Check that order is paid')
                 .get(url + '/order/' + order.id)
                 .expectStatus(200)
