@@ -98,7 +98,7 @@ frisby.create('Correct order creation')
                       ]
                     })
                   .expectStatus(422)
-                  .expectJSON({errors:['Invalid data']})
+                  .expectJSON({errors:["Order can't be blank"]})
                   .toss();
 
                 frisby.create('Set task budgets')
@@ -259,8 +259,8 @@ frisby.create('Correct order creation for unusual team')
                     .expectStatus(422)
                     .expectJSON({errors: 
                       [
-                        'Task resolver is from different team than order', 
-                        'Orders are created for different teams'
+                        'Orders are created for different teams',
+                        'Task resolver is from different team than order' 
                       ]})
                     .afterJSON(function(){
                       frisby.create('Remove resolver from task')

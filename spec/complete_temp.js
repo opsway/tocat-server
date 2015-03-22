@@ -54,6 +54,14 @@ frisby.create('Correct invoice')
                 .post(url + '/order/' + order.id + '/suborder', {'allocatable_budget': 20, 'team' : {'id' : 2}, 'name' : 'super order'})
                 .expectStatus(201)
                 .afterJSON(function(subOrder) {
+
+            	// Create task1
+            	// Budget task1 with order
+
+            	// Create task2
+            	// Budget task1 with suborder
+            	// Set task2 accepted
+
                     frisby.create('Check that suborder from paid order is paid')
                         .get(url + '/order/' + subOrder.id)
                         .expectStatus(200)
@@ -65,6 +73,12 @@ frisby.create('Correct invoice')
                     	.expectStatus(422)
                     	.expectJSON({errors:['Can not complete suborder']})
                     	.toss();
+
+                    // Can not complete order - task1 is not accepted
+
+                    // Assign resolver to task1
+
+                    // Set task1 accepted
 
                     frisby.create('Can complete parent order')
                     	.post(url + '/order/' + order.id + '/complete/')
