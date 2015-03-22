@@ -2,8 +2,8 @@ class TaskOrders < ActiveRecord::Base
   validates :task_id, presence: true
   validates :order_id, presence: true
   validates :budget,
-            numericality: { greater_than: 0 },
-            presence: true
+           numericality: { greater_than: 0 },
+           presence: true
   validate :check_resolver_team_after_budget_creation
   validate :resolver_presence
 
@@ -28,9 +28,9 @@ class TaskOrders < ActiveRecord::Base
 
   def check_resolver_team_after_budget_creation
     return true unless task.user.present?
-    # if task.user.team != order.team
-    #   errors[:base] << "Task resolver is from different team than order"
-    # end
+    if task.user.team != order.team
+      errors[:base] << "Task resolver is from different team than order"
+    end
   end
 
   def check_free_budget

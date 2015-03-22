@@ -76,10 +76,10 @@ frisby.create('Main invoice')
                                  	.get(url + '/tasks' + '?paid=true')
                                  	.expectStatus(200)
                                  	.afterJSON(function(tasks){
-                                 			expect(tasks.length >= 1 ).toBe(true);
-                                 			tasks.foreach(function(task){
+                                 			expect(tasks.length >= 1).toBe(true);
+                                 			tasks.forEach(function(task) {
                                  				frisby.create('Check that found task is paid')
-                                 					.get(url + '/task' + task.id)
+                                 					.get(url + '/task/' + task.id)
                                  					.expectStatus(200)
                                  					.expectJSON({'paid' : true})
                                                      .toss();
@@ -90,7 +90,7 @@ frisby.create('Main invoice')
 			                                 	.get(url + '/tasks/' + '?paid=1')
 			                                 	.expectStatus(200)
 			                                 	.afterJSON(function(tasks2){
-			                                 			expect(tasks.length).toBeEqual(tasks2.length);
+			                                 			expect(tasks.length == tasks2.length).toBe(true);
 			                                 		})
 			                                 	.toss();
 
@@ -103,10 +103,10 @@ frisby.create('Main invoice')
                                  	.afterJSON(function(tasks){
                                  			expect(tasks.length >= 1).toBe(true);
                                  			tasks.forEach(function(task) {
-                                 				frisby.create('Check that found task is paid')
-                                 					.get(url + '/task' + task.id)
+                                 				frisby.create('Check that found task is not paid')
+                                 					.get(url + '/task/' + task.id)
                                  					.expectStatus(200)
-                                 					.expectJSON({'paid' : true})
+                                 					.expectJSON({'paid' : false})
                                           .toss();
                                  			})
 
