@@ -3,10 +3,10 @@ class Order < ActiveRecord::Base
   validates :team_id, presence: true
   validates_numericality_of :invoiced_budget,
                             greater_than: 0,
-                            message: "Invoiced budget should be greater or equal to 0"
+                            message: "Invoiced budget should be greater than 0"
   validates_numericality_of :allocatable_budget,
                             greater_than_or_equal_to: 0,
-                            message: "Allocatable should be more than zero"
+                            message: "Allocatable should be positive number"
   validates_presence_of :invoiced_budget
   validates_presence_of :allocatable_budget
   scoped_search on: [:name, :description, :invoiced_budget, :allocatable_budget, :free_budget, :paid, :completed]
@@ -158,7 +158,7 @@ class Order < ActiveRecord::Base
   def check_budgets
     if allocatable_budget.present? && invoiced_budget.present?
       if allocatable_budget > invoiced_budget
-        errors[:base] << "Allocatable budget should be less or equal"
+        errors[:base] << "Allocatable budget is greater than invoiced budget"
       end
     end
   end

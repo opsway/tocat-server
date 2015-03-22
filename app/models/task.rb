@@ -1,16 +1,14 @@
 require 'will_paginate/array'
 class Task < ActiveRecord::Base
   validates :external_id,  presence: { message: "Missing external task ID" }
-  validate :check_resolver_team, if: Proc.new { |o| o.user_id_changed? && !o.user_id.nil?}
-  validates_associated :task_orders
+  validate :check_resolver_team, if: Proc.new { |o| o.user_id_changed? && !o.user_id.nil? }
 
-  has_many :task_orders, class_name: 'TaskOrders', :autosave => true
+  has_many :task_orders, class_name: 'TaskOrders', after_add: :handle_invoice_paid_status
 
-  has_many :orders, through: :task_orders, :autosave => true
+  has_many :orders, through: :task_orders
 
-  # before_save :handle_balance_after_changing_resolver, if: Proc.new { |o| o.paid && o.user_id_changed? }
-  # before_save :handle_balance_after_changing_paid_status, if: Proc.new { |o| o.paid_changed? && user_id.present? }
-  before_save :handle_invoice_paid_status , if: Proc.new { |o| o.task_orders.present? }
+  before_save :handle_balance_after_changing_resolver, if: Proc.new { |o| o.paid && o.user_id_changed? }
+  before_save :handle_balance_after_changing_paid_status, if: Proc.new { |o| o.paid_changed? && user_id.present? }
 
   belongs_to :user
 
@@ -18,12 +16,13 @@ class Task < ActiveRecord::Base
   validates_associated :task_orders
   validate :validate_unique_task_orders
   scoped_search on: :external_id
-  scoped_search on: [:accepted, :paid ], only_explicit: true
+  scoped_search on: [:accepted, :paid ], only_explicit: true, ext_method: :boolean_find
   scoped_search :in => :user, :on => :name, :rename => :resolver, :only_explicit => true
   scoped_search :in => :orders, :on => :name, :rename => :order, :only_explicit => true
 
-
-
+  def self.boolean_find(key, operator, value)
+    { conditions: sanitize_sql_for_conditions(["tasks.#{key} #{operator} ?", value.to_bool]) }
+  end
 
   def can_be_paid?
     can_be_paid = true
@@ -77,16 +76,21 @@ class Task < ActiveRecord::Base
 
   private
 
-  def handle_invoice_paid_status
-    orders.each do |order|
-      next unless order.invoice.present?
-      self.paid = order.invoice.paid
+  def handle_invoice_paid_status(budget)
+    if budget.order.present?
+      if budget.order.paid
+        self.update_attributes!(paid: true)
+      end
     end
+    true
   end
 
   def validate_unique_task_orders
     validate_uniqueness_of_in_memory(
       task_orders, [:order_id, :task_id], 'Duplicate Budgets.')
+
+    validate_orders_of_in_memory(
+      task_orders, 'Orders are created for different teams')
   end
 
   def handle_balance_after_changing_paid_status
@@ -130,16 +134,16 @@ class Task < ActiveRecord::Base
   end
 
   def check_resolver_team
-    return true if orders.first.nil?
-    # team = orders.first.team
-    # orders.each do |order|
-    #   if team != order.team
-    #     errors[:base] << "Task resolver is from different team than order"
-    #   end
-    # end
-    # if user.team != team
-    #   errors[:base] << "Task resolver is from different team than order"
-    # end
+    return true if orders.empty?
+    team = orders.first.team
+    orders.each do |order|
+      if team != order.team
+        errors[:base] << "Task resolver is from different team than order"
+      end
+    end
+    if user.team != team
+      errors[:base] << "Task resolver is from different team than order"
+    end
   end
 end
 
@@ -147,9 +151,6 @@ end
 
 module ActiveRecord
   class Base
-    # Validate that the the objects in +collection+ are unique
-    # when compared against all their non-blank +attrs+. If not
-    # add +message+ to the base errors.
     def validate_uniqueness_of_in_memory(collection, attrs, message)
       hashes = collection.inject({}) do |hash, record|
         key = attrs.map {|a| record.send(a).to_s }.join
@@ -161,6 +162,14 @@ module ActiveRecord
       end
       if collection.length > hashes.length
         raise message
+      end
+    end
+
+    def validate_orders_of_in_memory(collection, message)
+      teams = []
+      collection.each { |r| teams << r.order.team if r.order.present? }
+      if teams.uniq.length > 1
+        collection.first.errors[:base] << message
       end
     end
   end

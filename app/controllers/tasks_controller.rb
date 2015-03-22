@@ -90,16 +90,16 @@ class TasksController < ApplicationController
       TaskOrders.transaction do
         @task.task_orders.destroy_all
         @task.update(budgets)
-        errors = {}
+        messages_ = []
         @task.task_orders.each do |task_order|
           if task_order.errors.present?
-            errors[task_order.order_id] = task_order.errors.full_messages
+            messages_ << task_order.errors.full_messages.join(', ')
           end
         end
-        if errors.empty?
+        if messages_.empty?
           render json: {}, status: 200
         else
-          render json: errors, status: :unprocessable_entity
+          render json: { errors: messages_ }, status: :unprocessable_entity
         end
       end
     end

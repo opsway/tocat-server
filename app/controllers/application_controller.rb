@@ -10,14 +10,10 @@ class ApplicationController < ActionController::API
     { root: false }
   end
 
-  def error_builder(object, class_name = nil)
-    if object.errors[:base][0].nil?
-      message = object.errors.first.second
-    else
-      message = object.errors[:base][0]
-    end
-    class_name = object.class.name if class_name.nil?
-    { error: "#{class_name.upcase}_ERROR", message: message }
+  def error_builder(object)
+    messages = []
+    object.errors.messages.each { |e| messages << e.second.first }
+    { errors: messages }
   end
 
   def no_method
