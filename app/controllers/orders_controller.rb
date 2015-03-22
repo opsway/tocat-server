@@ -31,7 +31,7 @@ class OrdersController < ApplicationController
         render json: error_builder(@order), status: :unprocessable_entity
       end
     else
-      render json: { error: 'ORDER_ERROR', message: 'Team value is missing' }, status: :unprocessable_entity
+      render json: { errors: ['Team value is missing'] }, status: :unprocessable_entity
     end
   end
 
@@ -64,7 +64,7 @@ class OrdersController < ApplicationController
       render json: error_builder(@order), status: :unprocessable_entity
     end
   rescue ActiveRecord::RecordNotFound
-    render json: { error: 'ORDER_ERROR', message: 'Invoice does not exist'},
+    render json: { errors: ['Invoice does not exist'] },
     status: :unprocessable_entity
   end
 
@@ -85,11 +85,11 @@ class OrdersController < ApplicationController
   def create_suborder
     @order = Order.new(order_params)
     unless params[:allocatable_budget]
-      render json: { error: 'ORDER_ERROR', message: 'Allocatable budget is missing' }, status: :unprocessable_entity
+      render json: { errors: ['Allocatable budget is missing'] }, status: :unprocessable_entity
       return 0
     end
     unless params[:team].present? && params[:team][:id].present?
-      render json: { error: 'ORDER_ERROR', message: 'Team value is missing' }, status: :unprocessable_entity
+      render json: { errors: ['Team value is missing'] }, status: :unprocessable_entity
       return 0
     end
     @order.team_id = params[:team][:id]

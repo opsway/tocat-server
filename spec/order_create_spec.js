@@ -18,7 +18,7 @@ frisby.create('Create Order: set allocatable budget more than invoiced')
 
         )
     .expectStatus(422)
-    .expectJSON({errors: ['Allocatable budget should be less or equal to invoiced budget']})
+    .expectJSON({errors: ['Allocatable budget is greater than invoiced budget']})
     .toss();
 
 
