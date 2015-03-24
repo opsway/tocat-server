@@ -158,7 +158,7 @@ frisby.create('Correct invoice')
                 .post(url + '/order/' + order.id + '/invoice', {'invoice_id' : invoice.id})
                 .expectStatus(200)
                 .toss();
-    
+
               frisby.create('Set invoice paid')
                 .post(url + '/invoice/' + invoice.id + '/paid')
                 .expectStatus(200)

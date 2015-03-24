@@ -3,7 +3,7 @@ class Task < ActiveRecord::Base
   validates :external_id,  presence: { message: "Missing external task ID" }
   validate :check_resolver_team, if: Proc.new { |o| o.user_id_changed? && !o.user_id.nil? }
 
-  has_many :task_orders, class_name: 'TaskOrders', after_add: :handle_invoice_paid_status
+  has_many :task_orders, class_name: 'TaskOrders', after_add: [:handle_invoice_paid_status, :increase_budget], before_remove: :decrease_budget
 
   has_many :orders, through: :task_orders
 
@@ -16,9 +16,9 @@ class Task < ActiveRecord::Base
   validates_associated :task_orders
   validate :validate_unique_task_orders
   scoped_search on: :external_id
-  scoped_search on: [:accepted, :paid ], only_explicit: true, ext_method: :boolean_find
-  scoped_search :in => :user, :on => :name, :rename => :resolver, :only_explicit => true
-  scoped_search :in => :orders, :on => :name, :rename => :order, :only_explicit => true
+  scoped_search on: [:accepted, :paid, :budget], only_explicit: true, ext_method: :boolean_find
+  scoped_search in: :user, on: :id, rename: :resolver, only_explicit: true
+  scoped_search in: :orders, on: :id, rename: :order, only_explicit: true
 
   def self.boolean_find(key, operator, value)
     { conditions: sanitize_sql_for_conditions(["tasks.#{key} #{operator} ?", value.to_bool]) }
@@ -56,25 +56,19 @@ class Task < ActiveRecord::Base
     self.user
   end
 
-  def budget
-    budget = BigDecimal 0
-    task_orders.each do |record|
-      budget += record.budget
-    end
-    budget
-  end
-
-  def self.sorted_by_budget(order)
-    order == 'asc' ?
-      Task.all.sort_by(&:budget) :
-      Task.all.sort_by(&:budget).reverse!
-  end
-
   def external_url
     #Settings.external_tracker.url + external_id
   end
 
   private
+
+  def increase_budget(task_order)
+    self.update_attributes(budget: self.budget += task_order.budget)
+  end
+
+  def decrease_budget(task_order)
+    self.update_attributes(budget: self.budget -= task_order.budget)
+  end
 
   def handle_invoice_paid_status(budget)
     if budget.order.present?
