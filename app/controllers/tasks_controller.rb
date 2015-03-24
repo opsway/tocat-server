@@ -9,13 +9,6 @@ class TasksController < ApplicationController
     end
 
     @articles = tasks.order(sort)
-    if params[:sort].present?
-      params[:sort].split.each do |o|
-        if o == 'budget:asc' || o == 'budget:desc'
-          @articles = Task.sorted_by_budget(o.split(':').second)
-        end
-      end
-    end
     paginate json: @articles, per_page: params[:limit]
   end
 
@@ -93,13 +86,14 @@ class TasksController < ApplicationController
         messages_ = []
         @task.task_orders.each do |task_order|
           if task_order.errors.present?
-            messages_ << task_order.errors.full_messages.join(', ')
+            messages_ << task_order.errors.full_messages
           end
         end
         if messages_.empty?
           render json: {}, status: 200
         else
-          render json: { errors: messages_ }, status: :unprocessable_entity
+          render json: { errors: messages_.flatten }, status: :unprocessable_entity
+          raise ActiveRecord::Rollback.new
         end
       end
     end

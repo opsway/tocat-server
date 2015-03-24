@@ -40,12 +40,18 @@ class Order < ActiveRecord::Base
   before_save :check_if_invoice_already_paid, if: Proc.new { |o| o.invoice_id_changed? }
   before_save :check_for_tasks_on_team_change, if: Proc.new { |o| o.team_id_changed? }
   before_save :check_if_suborder, if: Proc.new { |o| o.invoice_id_changed? }
+  before_save :paid_from_parent, if: Proc.new { |o| o.parent_id.present? }
 
   def handle_paid(paid)
-    return self.update_attributes(paid: paid)
+    return self.update_attributes!(paid: paid)
   end
 
   private
+
+  def paid_from_parent
+    self.paid = parent.paid
+    return true
+  end
 
   def check_if_suborder
     if parent.present?
@@ -85,7 +91,7 @@ class Order < ActiveRecord::Base
   def check_if_paid
     if paid
       if invoice_id.nil?
-        errors[:base] << 'Order is already paid, can unlink it from invoice'
+        errors[:base] << 'Order is already paid, can not unlink it from invoice'
       else
         errors[:base] << 'Order is already paid, can not change invoice'
       end

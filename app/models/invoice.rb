@@ -25,9 +25,9 @@ class Invoice < ActiveRecord::Base
   def handle_paid_status
     self.transaction do
       orders.each do |order|
-        raise ActiveRecord::Rollback unless order.handle_paid(paid)
+        order.handle_paid(paid)
         order.sub_orders.each do |sub_order|
-          raise ActiveRecord::Rollback unless sub_order.handle_paid(paid)
+          sub_order.handle_paid(paid)
         end
       end
       orders.each do |order|

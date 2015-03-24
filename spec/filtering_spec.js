@@ -40,7 +40,7 @@ frisby.create('Main invoice')
 			      .post(url + '/order/' + order.id + '/invoice', {'invoice_id' : invoice.id})
 			      .expectStatus(200)
 			      .toss();
-          
+
           frisby.create('Set invoice as paid')
             .post(url + '/invoice/' + invoice.id + '/paid')
             .expectStatus(200)
@@ -73,7 +73,7 @@ frisby.create('Main invoice')
                                      .toss();
 
                                  frisby.create("Filtering on tasks - paid")
-                                 	.get(url + '/tasks' + '?paid=true')
+                                 	.get(url + '/tasks' + '?search=paid=true')
                                  	.expectStatus(200)
                                  	.afterJSON(function(tasks){
                                  			expect(tasks.length >= 1).toBe(true);
@@ -87,7 +87,7 @@ frisby.create('Main invoice')
 
 
 											            frisby.create("Get only paid tasks with boolean as 1")
-			                                 	.get(url + '/tasks/' + '?paid=1')
+			                                 	.get(url + '/tasks' + '?search=paid=1')
 			                                 	.expectStatus(200)
 			                                 	.afterJSON(function(tasks2){
 			                                 			expect(tasks.length == tasks2.length).toBe(true);
@@ -98,7 +98,7 @@ frisby.create('Main invoice')
                                  	.toss();
 
                                  frisby.create("Filtering on tasks - not paid")
-                                 	.get(url + '/tasks/' + '?paid=false')
+                                 	.get(url + '/tasks' + '?search=paid=false')
                                  	.expectStatus(200)
                                  	.afterJSON(function(tasks){
                                  			expect(tasks.length >= 1).toBe(true);
@@ -111,7 +111,7 @@ frisby.create('Main invoice')
                                  			})
 
                                       frisby.create("Get only paid tasks with boolean as 0")
-                                        .get(url + '/tasks' + '?paid=0')
+                                        .get(url + '/tasks' + '?search=paid=0')
                                         .expectStatus(200)
                                         .afterJSON(function(tasks2){
                                           expect(tasks.length == tasks2.length).toBe(true);
@@ -121,17 +121,17 @@ frisby.create('Main invoice')
                                   .toss();
 
                                  frisby.create("Filtering on bugdet and paid")
-                                  .get(url + '/tasks/' + '?budget>90&paid=1')
+                                  .get(url + '/tasks' + '?search=budget>90 paid=1')
                                   .expectStatus(200)
                                   .afterJSON(function(tasks){
                                     tasks.forEach(function(task){
                                             expect(task.budget > 90 ).toBe(true);
                                             expect(task.paid).toBe(true);
                                         }
-                                      )  
+                                      )
                                   })
                                   .toss();
-                                 
+
 
                                  frisby.create("Sorting on tasks")
                                  	.get(url + '/tasks/' + '?sort=budget:desc')
@@ -153,7 +153,7 @@ frisby.create('Main invoice')
                                  	.get(url + '/tasks/' + '?limit=10')
                                  	.expectStatus(200)
                                  	.afterJSON(function(tasks){
-                                 		expect(tasks.length < 10 ).toBe(true);
+                                 		expect(tasks.length < 11 ).toBe(true);
                                  	})
                                  	.toss();
 

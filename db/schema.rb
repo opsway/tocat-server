@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150303151513) do
+ActiveRecord::Schema.define(version: 20150324052453) do
 
   create_table "accounts", force: :cascade do |t|
     t.string   "account_type",     limit: 255, null: false
@@ -67,12 +67,13 @@ ActiveRecord::Schema.define(version: 20150303151513) do
   end
 
   create_table "tasks", force: :cascade do |t|
-    t.string   "external_id", limit: 255,                 null: false
+    t.string   "external_id", limit: 255,                                         null: false
     t.integer  "user_id",     limit: 4
-    t.boolean  "accepted",    limit: 1,   default: false
-    t.boolean  "paid",        limit: 1,   default: false
+    t.boolean  "accepted",    limit: 1,                           default: false
+    t.boolean  "paid",        limit: 1,                           default: false
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.decimal  "budget",                  precision: 8, scale: 2, default: 0.0
   end
 
   add_index "tasks", ["external_id"], name: "index_tasks_on_external_id", using: :btree
