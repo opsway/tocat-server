@@ -3,7 +3,7 @@ frisby = require('frisby');
 
 frisby.globalSetup({
  request: {
- 	json : true
+ 	json : false
  },
   timeout: (30 * 1000)
 });

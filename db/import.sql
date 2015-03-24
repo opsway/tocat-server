@@ -1,5 +1,6 @@
 truncate accounts;
 truncate task_orders;
+truncate orders;
 truncate tasks;
 truncate transactions;
 truncate users;

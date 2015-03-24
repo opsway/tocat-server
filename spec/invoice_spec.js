@@ -11,6 +11,7 @@
 //Zoho books integration.
 //  - create books invoice -> set TOCAT invoice as immutable -> set order budgets as immutable
 
+// TODO: Paid not existent order
 
 var config = require('./config');
 var url = config.url;
@@ -491,6 +492,7 @@ frisby.create('Correct additional invoice')
           frisby.create('Can not set order as paid directly')
             .post(url + '/order/' + order.id + '/paid')
             .expectStatus(404)
+            .inspectBody()
             .toss();
 
           frisby.create('Invoice order')
