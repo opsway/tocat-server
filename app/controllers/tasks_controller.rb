@@ -78,23 +78,23 @@ class TasksController < ApplicationController
 
   def set_budgets
     budgets = {}
-    budgets[:task_orders_attributes] = task_params[:budget]
     if task_params[:budget].present?
-      TaskOrders.transaction do
-        @task.task_orders.destroy_all
-        @task.update(budgets)
-        messages_ = []
-        @task.task_orders.each do |task_order|
-          if task_order.errors.present?
-            messages_ << task_order.errors.full_messages
-          end
+      budgets[:task_orders_attributes] = task_params[:budget]
+    end
+    TaskOrders.transaction do
+      @task.task_orders.destroy_all
+      @task.update(budgets)
+      messages_ = []
+      @task.task_orders.each do |task_order|
+        if task_order.errors.present?
+          messages_ << task_order.errors.full_messages
         end
-        if messages_.empty?
-          render json: {}, status: 200
-        else
-          render json: { errors: messages_.flatten }, status: :unprocessable_entity
-          raise ActiveRecord::Rollback.new
-        end
+      end
+      if messages_.empty?
+        render json: {}, status: 200
+      else
+        render json: { errors: messages_.flatten }, status: :unprocessable_entity
+        raise ActiveRecord::Rollback.new
       end
     end
   end

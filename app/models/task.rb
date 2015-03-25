@@ -16,7 +16,8 @@ class Task < ActiveRecord::Base
   validates_associated :task_orders
   validate :validate_unique_task_orders
   scoped_search on: :external_id
-  scoped_search on: [:accepted, :paid, :budget], only_explicit: true, ext_method: :boolean_find
+  scoped_search on: :budget, only_explicit: true
+  scoped_search on: [:accepted, :paid], only_explicit: true, ext_method: :boolean_find
   scoped_search in: :user, on: :id, rename: :resolver, only_explicit: true
   scoped_search in: :orders, on: :id, rename: :order, only_explicit: true
 
