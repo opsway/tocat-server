@@ -167,6 +167,18 @@ frisby.create('Correct order creation')
                         })
                         .toss();
 
+                      frisby.create('Allocatable budget on parent order should NOT decrease, free budget should decrease')
+                        .get(url + '/order/' + order.id)
+                        .expectStatus(200)
+                        .expectJSON({'allocatable_budget' : 1000, 'free_budget' : 900 })
+                        .toss();
+
+                      frisby.create('Allocatable budget on parent order should NOT decrease, free budget should decrease')
+                        .get(url + '/order/' + order2.id)
+                        .expectStatus(200)
+                        .expectJSON({'allocatable_budget' : 500, 'free_budget' : 350 })
+                        .toss();
+
                       frisby.create('Check budgets')
                         .get(url + '/task/' + task.id + '/budget')
                         .expectStatus(200)
@@ -182,6 +194,45 @@ frisby.create('Correct order creation')
                             }
                           ]})
                         .toss();
+
+
+                      frisby.create('Create another task')
+                        .post(url + '/tasks', {"external_id": "TST-103" })
+                        .expectStatus(201)
+                        .afterJSON(function(task2){
+
+                            frisby.create('Set task budgets')
+                            .post(url + '/task/' + task2.id + '/budget', {'budget' : [
+                              {
+                                'order_id' : order.id,
+                                'budget'   : 100
+                              },
+                              {
+                                'order_id' : order2.id,
+                                'budget'   : 150
+                              }
+                            ]})
+                            .expectStatus(200)
+                            .toss();
+
+                            frisby.create('Allocatable budget on parent order should NOT decrease, free budget should decrease')
+                              .get(url + '/order/' + order.id)
+                              .expectStatus(200)
+                              .expectJSON({'allocatable_budget' : 1000, 'free_budget' : 800 })
+                              .toss();
+
+                            frisby.create('Allocatable budget on parent order should NOT decrease, free budget should decrease')
+                              .get(url + '/order/' + order2.id)
+                              .expectStatus(200)
+                              .expectJSON({'allocatable_budget' : 500, 'free_budget' : 200 })
+                              .toss();
+
+                        })
+                        .expectStatus(201)
+                        .toss();
+
+                      
+
 
                       frisby.create('Can not change order team when used for task budgets')
                         .patch(url + '/order/' + order.id, {'team': {'id': 2}})
