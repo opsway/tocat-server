@@ -157,7 +157,7 @@ frisby.create('Correct invoice2')
                                     })
                                     .toss();
 
-                                  frisby.create('Set again task1 budgets')
+                                  frisby.create('Set again task budgets')
                                     .post(url + '/task/' + task.id + '/budget', {'budget' : [
                                       {
                                         'order_id' : subOrder1.id,
@@ -230,6 +230,12 @@ frisby.create('Correct invoice2')
                                           .expectJSON({'paid' : false})
                                           .toss();
 
+                                        frisby.create('Check that task2 is paid')
+                                          .get(url + '/task/' + task2.id)
+                                          .expectStatus(200)
+                                          .expectJSON({'paid' : true})
+                                          .toss();
+
                                         frisby.create('Set invoice2 as paid')
                                           .post(url + '/invoice/' + invoice2.id + '/paid')
                                           .expectStatus(200)
@@ -253,23 +259,22 @@ frisby.create('Correct invoice2')
                                                 .afterJSON(function(team){
                                                   balance_team_2 = team.balance_account_state;
 
-                                                  frisby.create('Set task1 accepted')
+                                                  frisby.create('Set task accepted')
                                                     .post(url + '/task/' + task.id + '/accept')
                                                     .expectStatus(200)
                                                     .toss();
 
-                                                  frisby.create('Check that task1 is accepted&paid')
+                                                  frisby.create('Check that task is accepted&paid')
                                                     .get(url + '/task/' + task.id)
                                                     .expectStatus(200)
                                                     .expectJSON({'paid' : true, 'accepted' : true})
                                                     .toss();
 
-                                                  frisby.create('Check that task2 is paid')
-                                                    .get(url + '/task/' + task2.id)
+                                                  frisby.create('Check that task is paid')
+                                                    .get(url + '/task/' + task.id)
                                                     .expectStatus(200)
                                                     .expectJSON({'paid' : true})
                                                     .toss();
-
 
                                                   frisby.create('Check that resolver id=2 balance is updated')
                                                     .get(url + '/user/2')
