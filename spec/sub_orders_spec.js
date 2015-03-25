@@ -52,10 +52,10 @@ frisby.create('Correct order creation')
             .expectJSON({'invoiced_budget' : 50, 'free_budget' : 50, 'parent_order' : {'id' : order.id, "href" : "/order/" + order.id}})
             .toss();
 
-          frisby.create('Allocatable budget on parent order should decrease')
+          frisby.create('Allocatable budget on parent order should NOT decrease, free budget should decrease')
             .get(url + '/order/' + order.id)
             .expectStatus(200)
-            .expectJSON({'allocatable_budget' : 50, 'free_budget' : 50})
+            .expectJSON({'allocatable_budget' : 100, 'free_budget' : 50})
             .toss()
 
           frisby.create('Suborder can not be created from suborder')
@@ -80,10 +80,10 @@ frisby.create('Correct order creation')
             .post(url + '/order/' + order.id + '/suborder', {'allocatable_budget': 20, 'team' : {'id' : 2}, 'name' : 'super order'})
             .expectStatus(201)
             .afterJSON(function(subOrder) {
-              frisby.create('Allocatable budget on parent order should decrease')
+              frisby.create('Allocatable budget on parent order should NOT decrease, free budget should decrease')
                 .get(url + '/order/' + order.id)
                 .expectStatus(200)
-                .expectJSON({'allocatable_budget' : 30, 'free_budget' : 30})
+                .expectJSON({'allocatable_budget' : 100, 'free_budget' : 30})
                 .toss()
 
 
@@ -91,10 +91,10 @@ frisby.create('Correct order creation')
             .patch(url + '/order/' + subOrder.id, {'allocatable_budget': 22, 'invoiced_budget' : 22})
             .expectStatus(200)
             .afterJSON(function(){
-              frisby.create('Allocatable budget on parent order should decrease')
+              frisby.create('Allocatable budget on parent order should NOT decrease, free budget should decrease')
                 .get(url + '/order/' + order.id)
                 .expectStatus(200)
-                .expectJSON({'allocatable_budget' : 8, 'free_budget' : 8})
+                .expectJSON({'allocatable_budget' : 100, 'free_budget' : 8})
                 .toss()
             })
             .toss();
@@ -109,10 +109,10 @@ frisby.create('Correct order creation')
             .delete(url + '/order/' + subOrder.id)
             .expectStatus(200)
             .afterJSON(function(){
-              frisby.create('Allocatable budget on parent order should increase')
+              frisby.create('Allocatable budget on parent order should NOT increase, free budget should decrease')
                 .get(url + '/order/' + order.id)
                 .expectStatus(200)
-                .expectJSON({'allocatable_budget' : 30, 'free_budget' : 30})
+                .expectJSON({'allocatable_budget' : 100, 'free_budget' : 30})
                 .toss()
             })
             .toss();
