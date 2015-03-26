@@ -80,9 +80,13 @@ class TasksController < ApplicationController
       budgets[:task_orders_attributes] = task_params[:budget]
     end
     TaskOrders.transaction do
-      @task.task_orders.destroy_all
-      @task.update(budgets)
       messages_ = []
+      @task.task_orders.destroy_all
+      begin
+        @task.update(budgets)
+      rescue => e
+        messages_ << e.message
+      end
       @task.task_orders.each do |task_order|
         if task_order.errors.present?
           messages_ << task_order.errors.full_messages

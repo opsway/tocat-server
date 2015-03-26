@@ -3,7 +3,11 @@ class Task < ActiveRecord::Base
   validates :external_id,  presence: { message: "Missing external task ID" }
   validate :check_resolver_team, if: Proc.new { |o| o.user_id_changed? && !o.user_id.nil? }
 
-  has_many :task_orders, class_name: 'TaskOrders', after_add: [:handle_invoice_paid_status, :increase_budget], before_remove: :decrease_budget
+  has_many :task_orders,
+           class_name: 'TaskOrders',
+           before_add: :reject_budget_change_if_task_accepted_and_paid,
+           after_add: [ :handle_invoice_paid_status, :increase_budget ],
+           before_remove: :decrease_budget
 
   has_many :orders, through: :task_orders
 
@@ -22,7 +26,7 @@ class Task < ActiveRecord::Base
   scoped_search in: :orders, on: :id, rename: :order, only_explicit: true
 
   def self.boolean_find(key, operator, value)
-    { conditions: sanitize_sql_for_conditions(["tasks.#{key} #{operator} ?", value.to_bool]) }
+    { conditions: sanitize_sql_for_conditions(["tasks.#{key} #{operator} ?", value.to_s.to_bool]) }
   end
 
   def can_be_paid?
@@ -62,6 +66,12 @@ class Task < ActiveRecord::Base
   end
 
   private
+
+  def reject_budget_change_if_task_accepted_and_paid(budget)
+    if accepted && paid
+      raise 'Can not update budget for task that is Accepted and paid'
+    end
+  end
 
   def increase_budget(task_order)
     self.update_attributes(budget: self.budget += task_order.budget)
