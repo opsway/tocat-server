@@ -1,9 +1,17 @@
 class TransactionSerializer < ActiveModel::Serializer
   include Rails.application.routes.url_helpers
 
-  attributes :id,:total,:type, :comment, :links, :date
+  attributes :id,:total, :owner, :type, :comment, :links, :date
 
   private
+
+  def owner
+    {
+      id: object.account.accountable_id,
+      type: object.account.accountable.class.name.downcase,
+      href: "/#{object.account.accountable.class.name.downcase}/#{object.account.accountable_id}"
+    }
+  end
 
   def date
     object.created_at

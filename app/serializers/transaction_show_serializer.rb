@@ -1,7 +1,15 @@
 class TransactionShowSerializer < ActiveModel::Serializer
-  attributes :id, :total, :comment, :user_id
+  attributes :id, :total, :comment, :owner
 
   private
+
+  def owner
+    {
+      id: object.account.accountable_id,
+      type: object.account.accountable.class.name.downcase,
+      href: "/#{object.account.accountable.class.name.downcase}/#{object.account.accountable_id}"
+    }
+  end
 
   def attributes
     data = super
