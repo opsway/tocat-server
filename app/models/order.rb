@@ -30,8 +30,6 @@ class Order < ActiveRecord::Base
   belongs_to :parent, class_name: 'Order'
 
   before_save :set_free_budget
-  before_save :decrease_budgets
-  before_destroy :increase_budgets
   before_destroy :check_if_order_has_tasks
   before_destroy :check_for_suborder
   before_save :check_if_paid, if: Proc.new { |o| o.invoice_id_changed? }
@@ -128,20 +126,6 @@ class Order < ActiveRecord::Base
       if team == parent.team
         errors[:base] << 'Suborder can not be created for the same team as parent order'
       end
-    end
-  end
-
-  def increase_budgets
-    if parent.present?
-      val = parent.allocatable_budget + allocatable_budget
-      parent.update_attributes(allocatable_budget: val)
-    end
-  end
-
-  def decrease_budgets
-    if new_record? && parent.present?
-      val = parent.allocatable_budget - allocatable_budget
-      parent.update_attributes(allocatable_budget: val)
     end
   end
 
