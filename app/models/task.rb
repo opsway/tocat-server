@@ -92,10 +92,10 @@ class Task < ActiveRecord::Base
     self.transaction do
       if accepted && paid
         user.balance_account.transactions.create! total: budget,
-                                                 comment: "#{self.external_id} accepted and paid",
+                                                 comment: "Accepted and paid #{self.external_id}",
                                                  user_id: 0
         user.team.balance_account.transactions.create! total: budget,
-                                                 comment: "#{self.external_id} accepted and paid",
+                                                 comment: "Accepted and paid #{self.external_id}",
                                                  user_id: 0
       else
         if accepted_was == true && paid_was == true
@@ -122,10 +122,10 @@ class Task < ActiveRecord::Base
     end
     if user_id != nil
       user.balance_account.transactions.create! total: budget,
-                                               comment: "#{self.external_id} accepted and paid",
+                                               comment: "Accepted and paid #{self.external_id}",
                                                user_id: 0
       user.team.balance_account.transactions.create! total: budget,
-                                               comment: "#{self.external_id} accepted and paid",
+                                               comment: "Accepted and paid #{self.external_id}",
                                                user_id: 0
     end
   end
