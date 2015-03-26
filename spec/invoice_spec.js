@@ -11,7 +11,18 @@
 //Zoho books integration.
 //  - create books invoice -> set TOCAT invoice as immutable -> set order budgets as immutable
 
-// TODO: Paid not existent order
+// TODO: Paid not existent order -> 404
+
+// TODO: json=false дает возможность удалить бюджеты POST task/budget с пустым запросом
+// Нужно смотреть на параметр budget:[] и проверять его наличие
+
+//TODO:
+// resolver = id, accepted=true, paid = false , set paid = true
+// accepted&paid = true + Resolver=null, set resolver
+
+// accepted&paid = true, set accepted =false
+// accepted&paid = true, set paid =false
+
 
 var config = require('./config');
 var url = config.url;
@@ -172,7 +183,7 @@ frisby.create('Correct invoice2')
                                     .expectStatus(200)
                                     .toss();
 
-                                  frisby.create('Set task Resolver')
+                                  frisby.create('Set task Resolver id=2')
                                     .post(url + '/task/' + task.id + '/resolver', {'user_id' : 2})
                                     .expectStatus(200)
                                     .toss();
@@ -497,7 +508,6 @@ frisby.create('Correct additional invoice')
           frisby.create('Can not set order as paid directly')
             .post(url + '/order/' + order.id + '/paid')
             .expectStatus(404)
-            .inspectBody()
             .toss();
 
           frisby.create('Invoice order')

@@ -1,3 +1,8 @@
+//phase2
+//Fail delete when parent order completed
+//Can not change budget for completed order
+//Can not split completed order
+
 var config = require('./config');
 var url = config.url;
 
