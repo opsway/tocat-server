@@ -108,9 +108,9 @@ class Task < ActiveRecord::Base
           user.team.balance_account.transactions.create! total: - budget,
                                                    comment: "Reopening issue #{self.external_id}",
                                                    user_id: 0
-         user.team.balance_account.transactions.create! total: - budget,
-                                                  comment: "Reopening issue #{self.external_id}",
-                                                  user_id: 0
+          user.team.income_account.transactions.create! total: - budget,
+                                                   comment: "Reopening issue #{self.external_id}",
+                                                   user_id: 0
         end
       end
     end
@@ -125,9 +125,9 @@ class Task < ActiveRecord::Base
       old_user.team.balance_account.transactions.create! total: - budget,
                                                          comment: "Reopening issue #{self.external_id}",
                                                          user_id: 0
-     old_user.team.balance_account.transactions.create! total: - budget,
-                                                        comment: "Reopening issue #{self.external_id}",
-                                                        user_id: 0
+      old_user.team.income_account.transactions.create!  total: - budget,
+                                                         comment: "Reopening issue #{self.external_id}",
+                                                         user_id: 0
     end
     if user_id != nil
       user.balance_account.transactions.create! total: budget,
@@ -136,9 +136,9 @@ class Task < ActiveRecord::Base
       user.team.balance_account.transactions.create! total: budget,
                                                comment: "Accepted and paid issue #{self.external_id}",
                                                user_id: 0
-     user.team.balance_account.transactions.create! total: budget,
-                                              comment: "Accepted and paid issue #{self.external_id}",
-                                              user_id: 0
+      user.team.income_account.transactions.create! total: budget,
+                                               comment: "Accepted and paid issue #{self.external_id}",
+                                               user_id: 0
     end
   end
 
