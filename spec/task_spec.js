@@ -16,7 +16,38 @@ frisby.create('Correct task creation')
             .expectStatus(405)
             .toss();
 
-          frisby.create('Fields should not be updatable directly')
+          frisby.create('Attribute paid should not be updatable directly')
+            .post(url + '/task/' + task.id,
+            {
+              'paid' : true
+            })
+            .expectStatus(405)
+            .afterJSON(function(){
+              frisby.create('Attribute paid should not be updatable directly')
+                .get(url + '/task/' + task.id)
+                .expectStatus(200)
+                .expectJSON({'budget' : 0, 'paid' : false, 'resolver' : {}, 'accepted' : false, 'external_id' : 'TST-101'})
+                .toss();
+            })
+            .toss();
+
+
+          frisby.create('Attribute budget should not be updatable directly')
+            .post(url + '/task/' + task.id,
+            {
+              'budget' : 10
+            })
+            .expectStatus(405)
+            .afterJSON(function(){
+              frisby.create('Attribute budget should not be updatable directly')
+                .get(url + '/task/' + task.id)
+                .expectStatus(200)
+                .expectJSON({'budget' : 0, 'paid' : false, 'resolver' : {}, 'accepted' : false, 'external_id' : 'TST-101'})
+                .toss();
+            })
+            .toss();
+
+          frisby.create('Attribute resolver should not be updatable directly')
             .post(url + '/task/' + task.id,
             {
               'paid' : true,
@@ -28,7 +59,52 @@ frisby.create('Correct task creation')
             })
             .expectStatus(405)
             .afterJSON(function(){
-              frisby.create('Check that settings are not changed')
+              frisby.create('Attribute resolver should not be updatable directly')
+                .get(url + '/task/' + task.id)
+                .expectStatus(200)
+                .expectJSON({'budget' : 0, 'paid' : false, 'resolver' : {}, 'accepted' : false, 'external_id' : 'TST-101'})
+                .toss();
+            })
+            .toss();
+
+          frisby.create('Attribute accepted should not be updatable directly')
+            .post(url + '/task/' + task.id,
+            {
+              'accepted' : true
+            })
+            .expectStatus(405)
+            .afterJSON(function(){
+              frisby.create('Attribute accepted should not be updatable directly')
+                .get(url + '/task/' + task.id)
+                .expectStatus(200)
+                .expectJSON({'budget' : 0, 'paid' : false, 'resolver' : {}, 'accepted' : false, 'external_id' : 'TST-101'})
+                .toss();
+            })
+            .toss();
+
+          frisby.create('Attribute accepted should not be updatable directly')
+            .post(url + '/task/' + task.id,
+            {
+              'external_id' : "true"
+            })
+            .expectStatus(405)
+            .afterJSON(function(){
+              frisby.create('Attribute accepted should not be updatable directly')
+                .get(url + '/task/' + task.id)
+                .expectStatus(200)
+                .expectJSON({'budget' : 0, 'paid' : false, 'resolver' : {}, 'accepted' : false, 'external_id' : 'TST-101'})
+                .toss();
+            })
+            .toss();
+
+          frisby.create('Attribute external_id should not be updatable directly')
+            .post(url + '/task/' + task.id,
+            {
+              'external_id' : 'test new'
+            })
+            .expectStatus(405)
+            .afterJSON(function(){
+              frisby.create('Attribute external_id should not be updatable directly')
                 .get(url + '/task/' + task.id)
                 .expectStatus(200)
                 .expectJSON({'budget' : 0, 'paid' : false, 'resolver' : {}, 'accepted' : false, 'external_id' : 'TST-101'})
