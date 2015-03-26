@@ -7,8 +7,8 @@ class Task < ActiveRecord::Base
 
   has_many :orders, through: :task_orders
 
-  before_save :handle_balance_after_changing_resolver, if: Proc.new { |o| o.paid && o.user_id_changed? }
-  before_save :handle_balance_after_changing_paid_status, if: Proc.new { |o| o.paid_changed? && user_id.present? }
+  before_save :handle_balance_after_changing_resolver, if: Proc.new { |o| (o.paid && o.accepted) && o.user_id_changed? }
+  before_save :handle_balance_after_changing_paid_status, if: Proc.new { |o| (o.accepted_changed? || o.paid_changed?) && user_id.present? }
 
   belongs_to :user
 
@@ -90,7 +90,7 @@ class Task < ActiveRecord::Base
 
   def handle_balance_after_changing_paid_status
     self.transaction do
-      if paid
+      if accepted && paid
         user.balance_account.transactions.create! total: budget,
                                                  comment: "#{self.external_id} accepted and paid",
                                                  user_id: 0
@@ -98,12 +98,14 @@ class Task < ActiveRecord::Base
                                                  comment: "#{self.external_id} accepted and paid",
                                                  user_id: 0
       else
-        user.balance_account.transactions.create! total: - budget,
-                                                 comment: "#{self.external_id} unaccepted and unpaid",
-                                                 user_id: 0
-        user.team.balance_account.transactions.create! total: - budget,
-                                                 comment: "#{self.external_id} unaccepted and unpaid",
-                                                 user_id: 0
+        if accepted_was == true && paid_was == true
+          user.balance_account.transactions.create! total: - budget,
+                                                   comment: "#{self.external_id} unaccepted and unpaid",
+                                                   user_id: 0
+          user.team.balance_account.transactions.create! total: - budget,
+                                                   comment: "#{self.external_id} unaccepted and unpaid",
+                                                   user_id: 0
+        end
       end
     end
   end
