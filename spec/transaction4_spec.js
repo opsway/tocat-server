@@ -146,6 +146,14 @@ frisby.create('Correct invoice creation')
 										                                   		}
 										                                   	});
 
+										                                   	expect(userBalanceTransactionsNumber).toBe(-1);
+										                                   	expect(teamPaymentTransactionsNumber).toBe(-1);
+										                                   	expect(teamBalanceTransactionsNumber).toBe(-1);
+
+										                                   	userBalanceTransactionsNumber = 0;
+																			teamBalanceTransactionsNumber = 0;
+																			teamPaymentTransactionsNumber = 0;
+
 										                                   	transactionsBefore.forEach(function(tx){
 																				if (tx.comment == "Accepted and paid issue REDMINE-1021") {
 																					if (tx['type'] == "balance" && tx.owner['type'] == 'user') {
@@ -174,9 +182,9 @@ frisby.create('Correct invoice creation')
 										                                   		}
 										                                   	});
 
-										                                   	expect(userBalanceTransactionsNumber).toBe(2);
-										                                   	expect(teamPaymentTransactionsNumber).toBe(2);
-										                                   	expect(teamBalanceTransactionsNumber).toBe(2);
+										                                   	expect(userBalanceTransactionsNumber).toBe(-1);
+										                                   	expect(teamPaymentTransactionsNumber).toBe(-1);
+										                                   	expect(teamBalanceTransactionsNumber).toBe(-1);
 
 																        })
 																        .toss();

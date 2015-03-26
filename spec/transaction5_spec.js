@@ -140,9 +140,9 @@ frisby.create('Correct invoice creation')
 										                                   		}
 										                                   	});
 
-										                                   	expect(userBalanceTransactionsNumber).toBe(1);
-										                                   	expect(teamPaymentTransactionsNumber).toBe(1);
-										                                   	expect(teamBalanceTransactionsNumber).toBe(1);
+										                                   	expect(userBalanceTransactionsNumber).toBe(-1);
+										                                   	expect(teamPaymentTransactionsNumber).toBe(-1);
+										                                   	expect(teamBalanceTransactionsNumber).toBe(-1);
 
 																        })
 																        .toss();
