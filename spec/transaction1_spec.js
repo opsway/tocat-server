@@ -107,13 +107,13 @@ frisby.create('Correct invoice creation')
 
 																			transactionsBefore.forEach(function(tx){
 																				if (tx.comment == "Accepted and paid issue REDMINE-1021") {
-																					if (tx['type'] == "balance" && tx.owner['type'] = 'user') {
+																					if (tx['type'] == "balance" && tx.owner['type'] == 'user') {
 																						userBalanceTransactionsNumber +=1;
 																					}
-																					if (tx['type'] == "balance" && tx.owner['type'] = 'team') {
+																					if (tx['type'] == "balance" && tx.owner['type'] == 'team') {
 																						teamBalanceTransactionsNumber +=1;
 																					}
-																					if (tx['type'] == "payment" && tx.owner['type'] = 'team') {
+																					if (tx['type'] == "payment" && tx.owner['type'] == 'team') {
 																						teamPaymentTransactionsNumber +=1;
 																					}
 										                                   		}
@@ -121,13 +121,13 @@ frisby.create('Correct invoice creation')
 
 																			transactionsAfter.forEach(function(tx){
 																				if (tx.comment == "Accepted and paid issue REDMINE-1021") {
-																					if (tx['type'] == "balance" && tx.owner['type'] = 'user') {
+																					if (tx['type'] == "balance" && tx.owner['type'] == 'user') {
 																						userBalanceTransactionsNumber -=1;
 																					}
-																					if (tx['type'] == "balance" && tx.owner['type'] = 'team') {
+																					if (tx['type'] == "balance" && tx.owner['type'] == 'team') {
 																						teamBalanceTransactionsNumber -=1;
 																					}
-																					if (tx['type'] == "payment" && tx.owner['type'] = 'team') {
+																					if (tx['type'] == "payment" && tx.owner['type'] == 'team') {
 																						teamPaymentTransactionsNumber -=1;
 																					}
 										                                   		}
