@@ -100,10 +100,10 @@ class Task < ActiveRecord::Base
       else
         if accepted_was == true && paid_was == true
           user.balance_account.transactions.create! total: - budget,
-                                                   comment: "#{self.external_id} unaccepted and unpaid",
+                                                   comment: "Reopening issue #{self.external_id}",
                                                    user_id: 0
           user.team.balance_account.transactions.create! total: - budget,
-                                                   comment: "#{self.external_id} unaccepted and unpaid",
+                                                   comment: "Reopening issue #{self.external_id}",
                                                    user_id: 0
         end
       end
@@ -114,18 +114,18 @@ class Task < ActiveRecord::Base
     if user_id_was != nil
       old_user = User.find(user_id_was)
       old_user.balance_account.transactions.create! total: - budget,
-                                                    comment: "User was removed from #{id} task",
+                                                    comment: "Reopening issue #{self.external_id}",
                                                     user_id: 0
       old_user.team.balance_account.transactions.create! total: - budget,
-                                                         comment: "User #{old_user.login} was removed from #{id} task",
+                                                         comment: "Reopening issue #{self.external_id}",
                                                          user_id: 0
     end
     if user_id != nil
       user.balance_account.transactions.create! total: budget,
-                                               comment: "User was setted as resolver for #{id} task",
+                                               comment: "#{self.external_id} accepted and paid",
                                                user_id: 0
       user.team.balance_account.transactions.create! total: budget,
-                                               comment: "User #{user.login} was setted as resolver for #{id} task",
+                                               comment: "#{self.external_id} accepted and paid",
                                                user_id: 0
     end
   end
