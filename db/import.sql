@@ -15,6 +15,7 @@ insert into teams values (3, "OpsWay3", now(), now());
 
 insert into users values(1, "Dev1", 'dev1', 1, 50, now(), now(), 2);
 insert into users values(2, "Dev2", 'dev2', 2, 60, now(), now(), 2);
+insert into users values(5, "Dev5", 'dev5', 2, 61, now(), now(), 2);
 insert into users values(3, "Dev3", 'dev3', 3, 70, now(), now(), 2);
 insert into users values(4, "Dev4", 'dev4', 3, 80, now(), now(), 2);
 

@@ -1,9 +1,5 @@
-//TODO:
-// resolver = id, accepted=true, paid = false , set paid = true
-// accepted&paid = true + Resolver=null, set resolver
-
-// accepted&paid = true, set accepted =false
-// accepted&paid = true, set paid =false
+//Check the following sequence:
+// tasks is Accepted&Paid, then Resolver is set to different user in different team
 
 var config = require('./config');
 var url = config.url;
@@ -61,6 +57,11 @@ frisby.create('Correct invoice creation')
                             .expectStatus(200)
                             .toss();
 
+                        frisby.create('Set invoice as paid')
+                            .post(url + '/invoice/' + invoice.id + '/paid')
+                            .expectStatus(200)
+                            .toss();
+
 						frisby.create('Get balance account of resolver id=2')
                             .get(url + '/user/2')
                             .expectStatus(200)
@@ -73,14 +74,14 @@ frisby.create('Correct invoice creation')
                                     .afterJSON(function(team){
                                         balance_team_2 = team.balance_account_state;
 			                                frisby.create('Get current Transactions')
-			                                    .get(url + '/transactions')
+			                                    .get(url + '/transactions?limit=9999999')
 			                                    .expectStatus(200)
 			                                    .afterJSON(function(transactionsBefore){
 													
-													frisby.create('Set invoice as paid')
-                                          				.post(url + '/invoice/' + invoice.id + '/paid')
-                                          				.expectStatus(200)
-                                          				.toss();
+													frisby.create('Set task Resolver to different user id=5 and same team')
+                            							.post(url + '/task/' + task.id + '/resolver', {'user_id' : 5})
+                            							.expectStatus(200)
+                            							.toss();
 													
 													frisby.create('Get new balance account of resolver id=2')
 													    .get(url + '/user/2')
@@ -91,33 +92,69 @@ frisby.create('Correct invoice creation')
 													            .expectStatus(200)
 													            .afterJSON(function(team){
 
-													            	//Expecting 3 transactions:
+													            	//Expecting 6 transactions:
+													            	//Reopening
 																	//User balance
 																	//Team balance
 																	//Team payment
+
+																	//Accepted&Paid
+																	//User balance
+																	//Team balance
+																	//Team payment
+
 																    frisby.create('Check new transactions')
-																        .get(url + '/transactions')
+																        .get(url + '/transactions?limit=9999999')
 																        .expectStatus(200)
 																        .afterJSON(function(transactionsAfter){
-																        	expect(user.balance_account_state).toBe(balance_user_2 + 32);
+																        	expect(user.balance_account_state).toBe(balance_user_2 - 32);
 																			expect(team.balance_account_state).toBe(balance_team_2 + 32);
 																			
 
-																			expect(transactionsAfter.length - transactionsBefore.length).toBe(3);
+																			expect(transactionsAfter.length - transactionsBefore.length).toBe(6);
 																			
 																			userBalanceTransactionsNumber = 0;
 																			teamBalanceTransactionsNumber = 0;
 																			teamPaymentTransactionsNumber = 0;
 
 																			transactionsBefore.forEach(function(tx){
-																				if (tx.comment == "Accepted and paid issue REDMINE-1021") {
-																					if (tx.type == "balance" && tx.owner.type = 'user') {
+																				if (tx.comment == "Reopening issue REDMINE-1021") {
+
+																					if (tx['type'] == "balance" && tx.owner["type"] == 'user') {
 																						userBalanceTransactionsNumber +=1;
 																					}
-																					if (tx.type == "balance" && tx.owner.type = 'team') {
+																					if (tx["type"] == "balance" && tx.owner["type"] == 'team') {
 																						teamBalanceTransactionsNumber +=1;
 																					}
-																					if (tx.type == "payment" && tx.owner.type = 'team') {
+																					if (tx["type"] == "payment" && tx.owner["type"] == 'team') {
+																						teamPaymentTransactionsNumber +=1;
+																					}
+										                                   		}
+										                                   	});
+
+																			transactionsAfter.forEach(function(tx){
+																				if (tx.comment == "Reopening issue REDMINE-1021") {
+																					if (tx['type'] == "balance" && tx.owner["type"] == 'user') {
+																						userBalanceTransactionsNumber -=1;
+																					}
+																					if (tx["type"] == "balance" && tx.owner["type"] == 'team') {
+																						teamBalanceTransactionsNumber -=1;
+																					}
+																					if (tx["type"] == "payment" && tx.owner["type"] == 'team') {
+																						teamPaymentTransactionsNumber -=1;
+																					}
+										                                   		}
+										                                   	});
+
+										                                   	transactionsBefore.forEach(function(tx){
+																				if (tx.comment == "Accepted and paid issue REDMINE-1021") {
+																					if (tx['type'] == "balance" && tx.owner['type'] = 'user') {
+																						userBalanceTransactionsNumber +=1;
+																					}
+																					if (tx['type'] == "balance" && tx.owner['type'] = 'team') {
+																						teamBalanceTransactionsNumber +=1;
+																					}
+																					if (tx['type'] == "payment" && tx.owner['type'] = 'team') {
 																						teamPaymentTransactionsNumber +=1;
 																					}
 										                                   		}
@@ -125,21 +162,21 @@ frisby.create('Correct invoice creation')
 
 																			transactionsAfter.forEach(function(tx){
 																				if (tx.comment == "Accepted and paid issue REDMINE-1021") {
-																					if (tx.type == "balance" && tx.owner.type = 'user') {
+																					if (tx['type'] == "balance" && tx.owner['type'] = 'user') {
 																						userBalanceTransactionsNumber -=1;
 																					}
-																					if (tx.type == "balance" && tx.owner.type = 'team') {
+																					if (tx['type'] == "balance" && tx.owner['type'] = 'team') {
 																						teamBalanceTransactionsNumber -=1;
 																					}
-																					if (tx.type == "payment" && tx.owner.type = 'team') {
+																					if (tx['type'] == "payment" && tx.owner['type'] = 'team') {
 																						teamPaymentTransactionsNumber -=1;
 																					}
 										                                   		}
 										                                   	});
 
-										                                   	expect(userBalanceTransactionsNumber).toBe(1);
-										                                   	expect(teamPaymentTransactionsNumber).toBe(1);
-										                                   	expect(teamBalanceTransactionsNumber).toBe(1);
+										                                   	expect(userBalanceTransactionsNumber).toBe(2);
+										                                   	expect(teamPaymentTransactionsNumber).toBe(2);
+										                                   	expect(teamBalanceTransactionsNumber).toBe(2);
 
 																        })
 																        .toss();
