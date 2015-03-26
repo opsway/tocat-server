@@ -7,8 +7,8 @@ class Task < ActiveRecord::Base
 
   has_many :orders, through: :task_orders
 
-  before_save :handle_balance_after_changing_resolver, if: Proc.new { |o| (o.paid && o.accepted) && o.user_id_changed? }
-  before_save :handle_balance_after_changing_paid_status, if: Proc.new { |o| (o.accepted_changed? || o.paid_changed?) && user_id.present? }
+  before_save :handle_balance_after_changing_resolver, if: Proc.new { |o| o.paid && o.accepted && o.user_id_changed? }
+  before_save :handle_balance_after_changing_paid_status, if: Proc.new { |o| (o.accepted_changed? || o.paid_changed?) && o.user_id.present? }
 
   belongs_to :user
 
@@ -92,11 +92,14 @@ class Task < ActiveRecord::Base
     self.transaction do
       if accepted && paid
         user.balance_account.transactions.create! total: budget,
-                                                 comment: "Accepted and paid #{self.external_id}",
+                                                 comment: "Accepted and paid issue #{self.external_id}",
                                                  user_id: 0
         user.team.balance_account.transactions.create! total: budget,
-                                                 comment: "Accepted and paid #{self.external_id}",
+                                                 comment: "Accepted and paid issue #{self.external_id}",
                                                  user_id: 0
+         user.team.income_account.transactions.create! total: budget,
+                                                  comment: "Accepted and paid issue #{self.external_id}",
+                                                  user_id: 0
       else
         if accepted_was == true && paid_was == true
           user.balance_account.transactions.create! total: - budget,
@@ -105,6 +108,9 @@ class Task < ActiveRecord::Base
           user.team.balance_account.transactions.create! total: - budget,
                                                    comment: "Reopening issue #{self.external_id}",
                                                    user_id: 0
+         user.team.balance_account.transactions.create! total: - budget,
+                                                  comment: "Reopening issue #{self.external_id}",
+                                                  user_id: 0
         end
       end
     end
@@ -119,14 +125,20 @@ class Task < ActiveRecord::Base
       old_user.team.balance_account.transactions.create! total: - budget,
                                                          comment: "Reopening issue #{self.external_id}",
                                                          user_id: 0
+     old_user.team.balance_account.transactions.create! total: - budget,
+                                                        comment: "Reopening issue #{self.external_id}",
+                                                        user_id: 0
     end
     if user_id != nil
       user.balance_account.transactions.create! total: budget,
-                                               comment: "Accepted and paid #{self.external_id}",
+                                               comment: "Accepted and paid issue #{self.external_id}",
                                                user_id: 0
       user.team.balance_account.transactions.create! total: budget,
-                                               comment: "Accepted and paid #{self.external_id}",
+                                               comment: "Accepted and paid issue #{self.external_id}",
                                                user_id: 0
+     user.team.balance_account.transactions.create! total: budget,
+                                              comment: "Accepted and paid issue #{self.external_id}",
+                                              user_id: 0
     end
   end
 
