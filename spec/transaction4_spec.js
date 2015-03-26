@@ -1,5 +1,5 @@
 //Check the following sequence:
-// tasks is Accepted&Paid, then Resolver is set to different user in different team
+// tasks is Accepted&Paid, then Resolver is set to different user in same team
 
 var config = require('./config');
 var url = config.url;
@@ -108,7 +108,7 @@ frisby.create('Correct invoice creation')
 																        .expectStatus(200)
 																        .afterJSON(function(transactionsAfter){
 																        	expect(user.balance_account_state).toBe(balance_user_2 - 32);
-																			expect(team.balance_account_state).toBe(balance_team_2 + 32);
+																			expect(team.balance_account_state).toBe(balance_team_2);
 																			
 
 																			expect(transactionsAfter.length - transactionsBefore.length).toBe(6);

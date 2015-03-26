@@ -112,7 +112,7 @@ frisby.create('Correct invoice creation')
 																			expect(team.balance_account_state).toBe(balance_team_2 - 32);
 																			
 
-																			expect(transactionsAfter.length - transactionsBefore.length).toBe(6);
+																			expect(transactionsAfter.length - transactionsBefore.length).toBe(3);
 																			
 																			userBalanceTransactionsNumber = 0;
 																			teamBalanceTransactionsNumber = 0;
@@ -151,41 +151,6 @@ frisby.create('Correct invoice creation')
 										                                   	expect(teamPaymentTransactionsNumber).toBe(-1);
 										                                   	expect(teamBalanceTransactionsNumber).toBe(-1);
 
-										                                   	userBalanceTransactionsNumber = 0;
-																			teamBalanceTransactionsNumber = 0;
-																			teamPaymentTransactionsNumber = 0;
-
-										                                   	transactionsBefore.forEach(function(tx){
-																				if (tx.comment == "Accepted and paid issue REDMINE-1021") {
-																					if (tx['type'] == "balance" && tx.owner['type'] == 'user') {
-																						userBalanceTransactionsNumber +=1;
-																					}
-																					if (tx['type'] == "balance" && tx.owner['type'] == 'team') {
-																						teamBalanceTransactionsNumber +=1;
-																					}
-																					if (tx['type'] == "payment" && tx.owner['type'] == 'team') {
-																						teamPaymentTransactionsNumber +=1;
-																					}
-										                                   		}
-										                                   	});
-
-																			transactionsAfter.forEach(function(tx){
-																				if (tx.comment == "Accepted and paid issue REDMINE-1021") {
-																					if (tx['type'] == "balance" && tx.owner['type'] == 'user') {
-																						userBalanceTransactionsNumber -=1;
-																					}
-																					if (tx['type'] == "balance" && tx.owner['type'] == 'team') {
-																						teamBalanceTransactionsNumber -=1;
-																					}
-																					if (tx['type'] == "payment" && tx.owner['type'] == 'team') {
-																						teamPaymentTransactionsNumber -=1;
-																					}
-										                                   		}
-										                                   	});
-
-										                                    expect(userBalanceTransactionsNumber).toBe(-1);
-										                                   	expect(teamPaymentTransactionsNumber).toBe(-1);
-										                                   	expect(teamBalanceTransactionsNumber).toBe(-1);
 
 																        })
 																        .toss();
