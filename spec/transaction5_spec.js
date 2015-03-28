@@ -33,7 +33,7 @@ frisby.create('Correct invoice creation')
                 .toss();
 
             frisby.create('Correct task creation')
-                .post(url + '/tasks', {"external_id": "REDMINE-1021" })
+                .post(url + '/tasks', {"external_id": "REDMINE-1025" })
 				.expectStatus(201)
                 .afterJSON(function(task){
 
@@ -112,7 +112,7 @@ frisby.create('Correct invoice creation')
 
 
 																			transactionsBefore.forEach(function(tx){
-																				if (tx.comment == "Reopening issue REDMINE-1021") {
+																				if (tx.comment == "Reopening issue REDMINE-1025") {
 
 																					if (tx['type'] == "balance" && tx.owner["type"] == 'user') {
 																						userBalanceTransactionsNumber +=1;
@@ -127,7 +127,7 @@ frisby.create('Correct invoice creation')
 										                                   	});
 
 																			transactionsAfter.forEach(function(tx){
-																				if (tx.comment == "Reopening issue REDMINE-1021") {
+																				if (tx.comment == "Reopening issue REDMINE-1025") {
 																					if (tx['type'] == "balance" && tx.owner["type"] == 'user') {
 																						userBalanceTransactionsNumber -=1;
 																					}
