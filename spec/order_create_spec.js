@@ -156,6 +156,24 @@ frisby.create('Correct order creation')
         .expectStatus(200)
         .toss();
 
+      frisby.create("Free budget should increase when allocatable budget increases")
+        .get(url + '/order/' + order.id)
+        .expectStatus(200)
+        .expectJSON({'free_budget' : 120})
+        .toss();
+
+      frisby.create('Update order with correct decreased allocatable budget')
+        .patch(url + '/order/' + order.id, {allocatable_budget: 50})
+        .expectStatus(200)
+        .toss();
+
+      frisby.create("Free budget should decrease when allocatable budget decreases")
+        .get(url + '/order/' + order.id)
+        .expectStatus(200)
+        .expectJSON({'free_budget' : 50})
+        .toss();
+
+
       frisby.create('Update order with allocatable budget greater than invoiced')
         .patch(url + '/order/' + order.id, {allocatable_budget: 200})
         .expectStatus(422)
