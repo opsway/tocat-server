@@ -78,3 +78,15 @@ namespace :shiftplanning do
         salary_logger.info  "Salary update complete."
   end
 end
+
+namespace :temp do
+  task :budget  => :environment do
+    Task.all.each do |task|
+      budget = 0
+      task.task_orders.each do |r|
+        budget += r.budget
+      end
+      task.update_attribute(:budget,budget)
+    end
+  end
+end
