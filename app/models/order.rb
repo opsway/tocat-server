@@ -14,12 +14,12 @@ class Order < ActiveRecord::Base
 
 
 
-  validate :check_budgets
-  validate :check_if_team_exists
-  validate :sub_order_team
-  validate :check_inheritance
-  validate :check_budgets_for_sub_order
-  validate :check_sub_order_after_update
+  #validate :check_budgets
+  #validate :check_if_team_exists
+  #validate :sub_order_team
+  #validate :check_inheritance
+  #validate :check_budgets_for_sub_order
+  #validate :check_sub_order_after_update
 
   belongs_to :team
   belongs_to :invoice
@@ -30,14 +30,14 @@ class Order < ActiveRecord::Base
   belongs_to :parent, class_name: 'Order'
 
   before_save :set_free_budget
-  before_destroy :check_if_order_has_tasks
-  before_destroy :check_for_suborder
-  before_save :check_if_paid, if: Proc.new { |o| o.invoice_id_changed? }
-  before_destroy :check_if_paid_before_destroy
-  before_save :check_if_paid_on_budget_update, if: Proc.new { |o| o.invoiced_budget_changed? }
-  before_save :check_if_invoice_already_paid, if: Proc.new { |o| o.invoice_id_changed? }
-  before_save :check_for_tasks_on_team_change, if: Proc.new { |o| o.team_id_changed? }
-  before_save :check_if_suborder, if: Proc.new { |o| o.invoice_id_changed? }
+  #before_destroy :check_if_order_has_tasks
+  #before_destroy :check_for_suborder
+  #before_save :check_if_paid, if: Proc.new { |o| o.invoice_id_changed? }
+  #before_destroy :check_if_paid_before_destroy
+  #before_save :check_if_paid_on_budget_update, if: Proc.new { |o| o.invoiced_budget_changed? }
+  #before_save :check_if_invoice_already_paid, if: Proc.new { |o| o.invoice_id_changed? }
+  #before_save :check_for_tasks_on_team_change, if: Proc.new { |o| o.team_id_changed? }
+  #before_save :check_if_suborder, if: Proc.new { |o| o.invoice_id_changed? }
   before_save :paid_from_parent, if: Proc.new { |o| o.parent_id.present? }
 
   def handle_paid(paid)

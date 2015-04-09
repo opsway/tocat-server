@@ -17,8 +17,8 @@ class Task < ActiveRecord::Base
   belongs_to :user
 
   accepts_nested_attributes_for :task_orders, reject_if: :all_blank, allow_destroy: true
-  validates_associated :task_orders
-  validate :validate_unique_task_orders
+  #validates_associated :task_orders
+  #validate :validate_unique_task_orders
   scoped_search on: :external_id
   scoped_search on: :budget, only_explicit: true
   scoped_search on: [:accepted, :paid], only_explicit: true, ext_method: :boolean_find
