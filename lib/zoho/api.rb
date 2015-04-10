@@ -10,12 +10,46 @@ class RedmineTocatApi
     @status
   end
 
-  def self.get_transactions
+  def self.get_orders
+    url, auth, app_owner = generate_url('order')
+    params               = { :params => { "authtoken"    => auth,
+                                          'scope'        => 'creatorapi',
+                                          'zc_ownername' => app_owner,
+                                          'raw'          => true } }
+    request              = get(url, params)
+    if request && !request.empty? && request != "{}"
+      orders  = Hash.new
+      request = JSON.parse(request)
+      unless request["OrderEntity"].empty?
+        return request["OrderEntity"]
+      end
+    end
+  end
+
+
+  def self.get_user_accounts(user)
+    url, auth, app_owner = generate_url('get_account')
+    params  = { :params => { "authtoken"    => auth,
+                             'scope'        => 'creatorapi',
+                             'zc_ownername' => app_owner,
+                             'criteria'     => 'Name == "' + user.name + ' Balance" || Name == "' + user.name + ' Payment"',
+                             'raw'          => true } }
+    request = get(url, params)
+    if request && !request.empty? && request != "{}"
+      request = JSON.parse(request)
+      unless request["Account"].empty?
+        request["Account"]
+      end
+    end
+  end
+
+  def self.get_transactions(id)
     url, auth, app_owner = generate_url('get_transactions')
     params  = { :params => { "authtoken"    => auth,
                              'scope'        => 'creatorapi',
                              'zc_ownername' => app_owner,
-                             'raw'          => true
+                             'raw'          => true,
+                             'criteria'     => "Account == #{id}"
     } }
     request = get(url, params)
     if request && !request.empty? && request != "{}"
