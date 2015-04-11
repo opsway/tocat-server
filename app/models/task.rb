@@ -11,8 +11,8 @@ class Task < ActiveRecord::Base
 
   has_many :orders, through: :task_orders
 
-  before_save :handle_balance_after_changing_resolver, if: Proc.new { |o| o.paid && o.accepted && o.user_id_changed? }
-  before_save :handle_balance_after_changing_paid_status, if: Proc.new { |o| (o.accepted_changed? || o.paid_changed?) && o.user_id.present? }
+  #before_save :handle_balance_after_changing_resolver, if: Proc.new { |o| o.paid && o.accepted && o.user_id_changed? }
+  #before_save :handle_balance_after_changing_paid_status, if: Proc.new { |o| (o.accepted_changed? || o.paid_changed?) && o.user_id.present? }
 
   belongs_to :user
 
