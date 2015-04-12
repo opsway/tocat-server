@@ -1,8 +1,3 @@
-//phase2
-//Fail delete when parent order completed
-//Can not change budget for completed order
-//Can not split completed order
-
 var config = require('./config');
 var url = config.url;
 
@@ -96,6 +91,12 @@ frisby.create('Correct invoice')
                     	.expectJSON({'completed' : true })
                     	.toss();
 
+                    frisby.create('Can not create suborder from completed order')
+                        .post(url + '/order/' + order.id + '/suborder', {'allocatable_budget': 20, 'team' : {'id' : 2}, 'name' : 'super order'})
+                        .expectStatus(422)
+                        .expectJSON({errors:['Can not create suborder from completed order']})
+                        .toss();
+
                     frisby.create('Check that suborder is already set completed')
                     	.get(url + '/order/' + subOrder.id)
                     	.expectStatus(200)
@@ -121,7 +122,27 @@ frisby.create('Correct invoice')
 		               	.expectStatus(200)
 		               	.toss();
 		            
+
 		            //TODO Check team income balance --
+
+                    //Complete order
+                    //Set task1 un-accepted
+                    // Check that order is uncompleted
+                    // Check that suborder is uncompleted
+                    // Check team income balance
+
+                    //Complete order
+                    //Set task2 un-accepted
+                    // Check that order is uncompleted
+                    // Check that suborder is uncompleted
+                    // Check team income balance
+
+
+                    //Set task1 accepted
+                    //Complete order
+                    //Set invoice un-paid
+                    // Check that order is uncompleted
+                    // Check team income balance                    
 
                     frisby.create('Check that order is set un-completed')
                     	.get(url + '/order/' + order.id)
