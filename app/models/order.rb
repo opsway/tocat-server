@@ -39,12 +39,23 @@ class Order < ActiveRecord::Base
   before_save :check_for_tasks_on_team_change, if: Proc.new { |o| o.team_id_changed? }
   before_save :check_if_suborder, if: Proc.new { |o| o.invoice_id_changed? }
   before_save :paid_from_parent, if: Proc.new { |o| o.parent_id.present? }
+  before_save :check_if_allocatable_budget_lt_used, if: Proc.new { |o| o.allocatable_budget_changed? }
 
   def handle_paid(paid)
     return self.update_attributes!(paid: paid)
   end
 
   private
+
+  def check_if_allocatable_budget_lt_used
+    used_budget = 0
+    task_orders.each { |r| used_budget += r.budget }
+    sub_orders.each { |r| used_budget += r.allocatable_budget }
+    if allocatable_budget < used_budget
+      errors[:base] << 'Allocatable bugdet is less than already used from order'
+      false
+    end
+  end
 
   def paid_from_parent
     self.paid = parent.paid

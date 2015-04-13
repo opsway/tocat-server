@@ -60,4 +60,12 @@ namespace :zoho do
       puts "Order #{z_order["Comment"]} has wrong paid status" if z_order["Paid"] != order.paid
     end
   end
+
+  task :complete_orders => :environment do
+    orders = RedmineTocatApi.get_orders
+    orders.each do |z_order|
+      order = Order.where(name: z_order["Comment"]).first
+      order.update_attributes(completed: true) if z_order["Completed"] == true
+    end
+  end
 end
