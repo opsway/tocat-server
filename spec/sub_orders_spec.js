@@ -188,12 +188,6 @@ frisby.create('Correct invoice')
                         .expectJSON({'paid' : true})
                         .toss();
 
-                    frisby.create('Update order with allocatable budget less than zero')
-                        .patch(url + '/order/' + order.id, {'allocatable_budget': 10, 'invoiced_budget': 10})
-                        .expectStatus(422)
-                        .expectJSON({errors:['']})
-                        .toss();
-
                 })
                 .toss();
             })
