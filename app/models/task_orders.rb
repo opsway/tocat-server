@@ -4,8 +4,8 @@ class TaskOrders < ActiveRecord::Base
   validates :budget,
            numericality: { greater_than: 0 },
            presence: true
-  # validate :check_resolver_team_after_budget_creation
-  # validate :resolver_presence
+  validate :check_resolver_team_after_budget_creation
+  validate :resolver_presence
 
   validates_uniqueness_of :task_id, :scope => [:order_id]
   validates_uniqueness_of :order_id, :scope => [:task_id]
@@ -13,7 +13,7 @@ class TaskOrders < ActiveRecord::Base
   belongs_to :order
   belongs_to :task
 
-  # before_save :check_free_budget
+  before_save :check_free_budget
   before_save :decrease_free_budget
   before_destroy :increase_free_budget
 
