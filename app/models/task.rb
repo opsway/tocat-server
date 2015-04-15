@@ -11,16 +11,16 @@ class Task < ActiveRecord::Base
 
   has_many :orders, through: :task_orders
 
-  before_save :handle_balance_after_changing_resolver, if: Proc.new { |o| o.paid && o.accepted && o.user_id_changed? }
-  before_save :handle_balance_after_changing_paid_status, if: Proc.new { |o| (o.accepted_changed? || o.paid_changed?) && o.user_id.present? }
-  before_save :handle_balance_after_changing_budget, if: Proc.new { |o| o.paid && o.accepted && o.budget_changed? }
+  # before_save :handle_balance_after_changing_resolver, if: Proc.new { |o| o.paid && o.accepted && o.user_id_changed? }
+  # before_save :handle_balance_after_changing_paid_status, if: Proc.new { |o| (o.accepted_changed? || o.paid_changed?) && o.user_id.present? }
+  # before_save :handle_balance_after_changing_budget, if: Proc.new { |o| o.paid && o.accepted && o.budget_changed? }
 
 
   belongs_to :user
 
   accepts_nested_attributes_for :task_orders, reject_if: :all_blank, allow_destroy: true
-  validates_associated :task_orders
-  validate :validate_unique_task_orders
+  # validates_associated :task_orders
+  # validate :validate_unique_task_orders
   scoped_search on: :external_id
   scoped_search on: :budget, only_explicit: true
   scoped_search on: [:accepted, :paid], only_explicit: true, ext_method: :boolean_find
