@@ -13,6 +13,8 @@ class Task < ActiveRecord::Base
 
   before_save :handle_balance_after_changing_resolver, if: Proc.new { |o| o.paid && o.accepted && o.user_id_changed? }
   before_save :handle_balance_after_changing_paid_status, if: Proc.new { |o| (o.accepted_changed? || o.paid_changed?) && o.user_id.present? }
+  before_save :handle_balance_after_changing_budget, if: Proc.new { |o| o.paid && o.accepted && o.budget_changed? }
+
 
   belongs_to :user
 
@@ -126,29 +128,47 @@ class Task < ActiveRecord::Base
     end
   end
 
-  def handle_balance_after_changing_resolver
-    if user_id_was != nil
-      old_user = User.find(user_id_was)
-      old_user.balance_account.transactions.create! total: - budget,
-                                                    comment: "Reopening issue #{self.external_id}",
-                                                    user_id: 0
-      old_user.team.balance_account.transactions.create! total: - budget,
-                                                         comment: "Reopening issue #{self.external_id}",
-                                                         user_id: 0
-      old_user.team.income_account.transactions.create!  total: - budget,
-                                                         comment: "Reopening issue #{self.external_id}",
-                                                         user_id: 0
+  def handle_balance_after_changing_budget
+    self.transaction do
+      if budget_was != nil && budget == 0
+        user.balance_account.transactions.create! total: - budget_was,
+                                                  comment: "Reopening issue #{self.external_id}",
+                                                  user_id: 0
+        user.team.balance_account.transactions.create! total: - budget_was,
+                                                       comment: "Reopening issue #{self.external_id}",
+                                                       user_id: 0
+        user.team.income_account.transactions.create!  total: - budget_was,
+                                                       comment: "Reopening issue #{self.external_id}",
+                                                       user_id: 0
+      end
     end
-    if user_id != nil
-      user.balance_account.transactions.create! total: budget,
-                                               comment: "Accepted and paid issue #{self.external_id}",
-                                               user_id: 0
-      user.team.balance_account.transactions.create! total: budget,
-                                               comment: "Accepted and paid issue #{self.external_id}",
-                                               user_id: 0
-      user.team.income_account.transactions.create! total: budget,
-                                               comment: "Accepted and paid issue #{self.external_id}",
-                                               user_id: 0
+  end
+
+  def handle_balance_after_changing_resolver
+    self.transaction do
+      if user_id_was != nil
+        old_user = User.find(user_id_was)
+        old_user.balance_account.transactions.create! total: - budget,
+                                                      comment: "Reopening issue #{self.external_id}",
+                                                      user_id: 0
+        old_user.team.balance_account.transactions.create! total: - budget,
+                                                           comment: "Reopening issue #{self.external_id}",
+                                                           user_id: 0
+        old_user.team.income_account.transactions.create!  total: - budget,
+                                                           comment: "Reopening issue #{self.external_id}",
+                                                           user_id: 0
+      end
+      if user_id != nil
+        user.balance_account.transactions.create! total: budget,
+                                                 comment: "Accepted and paid issue #{self.external_id}",
+                                                 user_id: 0
+        user.team.balance_account.transactions.create! total: budget,
+                                                 comment: "Accepted and paid issue #{self.external_id}",
+                                                 user_id: 0
+        user.team.income_account.transactions.create! total: budget,
+                                                 comment: "Accepted and paid issue #{self.external_id}",
+                                                 user_id: 0
+      end
     end
   end
 
