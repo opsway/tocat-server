@@ -13,7 +13,7 @@ class TaskOrders < ActiveRecord::Base
   belongs_to :order
   belongs_to :task
 
-  before_save :check_free_budget
+  # before_save :check_free_budget
   before_save :decrease_free_budget
   before_destroy :increase_free_budget
 

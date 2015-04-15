@@ -38,7 +38,7 @@ class Order < ActiveRecord::Base
   # before_save :check_if_invoice_already_paid, if: Proc.new { |o| o.invoice_id_changed? }
   # before_save :check_for_tasks_on_team_change, if: Proc.new { |o| o.team_id_changed? }
   # before_save :check_if_suborder, if: Proc.new { |o| o.invoice_id_changed? }
-   before_save :paid_from_parent, if: Proc.new { |o| o.parent_id.present? }
+  before_save :paid_from_parent, if: Proc.new { |o| o.parent_id.present? }
   # before_save :check_if_allocatable_budget_lt_used, if: Proc.new { |o| o.allocatable_budget_changed? }
 
   def handle_paid(paid)
