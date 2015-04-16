@@ -40,12 +40,26 @@ class Order < ActiveRecord::Base
   before_save :check_if_suborder, if: Proc.new { |o| o.invoice_id_changed? }
   before_save :paid_from_parent, if: Proc.new { |o| o.parent_id.present? }
   before_save :check_if_allocatable_budget_lt_used, if: Proc.new { |o| o.allocatable_budget_changed? }
+  before_save :recalculate_free_budget, if: Proc.new { |o| o.allocatable_budget_changed? && !o.new_record? }
 
   def handle_paid(paid)
     return self.update_attributes!(paid: paid)
   end
 
   private
+
+  def recalculate_free_budget
+    val = 0
+    task_orders.each { |record| val += record.budget }
+    sub_orders.each do |order|
+      suborder_val = 0
+      order.task_orders.each { |record| suborder_val += record.budget }
+      suborder_val += order.allocatable_budget
+      val += suborder_val
+    end
+    self.free_budget = allocatable_budget - val
+    #binding.pry if free_budget == 10
+  end
 
   def check_if_allocatable_budget_lt_used
     used_budget = 0
