@@ -1,3 +1,6 @@
+// Can not change Resolver/Accepted/Budgets for issue financed from completed order
+
+
 var config = require('./config');
 var url = config.url;
 

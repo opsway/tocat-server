@@ -64,6 +64,25 @@ frisby.create('Correct invoice')
                   frisby.create('Update order with allocatable budget as already used from order')
                     .patch(url + '/order/' + order.id, {'allocatable_budget': 50, 'invoiced_budget': 50})
                     .expectStatus(200)
+                    .afterJSON(function(order){
+                        frisby.create("Free budget should be calculated taking into consideration suborders and tasks budgets")
+                            .get(url + '/order/' + order.id)
+                            .expectStatus(200)
+                            .expectJSON({'free_budget' : 0})
+                            .toss();
+                    })
+                    .toss();
+
+                    frisby.create('Update order with allocatable budget to have small free budget')
+                    .patch(url + '/order/' + order.id, {'allocatable_budget': 60, 'invoiced_budget': 80})
+                    .expectStatus(200)
+                    .afterJSON(function(order){
+                        frisby.create("Free budget should be calculated taking into consideration suborders and tasks budgets")
+                            .get(url + '/order/' + order.id)
+                            .expectStatus(200)
+                            .expectJSON({'free_budget' : 10})
+                            .toss();
+                    })
                     .toss();
                 })
                 .toss()
