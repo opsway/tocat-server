@@ -53,6 +53,7 @@ class Order < ActiveRecord::Base
     task_orders.each { |record| val += record.budget }
     sub_orders.each do |order|
       suborder_val = 0
+      order.task_orders.each { |record| suborder_val += record.budget } // FIXME
       suborder_val += order.allocatable_budget
       val += suborder_val
     end
