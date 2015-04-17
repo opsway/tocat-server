@@ -139,7 +139,7 @@ frisby.create('Correct invoice')
                           frisby.create("Free budget should NOT take into consideration tasks of suborders")
                             .get(url + '/order/' + order.id)
                             .expectStatus(200)
-                            .expectJSON({'free_budget' : 0})
+                            .expectJSON({'free_budget' : 10})
                             .toss(); 
 
                         })
