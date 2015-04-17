@@ -29,7 +29,7 @@ class Order < ActiveRecord::Base
   has_many :sub_orders, class_name: 'Order', foreign_key: 'parent_id'
   belongs_to :parent, class_name: 'Order'
 
-  before_save :set_free_budget
+  before_save :set_free_budget, if: Proc.new { |o| o.new_record? }
   before_destroy :check_if_order_has_tasks
   before_destroy :check_for_suborder
   before_save :check_if_paid, if: Proc.new { |o| o.invoice_id_changed? }
@@ -41,23 +41,34 @@ class Order < ActiveRecord::Base
   before_save :paid_from_parent, if: Proc.new { |o| o.parent_id.present? }
   before_save :check_if_allocatable_budget_lt_used, if: Proc.new { |o| o.allocatable_budget_changed? }
   before_save :recalculate_free_budget, if: Proc.new { |o| o.allocatable_budget_changed? && !o.new_record? }
+  after_save :recalculate_parent_free_budget, if: Proc.new { |o| o.allocatable_budget_changed? && !o.new_record? && o.parent.present? }
 
   def handle_paid(paid)
     return self.update_attributes!(paid: paid)
   end
 
+  def recalculate_free_budget!
+    recalculate_free_budget_and_save
+  end
+
   private
+
+  def recalculate_parent_free_budget
+    parent.recalculate_free_budget!
+  end
 
   def recalculate_free_budget
     val = 0
     task_orders.each { |record| val += record.budget }
-    sub_orders.each do |order|
-      suborder_val = 0
-      order.task_orders.each { |record| suborder_val += record.budget } // FIXME
-      suborder_val += order.allocatable_budget
-      val += suborder_val
-    end
+    sub_orders.each { |order| val += order.allocatable_budget }
     self.free_budget = allocatable_budget - val
+  end
+
+  def recalculate_free_budget_and_save
+    val = 0
+    task_orders.each { |record| val += record.budget }
+    sub_orders.each { |order| val += order.allocatable_budget }
+    self.update_attributes!(free_budget: allocatable_budget - val)
   end
 
   def check_if_allocatable_budget_lt_used
@@ -138,7 +149,7 @@ class Order < ActiveRecord::Base
   def check_sub_order_after_update
     if parent.present?
       if allocatable_budget_changed? || invoiced_budget_changed?
-        if allocatable_budget > parent.free_budget || invoiced_budget > parent.free_budget
+        if allocatable_budget > (parent.free_budget + allocatable_budget_was.to_i) || invoiced_budget > (parent.free_budget + invoiced_budget_was.to_i)
           errors[:base] << 'Suborder can not be invoiced more than parent free budget'
         end
       end
