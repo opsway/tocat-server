@@ -110,7 +110,7 @@ frisby.create('Correct invoice')
                         .toss();
 
                       frisby.create('Update suborder with more allocatable budget')
-                        .patch(url + '/order/' + subOrder.id, {'invoiced_budget': 30, 'allocatable_budget': 30 })
+                        .patch(url + '/order/' + subOrder.id, {'invoiced_budget': 30, 'allocatable_budget': 25 })
                         .expectStatus(200)
                         .inspectBody()
                         .toss();
