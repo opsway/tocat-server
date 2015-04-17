@@ -53,12 +53,10 @@ class Order < ActiveRecord::Base
     task_orders.each { |record| val += record.budget }
     sub_orders.each do |order|
       suborder_val = 0
-      order.task_orders.each { |record| suborder_val += record.budget }
       suborder_val += order.allocatable_budget
       val += suborder_val
     end
     self.free_budget = allocatable_budget - val
-    #binding.pry if free_budget == 10
   end
 
   def check_if_allocatable_budget_lt_used
