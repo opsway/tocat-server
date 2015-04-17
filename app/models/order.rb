@@ -4,6 +4,9 @@ class Order < ActiveRecord::Base
   validates_numericality_of :invoiced_budget,
                             greater_than: 0,
                             message: "Invoiced budget should be greater than 0"
+  # validates_numericality_of :free_budget,
+  #                           greater_than: 0,
+  #                           message: "Unexpected error: 'Free budget should be greater than 0'. Please contact administrator"
   validates_numericality_of :allocatable_budget,
                             greater_than_or_equal_to: 0,
                             message: "Allocatable should be positive number"
@@ -60,14 +63,14 @@ class Order < ActiveRecord::Base
   def recalculate_free_budget
     val = 0
     task_orders.each { |record| val += record.budget }
-    sub_orders.each { |order| val += order.allocatable_budget }
+    sub_orders.each { |order| val += order.invoiced_budget }
     self.free_budget = allocatable_budget - val
   end
 
   def recalculate_free_budget_and_save
     val = 0
     task_orders.each { |record| val += record.budget }
-    sub_orders.each { |order| val += order.allocatable_budget }
+    sub_orders.each { |order| val += order.invoiced_budget }
     self.update_attributes!(free_budget: allocatable_budget - val)
   end
 
