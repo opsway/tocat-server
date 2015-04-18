@@ -18,7 +18,7 @@ insert into users values(2, "Dev2", 'dev2', 2, 60, now(), now(), 2);
 insert into users values(5, "Dev5", 'dev5', 2, 61, now(), now(), 2);
 insert into users values(3, "Dev3", 'dev3', 3, 70, now(), now(), 2);
 insert into users values(4, "Dev4", 'dev4', 3, 80, now(), now(), 2);
-
+insert into users values(6, "Dev6", 'dev6', 1, 40, now(), now(), 2);
 
 insert into accounts values(1, 'balance', now(), now(), 1, 'Team');
 insert into accounts values(2, 'balance', now(), now(), 2, 'Team');
