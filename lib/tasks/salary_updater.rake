@@ -1,6 +1,11 @@
 require_relative '../shiftplanning/api'
 
 namespace :shiftplanning do
+
+  task :test => :environment do
+    puts Transaction.count
+  end
+
   task :update_transactions => :environment do
     logger = Logger.new("#{Rails.root}/log/transactions.log", 7, 2048000)
         salary_logger = Logger.new("#{Rails.root}/log/salary.log", 7, 2048000)
@@ -76,6 +81,29 @@ namespace :shiftplanning do
           salary_logger.info  " " if debug
         end
         salary_logger.info  "Salary update complete."
+  end
+  task :check_transactions  => :environment do
+    User.all.each do |user|
+      if user.income_account.transactions.where(comment:"Salary for 14/04/15").count >= 2
+        puts user.name
+        Transaction.create! comment: "This user has 2 salary for 14 of April. Balanse increased.",
+                            total: "#{user.daily_rate.to_s}",
+                            account: user.balance_account,
+                            user_id: user.id
+        Transaction.create! comment: "This user has 2 salary for 14 of April. Balanse decreased.",
+                            total: "-#{user.daily_rate.to_s}",
+                            account: user.income_account,
+                            user_id: user.id
+        Transaction.create! comment: "User #{user.name} has 2 salary for 14 of April. Balanse increased.",
+                            total: "#{user.daily_rate.to_s}",
+                            account: user.team.balance_account,
+                            user_id: user.id
+        Transaction.create! comment: "User #{user.name} has 2 salary for 14 of April. Balanse increased.",
+                            total: "#{user.daily_rate.to_s}",
+                            account: user.team.income_account,
+                            user_id: user.id
+      end
+    end
   end
 end
 

@@ -17,7 +17,7 @@ class ShiftplanningApi
 
   def timesheets
     begin
-      @request.reports.timesheets.params = { :start_date => "November 17 14",
+      @request.reports.timesheets.params = { :start_date => "April 14 15",
                                              :end_date => Date.current.strftime("%B %d %y"),
                                              :type => 'timesheets_summary',
                                              :approval_status => 1}
