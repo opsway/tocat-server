@@ -69,6 +69,15 @@ frisby.create('Correct invoice creation')
 		                    .expectStatus(422)
                     		.expectJSON({errors: ['Can not update budget for task that is Accepted and paid']})
                     		.toss();
+
+                        frisby.create('Can not update budget for task that is Accepted and paid')
+                            .post(url + '/task/' + task.id + '/budget', {'budget' : [
+                              {
+                               
+                              }]})
+                            .expectStatus(422)
+                            .expectJSON({errors: ['Can not update budget for task that is Accepted and paid']})
+                            .toss();
             	})
             	.toss();
         })
