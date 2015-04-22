@@ -96,5 +96,8 @@ Rails.application.routes.draw do
     post 'paid', to: 'invoices#set_paid', as: 'invoice_set_paid', format: 'json'
     delete 'paid', to: 'invoices#delete_paid', as: 'invoice_remove_paid', format: 'json'
   end
+
+  match '/status/selfcheck', to: 'status#selfcheck', via: :get
+
   match '*path', to: 'application#no_method', via: :all
 end
