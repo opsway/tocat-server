@@ -21,8 +21,11 @@ class SelfCheck
     # This method should get paid status for suborder and compare it with parent's paid status.
     messages = []
     Order.where.not(parent_id: nil).each do |order|
-      if order.parent.paid !=  order.paid
-        messages << "Expecting order #{order.id} (#{order.name}) to be #{order.parent.paid ? 'paid' : 'unpaid'}"
+      begin
+        if order.parent.paid !=  order.paid
+          messages << "Expecting order #{order.id} (#{order.name}) to be #{order.parent.paid ? 'paid' : 'unpaid'}"
+        end
+      rescue
       end
     end
     messages
