@@ -7,9 +7,9 @@ class SelfCheck
     messages = []
     messages << paid_status
     messages << orders_relationship
-    #messages << invoiced
-    #messages << parents_budget
-    #messages << free_budget
+    messages << invoiced
+    messages << parents_budget
+    messages << free_budget
     messages << budget_teams
     messages << duplicate_budgets
     messages.flatten!
@@ -36,15 +36,21 @@ class SelfCheck
     messages = []
     # Suborder should belongs to parent
     Order.where.not(parent_id: nil).each do |order|
-      unless order.parent.present?
-        messages << "SubOrder #{order.id} (#{order.name}) belongs to defunct parent "
+      begin
+        unless order.parent.present?
+          messages << "SubOrder #{order.id} (#{order.name}) belongs to defunct parent "
+        end
+      rescue
       end
     end
 
     # Suborder cannot be parent for another suborders
     Order.where.not(parent_id: nil).each do |order|
-      unless order.sub_orders.empty?
-        messages << "SubOrder #{order.id} (#{order.name}) has another suborders"
+      begin
+        unless order.sub_orders.empty?
+          messages << "SubOrder #{order.id} (#{order.name}) has another suborders"
+        end
+      rescue
       end
     end
     messages
@@ -54,8 +60,11 @@ class SelfCheck
     # This method should check thats only orders (NOT suborders) has relationship with invoices.
     messages = []
     Order.all.each do |order|
-      if order.invoice.present? && order.parent_id.present?
-        messages << "SubOrder #{order.id} (#{order.name}) has relationship with invoice"
+      begin
+        if order.invoice.present? && order.parent_id.present?
+          messages << "SubOrder #{order.id} (#{order.name}) has relationship with invoice"
+        end
+      rescue
       end
     end
     messages
@@ -65,14 +74,17 @@ class SelfCheck
     # This method should check free budget for each parent order.
     messages = []
     Order.all.each do |order|
-      if order.sub_orders.present?
-        val = 0
-        order.task_orders.each { |r| val += r.budget}
-        order.sub_orders.each { |r| val += r.invoiced_budget }
-        calculated_budget = order.allocatable_budget - val
-        if order.free_budget != calculated_budget
-          messages << "Expecting order #{order.id} (#{order.name}) free budget to be #{calculated_budget}, but it #{order.free_budget}"
+      begin
+        if order.sub_orders.present?
+          val = 0
+          order.task_orders.each { |r| val += r.budget}
+          order.sub_orders.each { |r| val += r.invoiced_budget }
+          calculated_budget = order.allocatable_budget - val
+          if order.free_budget != calculated_budget
+            messages << "Expecting order #{order.id} (#{order.name}) free budget to be #{calculated_budget}, but it #{order.free_budget}"
+          end
         end
+      rescue
       end
     end
     messages
@@ -82,14 +94,17 @@ class SelfCheck
     # This method should check free budget for each order and this value should be >= 0.
     messages = []
     Order.all.each do |order|
-      if order.sub_orders.present?
-        val = 0
-        order.task_orders.each { |r| val += r.budget}
-        order.sub_orders.each { |r| val += r.invoiced_budget }
-        calculated_budget = order.allocatable_budget - val
-        if calculated_budget < 0
-          messages << "Expecting order #{order.id} (#{order.name}) free budget to be greater than zero"
+      begin
+        if order.sub_orders.present?
+          val = 0
+          order.task_orders.each { |r| val += r.budget}
+          order.sub_orders.each { |r| val += r.invoiced_budget }
+          calculated_budget = order.allocatable_budget - val
+          if calculated_budget < 0
+            messages << "Expecting order #{order.id} (#{order.name}) free budget to be greater than zero"
+          end
         end
+      rescue
       end
     end
     messages
@@ -99,13 +114,16 @@ class SelfCheck
     # This method should check order team.
     messages = []
     Task.all.each do |task|
-      teams = []
-      if task.user.present?
-        teams << task.user.team
-      end
-      task.orders.each { |r| teams << r.team}
-      if teams.uniq.length > 1
-        messages << "Expecting task #{task.external_id} budgets to be from same team"
+      begin
+        teams = []
+        if task.user.present?
+          teams << task.user.team
+        end
+        task.orders.each { |r| teams << r.team}
+        if teams.uniq.length > 1
+          messages << "Expecting task #{task.external_id} budgets to be from same team"
+        end
+      rescue
       end
     end
     messages
@@ -114,10 +132,13 @@ class SelfCheck
   def duplicate_budgets
     messages = []
     Task.all.each do |task|
-      orders = []
-      task.task_orders.each { |r| orders << r.order}
-      if orders.length > task.task_orders.count
-        messages << "Task #{task.external_id} has multiple budgets from one order"
+      begin
+        orders = []
+        task.task_orders.each { |r| orders << r.order}
+        if orders.length > task.task_orders.count
+          messages << "Task #{task.external_id} has multiple budgets from one order"
+        end
+      rescue
       end
     end
     messages
