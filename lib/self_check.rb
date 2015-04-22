@@ -15,7 +15,14 @@ class SelfCheck
     messages.flatten!
   end
 
+  private
 
+  # def accepted_and_paid
+  #   messages = []
+  #   User.all.each do |user|
+  #     user.balance_account
+  #   end
+  # end
 
   def paid_status
     # This method should get paid status for suborder and compare it with parent's paid status.
@@ -116,9 +123,6 @@ class SelfCheck
     Task.all.each do |task|
       begin
         teams = []
-        if task.user.present?
-          teams << task.user.team
-        end
         task.orders.each { |r| teams << r.team}
         if teams.uniq.length > 1
           messages << "Expecting task #{task.external_id} budgets to be from same team"

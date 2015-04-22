@@ -7,7 +7,6 @@ class TaskShowSerializer < ActiveModel::Serializer
              :accepted,
              :resolver,
              :links
-  has_many :orders
 
   has_many :orders
 

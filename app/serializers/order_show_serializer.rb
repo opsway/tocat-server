@@ -34,18 +34,18 @@ class OrderShowSerializer < ActiveModel::Serializer
 
   def parent_order
     data = {}
-    if object.parent # FIXME
-      data[:href] = order_path(object.parent)
-      data[:id] = object.parent.id
+    if object.parent_id.present?
+      data[:href] = order_path(object.parent_id)
+      data[:id] = object.parent_id
     end
     data
   end
 
   def invoice
     data = {}
-    if object.invoice.present?
-      data[:href] = invoice_path(object.invoice)
-      data[:id] = object.invoice.id
+    if object.invoice_id.present?
+      data[:href] = invoice_path(object.invoice_id)
+      data[:id] = object.invoice_id
     end
     data
   end
