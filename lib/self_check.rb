@@ -4,6 +4,7 @@ class SelfCheck
   include Singleton
 
   def start
+    @transactions = []
     messages = []
     messages << paid_status
     messages << orders_relationship
@@ -12,17 +13,67 @@ class SelfCheck
     messages << free_budget
     messages << budget_teams
     messages << duplicate_budgets
+    messages << accepted_and_paid
+    messages << salary
+    Transaction.where.not(id: @transactions.join(',')).where.not('comment LIKE "%salary%"').each do |transaction|
+      messages << "Transaction ##{transaction.id}: #{transaction.comment} wrong!"
+    end
     messages.flatten!
   end
 
   private
 
-  # def accepted_and_paid
-  #   messages = []
-  #   User.all.each do |user|
-  #     user.balance_account
-  #   end
-  # end
+  def salary
+    messages = []
+    User.all.each do |user|
+      user.balance_account.transactions.where('comment LIKE "Salary%"').each do |t|
+        @transactions << t.id
+        user_income_count = user.income_account.transactions.where("comment LIKE '#{t.comment}' AND total = #{t.total.abs}").count
+        team_balance_count = 0
+        Team.all.each do |team|
+          team_balance_count += team.balance_account.transactions.where("comment LIKE '#{t.comment.gsub('for', user.name)}' AND total = #{-t.total.abs}").count
+        end
+        #team_balance_count = user.team.balance_account.transactions.where("comment LIKE '#{t.comment.gsub('for', user.name)}' AND total = #{-t.total.abs}").count
+        if user_income_count != 1
+          messages << "Wrong salary transaction for #{user.name}'s income account. Details: #{t.comment}"
+        end
+        if team_balance_count != 1
+          messages << "Wrong salary transaction for #{user.name}'s team(#{user.team.name}) balance account. Check: #{t.comment.gsub('for', user.name)}"
+        end
+      end
+    end
+    messages
+  end
+
+  def accepted_and_paid
+    messages = []
+    User.all.each do |user|
+      issues = []
+      user.balance_account.transactions.where.not('comment LIKE "Salary%"').each do |t|
+        issues << t.comment.gsub(/\D/, '')
+        @transactions << t.id
+      end
+      issues.each do |id|
+        accepted_count = 0
+        reopening_count = 0
+        user.balance_account.transactions.where("comment LIKE '%#{id}%'").each do |t_|
+          if /Accepted and paid issue.*/.match(t_.comment).present?
+            accepted_count += 1
+          elsif /Reopening issue.*/.match(t_.comment).present?
+            reopening_count += 1
+          end
+        end
+        if (accepted_count - reopening_count).abs > 1
+          if accepted_count > reopening_count
+            messages << "Expecting issue ##{id} to be accepted&paid"
+          elsif accepted_count < reopening_count
+            messages << "Expecting issue ##{id} NOT to be accepted&paid"
+          end
+        end
+      end
+    end
+    messages
+  end
 
   def paid_status
     # This method should get paid status for suborder and compare it with parent's paid status.
