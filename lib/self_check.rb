@@ -15,6 +15,9 @@ class SelfCheck
     messages << duplicate_budgets
     messages << accepted_and_paid
     messages << salary
+    messages << task_state
+    messages << accepted_and_paid_transactions
+    messages << accepted_and_paid_for_teams
     Transaction.where.not(id: @transactions.join(',')).where.not('comment LIKE "%salary%"').each do |transaction|
       messages << "Transaction ##{transaction.id}: #{transaction.comment} wrong!"
     end
@@ -22,6 +25,89 @@ class SelfCheck
   end
 
   private
+
+  def accepted_and_paid_transactions
+    messages = []
+    Task.where(accepted: true, paid: true).each do |task|
+      transactions = []
+      next unless task.user.present?
+      transactions << task.user.balance_account.transactions.where("comment LIKE '%#{task.external_id}%'")
+      transactions << task.user.team.balance_account.transactions.where("comment LIKE '%#{task.external_id}%'")
+      val = 0
+      transactions.flatten.each { |r| val += r.total; @transactions << r.id }
+      if (task.budget * 2) != val
+        messages << "Wrong payment & balance transactions for issue #{task.external_id}"
+      end
+    end
+    messages
+  end
+
+  def task_state
+    messages = []
+    Team.all.each do |team|
+      team.balance_account.transactions.where.not('comment LIKE "Salary%"').each do |t|
+        @transactions << t.id
+        if team.income_account.transactions.where("comment LIKE '#{t.comment}'").empty?
+          messages << "Wrong payment & balance transactions for issue #{t.gsub(/\D/, '')}"
+        end
+      end
+    end
+    Task.all.each do |task|
+      accepted = Transaction.where("comment LIKE 'Accepted and paid issue #{task.external_id}'")
+      reopening = Transaction.where("comment LIKE 'Reopening issue #{task.external_id}'")
+      accepted.each { |r| @transactions << r.id }
+      reopening.each { |r| @transactions << r.id }
+      next if accepted.last.nil?
+      if reopening.last.present? && accepted.last.created_at > reopening.last.created_at
+        val = 0
+        accepted.each { |r| val += r.total }
+        reopening.each { |r| val += r.total }
+        if (task.budget * 3) != val
+          messages << "Issue #{task.external_id} has incorrect number or transactions"
+        end
+      elsif reopening.last.nil?
+        val = 0
+        accepted.each { |r| val += r.total }
+        if (task.budget * 3) != val
+          messages << "Issue #{task.external_id} has incorrect number or transactions"
+        end
+      end
+    end
+    messages
+  end
+
+  def accepted_and_paid_for_teams
+    messages = []
+    User.all.each do |user|
+      issues = []
+      user.balance_account.transactions.where.not('comment LIKE "Salary%"').each do |t|
+        issues << t.comment.gsub(/\D/, '')
+        @transactions << t.id
+      end
+      issues.each do |id|
+        accepted_count = 0
+        reopening_count = 0
+        transactions = []
+        transactions << user.balance_account.transactions.where("comment LIKE '%#{id}%'")
+        transactions << user.team.balance_account.transactions.where("comment LIKE '%#{id}%'")
+        transactions.flatten.each do |t_|
+          if /Accepted and paid issue.*/.match(t_.comment).present?
+            accepted_count += 1
+          elsif /Reopening issue.*/.match(t_.comment).present?
+            reopening_count += 1
+          end
+        end
+        if (accepted_count - reopening_count).abs > 1
+          if accepted_count > reopening_count
+            messages << "Expecting issue ##{id} to be accepted&paid"
+          elsif accepted_count < reopening_count
+            messages << "Expecting issue ##{id} NOT to be accepted&paid"
+          end
+        end
+      end
+    end
+    messages
+  end
 
   def salary
     messages = []
