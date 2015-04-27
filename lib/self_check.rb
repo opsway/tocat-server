@@ -149,6 +149,7 @@ class SelfCheck
             reopening_count += 1
           end
         end
+        next if reopening_count == 0
         if (accepted_count - reopening_count).abs > 1
           if accepted_count > reopening_count
             messages << "Expecting issue ##{id} to be accepted&paid"
