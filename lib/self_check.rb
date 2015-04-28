@@ -35,7 +35,7 @@ class SelfCheck
       order.sub_orders.each do |s_order|
         valid = false unless s_order.completed
         s_order.tasks.each do |task|
-          valid = false unless taks.accepted && task.paid
+          valid = false unless task.accepted && task.paid
         end
       end
       order.tasks.each do |task|
