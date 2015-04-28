@@ -1,6 +1,7 @@
 require 'will_paginate/array'
 class Task < ActiveRecord::Base
   validates :external_id,  presence: { message: "Missing external task ID" }
+  validates_uniqueness_of :external_id
   validate :check_resolver_team, if: Proc.new { |o| o.user_id_changed? && !o.user_id.nil? }
 
   has_many :task_orders,

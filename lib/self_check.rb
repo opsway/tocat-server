@@ -18,6 +18,8 @@ class SelfCheck
     messages << task_state
     messages << accepted_and_paid_transactions
     messages << accepted_and_paid_for_teams
+    messages << orders_complete_flag
+    messages << task_uniqness
     Transaction.where.not(id: @transactions.join(',')).where.not('comment LIKE "%salary%"').each do |transaction|
       messages << "Transaction ##{transaction.id}: #{transaction.comment} wrong!"
     end
@@ -25,6 +27,34 @@ class SelfCheck
   end
 
   private
+
+  def orders_complete_flag
+    messages = []
+    Order.where(completed: true).each do |order|
+      valid = true
+      sub_orders.each do |s_order|
+        valid = false unless s_order.completed
+        s_order.tasks.each do |task|
+          valid = false unless taks.accepted && task.paid
+        end
+      end
+      order.tasks.each do |task|
+        valid = false unless taks.accepted && task.paid
+      end
+      messages << "Wrong completed flag for #{order.name}. Check suborders and tasks."
+    end
+    messages
+  end
+
+  def task_uniqness
+    tasks = []
+    messages = []
+    Task.all.each do |task|
+      messages << "Task #{task.external_id} has a double" if tasks.include? task.external_id
+      tasks << task.external_id
+    end
+    messages
+  end
 
   def accepted_and_paid_transactions
     messages = []
