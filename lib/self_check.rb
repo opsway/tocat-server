@@ -32,7 +32,7 @@ class SelfCheck
     messages = []
     Order.where(completed: true).each do |order|
       valid = true
-      sub_orders.each do |s_order|
+      order.sub_orders.each do |s_order|
         valid = false unless s_order.completed
         s_order.tasks.each do |task|
           valid = false unless taks.accepted && task.paid
