@@ -143,6 +143,7 @@ class SelfCheck
         accepted_count = 0
         reopening_count = 0
         user.balance_account.transactions.where("comment LIKE '%#{id}%'").each do |t_|
+          @transactions << t_.id
           if /Accepted and paid issue.*/.match(t_.comment).present?
             accepted_count += 1
           elsif /Reopening issue.*/.match(t_.comment).present?
@@ -152,9 +153,9 @@ class SelfCheck
         next if reopening_count == 0
         if (accepted_count - reopening_count).abs > 1
           if accepted_count > reopening_count
-            messages << "Expecting issue ##{id} to be accepted&paid"
+            messages << "Expecting issue ##{id} to be accepted&paid. User: #{user.name}" # неправильное количество транзакций, поменять сообшение
           elsif accepted_count < reopening_count
-            messages << "Expecting issue ##{id} NOT to be accepted&paid"
+            messages << "Expecting issue ##{id} NOT to be accepted&paid. User: #{user.name}" # неправильное количество транзакций
           end
         end
       end
