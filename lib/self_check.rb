@@ -39,9 +39,9 @@ class SelfCheck
         end
       end
       order.tasks.each do |task|
-        valid = false unless taks.accepted && task.paid
+        valid = false unless task.accepted && task.paid
       end
-      messages << "Wrong completed flag for #{order.name}. Check suborders and tasks."
+      messages << "Wrong completed flag for #{order.name}. Check suborders and tasks." unless valid
     end
     messages
   end
