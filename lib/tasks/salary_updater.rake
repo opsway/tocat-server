@@ -122,7 +122,9 @@ namespace :transactions do
     Transaction.where('comment LIKE "Salary for%"').each {|t| transactions << t if t.account.accountable_type == 'Team'}
     transactions.each do |tr|
       if User.where(daily_rate: tr.total.abs).count == 1
-        tr.update_attribute(:comment, t.comment.gsub('for', User.where(daily_rate: tr.total.abs).first.name))
+        tr.update_attribute(:comment, tr.comment.gsub('for', User.where(daily_rate: tr.total.abs).first.name))
+      else
+        puts tr.id
       end
     end
   end
