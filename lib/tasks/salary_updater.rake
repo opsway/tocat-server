@@ -35,7 +35,7 @@ namespace :shiftplanning do
                                       total: "#{user.daily_rate.to_s}",
                                       account: user.income_account,
                                       user_id: user.id
-                  Transaction.create! comment: "Salary for #{shift['start_timestamp'].to_time.strftime("%d/%m/%y")}", #decrease team income
+                  Transaction.create! comment: "Salary #{user.name} #{shift['start_timestamp'].to_time.strftime("%d/%m/%y")}", #decrease team income
                                       total: "-#{user.daily_rate.to_s}",
                                       account: user.team.income_account,
                                       user_id: user.id
@@ -53,11 +53,11 @@ namespace :shiftplanning do
                                       total: "#{user.daily_rate.to_s}",
                                       account: user.income_account,
                                       user_id: user.id
-                  Transaction.create! comment: "Salary #{user.name} for #{shift['start_timestamp'].to_time.strftime("%d/%m/%y")}", #decrease team balance
+                  Transaction.create! comment: "Salary #{user.name} #{shift['start_timestamp'].to_time.strftime("%d/%m/%y")}", #decrease team balance
                                       total: "-#{user.daily_rate.to_s}",
                                       account: user.team.balance_account,
                                       user_id: user.id
-                  Transaction.create! comment: "Salary #{user.name} for #{shift['start_timestamp'].to_time.strftime("%d/%m/%y")}", #decrease team income
+                  Transaction.create! comment: "Salary #{user.name} #{shift['start_timestamp'].to_time.strftime("%d/%m/%y")}", #decrease team income
                                       total: "-#{user.daily_rate.to_s}",
                                       account: user.team.income_account,
                                       user_id: user.id
@@ -109,37 +109,11 @@ namespace :shiftplanning do
   end
 end
 
-namespace :temp do
-  task :budget  => :environment do
-    Task.all.each do |task|
-      budget = 0
-      task.task_orders.each do |r|
-        budget += r.budget
-      end
-      task.update_attribute(:budget,budget)
-    end
-  end
-  task :test  => :environment do
-    user = User.where(name: 'Yurii Lunhol').first
-    id = 20040
-    accepted_count = 0
-    reopening_count = 0
-    user.balance_account.transactions.where("comment LIKE '%#{id}%'").each do |t_|
-      if /Accepted and paid issue.*/.match(t_.comment).present?
-        accepted_count += 1
-      elsif /Reopening issue.*/.match(t_.comment).present?
-        reopening_count += 1
-      end
-    end
-    #next if reopening_count == 0
-    if (accepted_count - reopening_count).abs > 1
-      if accepted_count > reopening_count
-        binding.pry
-        messages << "Expecting issue ##{id} to be accepted&paid" # неправильное количество транзакций, поменять сообшение
-      elsif accepted_count < reopening_count
-        binding.pry
-        messages << "Expecting issue ##{id} NOT to be accepted&paid" # неправильное количество транзакций
-      end
+namespace :transactions do
+  task :fix_comment  => :environment do
+    Transaction.where('comment LIKE "Salary % for%"').each do |t|
+      t.update_attribute(comment: t.comment.gsub(' for', ''))
+      puts t.id
     end
   end
 end
