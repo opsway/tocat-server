@@ -112,8 +112,18 @@ end
 namespace :transactions do
   task :fix_comment  => :environment do
     Transaction.where('comment LIKE "Salary % for%"').each do |t|
-      t.update_attribute(comment: t.comment.gsub(' for', ''))
+      t.update_attribute(:comment, t.comment.gsub(' for', ''))
       puts t.id
+    end
+  end
+
+  task :fix_comment_2  => :environment do
+    transactions = []
+    Transaction.where('comment LIKE "Salary for%"').each {|t| transactions << t if t.account.accountable_type == 'Team'}
+    transactions.each do |tr|
+      if User.where(daily_rate: tr.total.abs).count == 1
+        tr.update_attribute(:comment, t.comment.gsub('for', User.where(daily_rate: tr.total.abs).first.name))
+      end
     end
   end
 end
