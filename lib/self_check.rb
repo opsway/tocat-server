@@ -17,7 +17,7 @@ class SelfCheck
     messages << salary
     messages << task_state
     messages << accepted_and_paid_transactions
-    messages << accepted_and_paid_for_teams
+    #messages << accepted_and_paid_for_teams
     messages << orders_complete_flag
     messages << task_uniqness
     # Transaction.where.not(id: @transactions.join(',')).where.not('comment LIKE "%salary%"').each do |transaction|
@@ -128,11 +128,7 @@ class SelfCheck
           end
         end
         if (accepted_count - reopening_count).abs > 1
-          if accepted_count > reopening_count
-            messages << "Expecting issue ##{id} to be accepted&paid"
-          elsif accepted_count < reopening_count
-            messages << "Expecting issue ##{id} NOT to be accepted&paid"
-          end
+          messages << "Issue ##{id} doesn't have proper number of transactions"
         end
       end
     end
