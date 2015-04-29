@@ -23,7 +23,6 @@ namespace :shiftplanning do
           next if u['eid'] == 'stmor'|| u['eid'] == '***REMOVED***'
           user = User.find_by_login(u['eid'])
           binding.pry if user.nil?
-          next if user.id == 4
           salary_logger.info  "START processing user #{user.name} with #{user.login} login" if debug
           u['shifts'].each do |shift|
             unless Timesheet.where("user_id = ? and in_day = ?", user.id, shift['in_day'].to_i).first
@@ -58,7 +57,7 @@ namespace :shiftplanning do
                                       total: "-#{user.daily_rate.to_s}",
                                       account: user.team.balance_account,
                                       user_id: user.id
-                  Transaction.create! comment: "Salary for #{shift['start_timestamp'].to_time.strftime("%d/%m/%y")}", #decrease team income
+                  Transaction.create! comment: "Salary #{user.name} for #{shift['start_timestamp'].to_time.strftime("%d/%m/%y")}", #decrease team income
                                       total: "-#{user.daily_rate.to_s}",
                                       account: user.team.income_account,
                                       user_id: user.id
@@ -86,22 +85,25 @@ namespace :shiftplanning do
     User.all.each do |user|
       if user.income_account.transactions.where(comment:"Salary for 14/04/15").count >= 2
         puts user.name
-        Transaction.create! comment: "This user has 2 salary for 14 of April. Balanse increased.",
-                            total: "#{user.daily_rate.to_s}",
-                            account: user.balance_account,
-                            user_id: user.id
-        Transaction.create! comment: "This user has 2 salary for 14 of April. Balanse decreased.",
-                            total: "-#{user.daily_rate.to_s}",
-                            account: user.income_account,
-                            user_id: user.id
-        Transaction.create! comment: "User #{user.name} has 2 salary for 14 of April. Balanse increased.",
-                            total: "#{user.daily_rate.to_s}",
-                            account: user.team.balance_account,
-                            user_id: user.id
-        Transaction.create! comment: "User #{user.name} has 2 salary for 14 of April. Balanse increased.",
-                            total: "#{user.daily_rate.to_s}",
-                            account: user.team.income_account,
-                            user_id: user.id
+        user.income_account.transactions.where(comment:"Salary for 14/04/15").first.destroy
+        user.balance_account.transactions.where(comment:"Salary for 14/04/15").first.destroy
+        user.team.balance_account.transactions.where(comment:"Salary #{user.name} 14/04/15")
+        # Transaction.create! comment: "This user has 2 salary for 14 of April. Balanse increased.",
+        #                     total: "#{user.daily_rate.to_s}",
+        #                     account: user.balance_account,
+        #                     user_id: user.id
+        # Transaction.create! comment: "This user has 2 salary for 14 of April. Balanse decreased.",
+        #                     total: "-#{user.daily_rate.to_s}",
+        #                     account: user.income_account,
+        #                     user_id: user.id
+        # Transaction.create! comment: "User #{user.name} has 2 salary for 14 of April. Balanse increased.",
+        #                     total: "#{user.daily_rate.to_s}",
+        #                     account: user.team.balance_account,
+        #                     user_id: user.id
+        # Transaction.create! comment: "User #{user.name} has 2 salary for 14 of April. Balanse increased.",
+        #                     total: "#{user.daily_rate.to_s}",
+        #                     account: user.team.income_account,
+        #                     user_id: user.id
       end
     end
   end
@@ -115,6 +117,29 @@ namespace :temp do
         budget += r.budget
       end
       task.update_attribute(:budget,budget)
+    end
+  end
+  task :test  => :environment do
+    user = User.where(name: 'Yurii Lunhol').first
+    id = 20040
+    accepted_count = 0
+    reopening_count = 0
+    user.balance_account.transactions.where("comment LIKE '%#{id}%'").each do |t_|
+      if /Accepted and paid issue.*/.match(t_.comment).present?
+        accepted_count += 1
+      elsif /Reopening issue.*/.match(t_.comment).present?
+        reopening_count += 1
+      end
+    end
+    #next if reopening_count == 0
+    if (accepted_count - reopening_count).abs > 1
+      if accepted_count > reopening_count
+        binding.pry
+        messages << "Expecting issue ##{id} to be accepted&paid" # неправильное количество транзакций, поменять сообшение
+      elsif accepted_count < reopening_count
+        binding.pry
+        messages << "Expecting issue ##{id} NOT to be accepted&paid" # неправильное количество транзакций
+      end
     end
   end
 end
