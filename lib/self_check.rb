@@ -17,7 +17,7 @@ class SelfCheck
     messages << salary
     messages << task_state
     messages << accepted_and_paid_transactions
-    messages << accepted_and_paid_for_teams
+    #messages << accepted_and_paid_for_teams
     messages << orders_complete_flag
     messages << task_uniqness
     # Transaction.where.not(id: @transactions.join(',')).where.not('comment LIKE "%salary%"').each do |transaction|
