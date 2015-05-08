@@ -8,9 +8,30 @@ class OrderSerializer < ActiveModel::Serializer
              :free_budget,
              :suborder,
              :paid,
+             :completed,
+             :team,
+             :invoice,
              :links
 
   private
+
+  def invoice
+    data = {}
+    if object.invoice.present?
+      data[:id] = object.invoice.id
+      data[:external_id] = object.invoice.external_id
+      data[:link] = invoice_path(object.invoice)
+    end
+    data
+  end
+
+  def team
+    data = {}
+    data[:id] = object.team.id
+    data[:name] = object.team.name
+    data[:link] = team_path(object.team)
+    data
+  end
 
   def suborder
     object.parent_id.present?

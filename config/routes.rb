@@ -19,6 +19,8 @@ Rails.application.routes.draw do
     delete 'invoice', to: 'orders#delete_invoice', as: 'delete_invoice', format: 'json'
     get 'suborder', to: 'orders#suborders', as: 'suborders', format: 'json'
     post 'suborder', to: 'orders#create_suborder', as: 'new_suborder', format: 'json'
+    post 'completed', to: 'orders#set_completed', as: 'set_completed', format: 'json'
+    delete 'completed', to: 'orders#remove_completed', as: 'remove_completed', format: 'json'
   end
 
   #teams
