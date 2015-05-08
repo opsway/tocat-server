@@ -128,9 +128,11 @@ class Order < ActiveRecord::Base
   end
 
   def check_if_invoice_already_paid
-    if invoice.paid
-      errors[:base] << 'Invoice is already paid, can not use it for new order'
-      false
+    if invoice.present?
+      if invoice.paid
+        errors[:base] << 'Invoice is already paid, can not use it for new order'
+        false
+      end
     end
   end
 
