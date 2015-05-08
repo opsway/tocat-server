@@ -13,7 +13,9 @@ class Order < ActiveRecord::Base
   validates_presence_of :invoiced_budget
   validates_presence_of :allocatable_budget
   scoped_search on: [:name, :description, :invoiced_budget, :allocatable_budget, :free_budget, :paid, :completed]
-  scoped_search :in => :team, :on => :name, :rename => :team, :only_explicit => true
+  scoped_search in: :team, on: :name, rename: :team, only_explicit: true
+  scoped_search on: :parent_id, only_explicit: true
+
 
 
 
@@ -45,6 +47,7 @@ class Order < ActiveRecord::Base
   before_save :check_if_allocatable_budget_lt_used, if: Proc.new { |o| o.allocatable_budget_changed? }
   before_save :recalculate_free_budget, if: Proc.new { |o| o.allocatable_budget_changed? && !o.new_record? }
   after_save :recalculate_parent_free_budget, if: Proc.new { |o| o.allocatable_budget_changed? && !o.new_record? && o.parent.present? }
+  before_save :check_for_completed, if: Proc.new { |o| !o.completed_changed? }
 
   def handle_paid(paid)
     return self.update_attributes!(paid: paid)
@@ -54,7 +57,28 @@ class Order < ActiveRecord::Base
     recalculate_free_budget_and_save
   end
 
+  def toggle_completed
+    self.transaction do
+      if self.completed
+        self.update_attributes!(completed: false)
+        self.sub_orders.each { |o| o.update_attributes!(completed: false) }
+      else
+        self.sub_orders.each { |o| o.update_attributes!(completed: true) }
+        self.update_attributes!(completed: true)
+      end
+    end
+  end
+
   private
+
+  def check_for_completed
+    if self.completed_was
+      errors[:base] << 'Can not modify completed order'
+      false
+    else
+      true
+    end
+  end
 
   def recalculate_parent_free_budget
     parent.recalculate_free_budget!
