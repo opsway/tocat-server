@@ -14,6 +14,7 @@ gem 'api-pagination'
 gem 'shiftplanning', '~> 0.0.3'
 gem "scoped_search"
 gem 'rest-client'
+gem 'hirb'
 
 group :development do
   gem 'guard-rubocop'
