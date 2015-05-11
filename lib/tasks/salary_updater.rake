@@ -124,7 +124,11 @@ namespace :transactions do
       if User.where(daily_rate: tr.total.abs).count == 1
         tr.update_attribute(:comment, tr.comment.gsub('for', User.where(daily_rate: tr.total.abs).first.name))
       else
-        puts tr.id
+        if tr.user_id != 0 && tr.user.present?
+          tr.update_attribute(:comment, tr.comment.gsub('for', tr.user.name))
+        else
+          puts tr.id
+        end
       end
     end
   end
