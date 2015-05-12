@@ -87,12 +87,13 @@ class SelfCheck
       accepted.each { |r| @transactions << r.id }
       reopening.each { |r| @transactions << r.id }
       next if accepted.last.nil?
+      next if task.accepted && task.user.role.name == 'Manager'
       if reopening.last.present? && accepted.last.created_at > reopening.last.created_at
         val = 0
         accepted.each { |r| val += r.total }
         reopening.each { |r| val += r.total }
         if (task.budget * 3) != val
-          messages << "Issue #{task.external_id} has incorrect number of transactions"
+          messages << "Issue #{task.external_id}  number of transactions"
         end
       elsif reopening.last.nil?
         val = 0
