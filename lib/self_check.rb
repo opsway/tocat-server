@@ -197,6 +197,9 @@ class SelfCheck
       statuses = []
       task.orders.each { |o| statuses << o.paid }
       statuses.uniq!
+      if task.paid == false && statuses.include?(false)
+        next
+      end
       if statuses.length > 1
         messages << "Task ##{task.external_id} has wrong paid status."
       elsif statuses.first != task.paid
