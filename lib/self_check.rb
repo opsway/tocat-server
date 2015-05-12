@@ -20,6 +20,7 @@ class SelfCheck
     #messages << accepted_and_paid_for_teams
     messages << orders_complete_flag
     messages << task_uniqness
+    messages << ticket_paid_status
     # Transaction.where.not(id: @transactions.join(',')).where.not('comment LIKE "%salary%"').each do |transaction|
     #   messages << "Transaction ##{transaction.id}: #{transaction.comment} wrong!"
     # end
@@ -91,13 +92,13 @@ class SelfCheck
         accepted.each { |r| val += r.total }
         reopening.each { |r| val += r.total }
         if (task.budget * 3) != val
-          messages << "Issue #{task.external_id} has incorrect number or transactions"
+          messages << "Issue #{task.external_id} has incorrect number of transactions"
         end
       elsif reopening.last.nil?
         val = 0
         accepted.each { |r| val += r.total }
         if (task.budget * 3) != val
-          messages << "Issue #{task.external_id} has incorrect number or transactions"
+          messages << "Issue #{task.external_id} has incorrect number of transactions"
         end
       end
     end
@@ -179,11 +180,27 @@ class SelfCheck
         next if reopening_count == 0
         if (accepted_count - reopening_count).abs > 1
           if accepted_count > reopening_count
-            messages << "Expecting issue ##{id} to be accepted&paid. User: #{user.name}" # неправильное количество транзакций, поменять сообшение
+            messages << "Wrong transaction count: Expecting issue ##{id} to be accepted&paid."
           elsif accepted_count < reopening_count
-            messages << "Expecting issue ##{id} NOT to be accepted&paid. User: #{user.name}" # неправильное количество транзакций
+            messages << "Wrong transaction count: Expecting issue ##{id} NOT to be accepted&paid."
           end
         end
+      end
+    end
+    messages
+  end
+
+  def ticket_paid_status
+    messages = []
+    Task.all.each do |task|
+      next if task.orders.empty?
+      statuses = []
+      task.orders.each { |o| statuses << o.paid }
+      statuses.uniq!
+      if statuses.length > 1
+        messages << "Orders for task ##{task.id} has different paid statuses."
+      elsif statuses.first != task.paid
+        messages << "Task ##{task.id} has wrong paid status."
       end
     end
     messages
