@@ -198,9 +198,9 @@ class SelfCheck
       task.orders.each { |o| statuses << o.paid }
       statuses.uniq!
       if statuses.length > 1
-        messages << "Orders for task ##{task.id} has different paid statuses."
+        messages << "Task ##{task.external_id} has wrong paid status."
       elsif statuses.first != task.paid
-        messages << "Task ##{task.id} has wrong paid status."
+        messages << "Task ##{task.external_id} has wrong paid status."
       end
     end
     messages
