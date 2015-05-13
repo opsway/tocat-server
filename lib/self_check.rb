@@ -62,6 +62,7 @@ class SelfCheck
     Task.where(accepted: true, paid: true).each do |task|
       transactions = []
       next unless task.user.present?
+      next if task.accepted && task.user.try(:role).try(:name) == 'Manager'
       val = 0
       Transaction.where("comment LIKE '%#{task.external_id}%'").each { |r| val += r.total; @transactions << r.id }
       if (task.budget * 3) != val
@@ -87,7 +88,7 @@ class SelfCheck
       accepted.each { |r| @transactions << r.id }
       reopening.each { |r| @transactions << r.id }
       next if accepted.last.nil?
-      next if task.accepted && task.user.role.name == 'Manager'
+      next if task.accepted && task.user.try(:role).try(:name) == 'Manager'
       if reopening.last.present? && accepted.last.created_at > reopening.last.created_at
         val = 0
         accepted.each { |r| val += r.total }
