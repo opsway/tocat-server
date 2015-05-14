@@ -17,13 +17,13 @@ class SelfCheck
     messages << salary
     messages << task_state
     messages << accepted_and_paid_transactions
-    #messages << accepted_and_paid_for_teams
+    messages << accepted_and_paid_for_teams
     messages << orders_complete_flag
     messages << task_uniqness
     messages << ticket_paid_status
-    # Transaction.where.not(id: @transactions.join(',')).where.not('comment LIKE "%salary%"').each do |transaction|
-    #   messages << "Transaction ##{transaction.id}: #{transaction.comment} wrong!"
-    # end
+    Transaction.where.not(id: @transactions.uniq).where.not('comment LIKE "%salary%"').where.not('comment LIKE "Paid in cash/bank"').where.not('comment LIKE "%completed%"').each do |transaction|
+      messages << "Unexpected transaction ##{transaction.id}: #{transaction.comment}"
+    end
     messages.flatten!
   end
 
@@ -128,9 +128,9 @@ class SelfCheck
         next if reopening_count == 0
         if (accepted_count - reopening_count).abs > 1
           if accepted_count > reopening_count
-            messages << "Expecting issue ##{id} to be accepted&paid. Team: #{user.team.name}" # неправильное количество транзакций, поменять сообшение
+            messages << "Wrong team transaction count: Expecting issue ##{id} to be accepted&paid. Team: #{user.team.name}" # неправильное количество транзакций, поменять сообшение
           elsif accepted_count < reopening_count
-            messages << "Expecting issue ##{id} NOT to be accepted&paid. Team: #{user.team.name}" # неправильное количество транзакций
+            messages << "Wrong team transaction count: Expecting issue ##{id} NOT to be accepted&paid. Team: #{user.team.name}" # неправильное количество транзакций
           end
         end
       end
@@ -145,8 +145,10 @@ class SelfCheck
         @transactions << t.id
         user_income_count = user.income_account.transactions.where("comment LIKE '#{t.comment}' AND total = #{t.total.abs}").count
         team_balance_count = 0
+        team_payment_count = 0
         Team.all.each do |team|
-          team_balance_count += team.balance_account.transactions.where("comment LIKE '#{t.comment.gsub('for', user.name)}' AND total = #{-t.total.abs}").count
+          team_balance_count += team.balance_account.transactions.where("comment LIKE '#{t.comment.gsub('for', user.name)}'").count
+          team_payment_count += team.income_account.transactions.where("comment LIKE '#{t.comment.gsub('for', user.name)}'").count
         end
         #team_balance_count = user.team.balance_account.transactions.where("comment LIKE '#{t.comment.gsub('for', user.name)}' AND total = #{-t.total.abs}").count
         if user_income_count != 1
@@ -154,6 +156,9 @@ class SelfCheck
         end
         if team_balance_count != 1
           messages << "Wrong salary transaction for #{user.name}'s team(#{user.team.name}) balance account. Check: #{t.comment.gsub('for', user.name)}"
+        end
+        if team_payment_count != 1
+          messages << "Wrong salary transaction for #{user.name}'s team(#{user.team.name}) income account. Check: #{t.comment.gsub('for', user.name)}"
         end
       end
     end
