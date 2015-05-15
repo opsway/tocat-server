@@ -48,7 +48,7 @@ class SelfCheck
           records = user.income_account.transactions.where("comment LIKE '#{t.comment}'")
           messages << "Wrong nubmer of salary transactions for #{user.name} payment account. Check: #{t.id}: #{t.comment}" if records.count > 1
           if records.count < 1
-            messages << "Missing salary transaction for #{user.name} payment account. Check: #{t.comment.gsub('for', user.name)}"
+            messages << "Missing salary transaction for #{user.name} payment account. Check: #{t.comment}"
           else
             messages << "Invalid total for salary transaction for #{user.name} payment account. Check: ##{records.first.id}" if records.first.try(:total).try(:abs) != t.total.abs
           end
@@ -79,7 +79,7 @@ class SelfCheck
           records = user.balance_account.transactions.where("comment LIKE '#{t.comment}'")
           messages << "Wrong nubmer of salary transactions for #{user.name} balance account. Check: #{t.id}: #{t.comment}" if records.count > 1
           if records.count < 1
-            messages << "Missing salary transaction for #{user.name} balance account. Check: #{t.comment.gsub('for', user.name)}"
+            messages << "Missing salary transaction for #{user.name} balance account. Check: #{t.comment}" unless user.role.name == 'Manager'
           else
             messages << "Invalid total for salary transaction for #{user.name} balance account. Check: ##{records.first.id}" if records.first.try(:total).try(:abs) != t.total.abs
           end
@@ -89,7 +89,7 @@ class SelfCheck
           team_balance_records.flatten!
           messages << "Wrong nubmer of salary transactions for #{user.name} team (#{user.team.name}) balance account. Check: #{t.id}: #{t.comment}" if team_balance_records.count > 1
           if team_balance_records.count < 1
-            messages << "Missing salary transaction for #{user.name} team (#{user.team.name}) balance account. Check: #{t.comment.gsub('for', user.name)}"
+            messages << "Missing salary transaction for #{user.name} team (#{user.team.name}) balance account. Check: #{t.comment.gsub('for', user.name)}" unless user.role.name == 'Manager'
           else
             messages << "Invalid total for salary transaction for #{user.name} team (#{user.team.name}) balance account. Check: ##{records.first.id}" if team_balance_records.first.try(:total).try(:abs) != t.total.abs
           end
