@@ -22,7 +22,7 @@ class SelfCheck
     messages << task_uniqness
     messages << ticket_paid_status
     messages << transactions
-    Transaction.where.not(id: @transactions.flatten.uniq).where.not('comment LIKE "Paid in cash/bank"').where.not('comment LIKE "%completed%"').each do |transaction|
+    Transaction.includes(account: :accountable).where.not(id: @transactions.flatten.uniq).where.not('comment LIKE "Paid in cash/bank"').where.not('comment LIKE "%completed%"').each do |transaction|
       if /Salary for.*/.match(transaction.comment).present?
         next if transaction.account.accountable.try(:role).try(:name) == 'Manager'
       end
@@ -322,6 +322,7 @@ class SelfCheck
           messages << "SubOrder #{order.id} (#{order.name}) belongs to defunct parent "
         end
       rescue
+        messages << "SubOrder #{order.id} (#{order.name}) belongs to defunct parent "
       end
     end
 
@@ -354,7 +355,7 @@ class SelfCheck
   def parents_budget
     # This method should check free budget for each parent order.
     messages = []
-    Order.includes(:sub_orders).find_each do |order|
+    Order.includes(:task_orders, sub_orders: :task_orders).find_each do |order|
       begin
         if order.sub_orders.present?
           val = 0
@@ -413,14 +414,9 @@ class SelfCheck
 
   def duplicate_budgets
     messages = []
-    Task.includes(task_orders: :order).find_each do |task|
-      begin
-        orders = []
-        task.task_orders.each { |r| orders << r.order}
-        if orders.length > task.task_orders.count
-          messages << "Task #{task.external_id} has multiple budgets from one order"
-        end
-      rescue
+    Task.includes(:task_orders, :orders).find_each do |task|
+      if task.orders.length > task.task_orders.length
+        messages << "Task #{task.external_id} has multiple budgets from one order"
       end
     end
     messages
