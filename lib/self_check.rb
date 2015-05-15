@@ -21,13 +21,23 @@ class SelfCheck
     messages << orders_complete_flag
     messages << task_uniqness
     messages << ticket_paid_status
-    Transaction.where.not(id: @transactions.uniq).where.not('comment LIKE "%salary%"').where.not('comment LIKE "Paid in cash/bank"').where.not('comment LIKE "%completed%"').each do |transaction|
+    Transaction.where.not(id: @transactions.flatten.uniq).where.not('comment LIKE "Paid in cash/bank"').where.not('comment LIKE "%completed%"').each do |transaction|
+      if /Salary for.*/.match(transaction.comment).present?
+        next if transaction.account.accountable.try(:role).try(:name) == 'Manager'
+      end
+      if transaction.account.accountable_type == 'Team'
+        comment = transaction.comment.split
+        if comment.length == 4
+          user = User.where(name: "#{comment[1]} #{comment[2]}").first
+          next if user.present? && (user.try(:role).try(:name) == 'Manager')
+        end
+      end
       messages << "Unexpected transaction ##{transaction.id}: #{transaction.comment}"
     end
     messages.flatten!
   end
 
-  private
+  #private
 
   def orders_complete_flag
     messages = []
@@ -85,8 +95,8 @@ class SelfCheck
     Task.all.each do |task|
       accepted = Transaction.where("comment LIKE 'Accepted and paid issue #{task.external_id}'")
       reopening = Transaction.where("comment LIKE 'Reopening issue #{task.external_id}'")
-      accepted.each { |r| @transactions << r.id }
-      reopening.each { |r| @transactions << r.id }
+      @transactions << accepted.ids
+      @transactions << reopening.ids
       next if accepted.last.nil?
       next if task.accepted && task.user.try(:role).try(:name) == 'Manager'
       if reopening.last.present? && accepted.last.created_at > reopening.last.created_at
@@ -141,16 +151,18 @@ class SelfCheck
   def salary
     messages = []
     User.all.each do |user|
-      user.balance_account.transactions.where('comment LIKE "Salary%"').each do |t|
+      user.balance_account.transactions.where('comment LIKE "Salary %"').each do |t|
         @transactions << t.id
         user_income_count = user.income_account.transactions.where("comment LIKE '#{t.comment}' AND total = #{t.total.abs}").count
+        @transactions << user.income_account.transactions.where("comment LIKE '#{t.comment}' AND total = #{t.total.abs}").ids
         team_balance_count = 0
         team_payment_count = 0
         Team.all.each do |team|
           team_balance_count += team.balance_account.transactions.where("comment LIKE '#{t.comment.gsub('for', user.name)}'").count
           team_payment_count += team.income_account.transactions.where("comment LIKE '#{t.comment.gsub('for', user.name)}'").count
+          @transactions << team.balance_account.transactions.where("comment LIKE '#{t.comment.gsub('for', user.name)}'").ids
+          @transactions << team.income_account.transactions.where("comment LIKE '#{t.comment.gsub('for', user.name)}'").ids
         end
-        #team_balance_count = user.team.balance_account.transactions.where("comment LIKE '#{t.comment.gsub('for', user.name)}' AND total = #{-t.total.abs}").count
         if user_income_count != 1
           messages << "Wrong salary transaction for #{user.name}'s income account. Details: #{t.comment}"
         end
@@ -301,6 +313,10 @@ class SelfCheck
           calculated_budget = order.allocatable_budget - val
           if calculated_budget < 0
             messages << "Expecting order #{order.id} (#{order.name}) free budget to be greater than zero"
+          end
+          #binding.pry if order.id == 43
+          if val =! (order.free_budget + order.allocatable_budget)
+            messages << "Order #{order.id} (#{order.name}) has invalid free budget!"
           end
         end
       rescue
