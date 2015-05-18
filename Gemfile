@@ -15,6 +15,7 @@ gem 'shiftplanning', '~> 0.0.3'
 gem "scoped_search"
 gem 'rest-client'
 gem 'hirb'
+gem 'whenever'
 
 group :development do
   gem 'guard-rubocop'
@@ -25,6 +26,8 @@ group :development do
   gem 'terminal-notifier-guard'
   gem 'pry'
 end
+gem "bullet", :group => "development"
+
 
 
 group :test do

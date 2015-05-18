@@ -21,13 +21,93 @@ class SelfCheck
     messages << orders_complete_flag
     messages << task_uniqness
     messages << ticket_paid_status
-    Transaction.where.not(id: @transactions.uniq).where.not('comment LIKE "%salary%"').where.not('comment LIKE "Paid in cash/bank"').where.not('comment LIKE "%completed%"').each do |transaction|
+    messages << transactions
+    Transaction.includes(account: :accountable).where.not(id: @transactions.flatten.uniq).where.not('comment LIKE "Paid in cash/bank"').where.not('comment LIKE "%completed%"').each do |transaction|
+      if /Salary for.*/.match(transaction.comment).present?
+        next if transaction.account.accountable.try(:role).try(:name) == 'Manager'
+      end
+      if transaction.account.accountable_type == 'Team'
+        comment = transaction.comment.split
+        if comment.length == 4
+          user = User.where(name: "#{comment[1]} #{comment[2]}").first
+          next if user.present? && (user.try(:role).try(:name) == 'Manager')
+        end
+      end
       messages << "Unexpected transaction ##{transaction.id}: #{transaction.comment}"
     end
     messages.flatten!
   end
 
-  private
+  #private
+
+  def transactions
+    messages = []
+    User.find_each do |user|
+      user.balance_account.transactions.each do |t|
+        if /Salary.*/.match(t.comment).present?
+          records = user.income_account.transactions.where("comment LIKE '#{t.comment}'")
+          messages << "Wrong nubmer of salary transactions for #{user.name} payment account. Check: #{t.id}: #{t.comment}" if records.count > 1
+          if records.count < 1
+            messages << "Missing salary transaction for #{user.name} payment account. Check: #{t.comment}"
+          else
+            messages << "Invalid total for salary transaction for #{user.name} payment account. Check: ##{records.first.id}" if records.first.try(:total).try(:abs) != t.total.abs
+          end
+
+          team_balance_records = []
+          Team.find_each { |team| team_balance_records << team.balance_account.transactions.where("comment LIKE '#{t.comment.gsub('for', user.name)}'")}
+          team_balance_records.flatten!
+          messages << "Wrong nubmer of salary transactions for #{user.name} team (#{user.team.name}) balance account. Check: #{t.id}: #{t.comment}" if team_balance_records.count > 1
+          if team_balance_records.count < 1
+            messages << "Missing salary transaction for #{user.name} team (#{user.team.name}) balance account. Check: #{t.comment.gsub('for', user.name)}"
+          else
+            messages << "Invalid total for salary transaction for #{user.name} team (#{user.team.name}) balance account. Check: ##{records.first.id}" if team_balance_records.first.try(:total).try(:abs) != t.total.abs
+          end
+
+          team_payment_records = []
+          Team.find_each { |team| team_payment_records << team.income_account.transactions.where("comment LIKE '#{t.comment.gsub('for', user.name)}'")}
+          team_payment_records.flatten!
+          messages << "Wrong nubmer of salary transactions for #{user.name} team (#{user.team.name}) payment account. Check: #{t.id}: #{t.comment}" if team_payment_records.count > 1
+          if team_payment_records.count < 1
+            messages << "Missing salary transaction for #{user.name} team (#{user.team.name}) payment account. Check: #{t.comment.gsub('for', user.name)}"
+          else
+            messages << "Invalid total for salary transaction for #{user.name} team (#{user.team.name}) payment account. Check: ##{records.first.id}" if team_payment_records.first.try(:total).try(:abs) != t.total.abs
+          end
+        end
+      end
+      user.income_account.transactions.each do |t|
+        if /Salary.*/.match(t.comment).present?
+          records = user.balance_account.transactions.where("comment LIKE '#{t.comment}'")
+          messages << "Wrong nubmer of salary transactions for #{user.name} balance account. Check: #{t.id}: #{t.comment}" if records.count > 1
+          if records.count < 1
+            messages << "Missing salary transaction for #{user.name} balance account. Check: #{t.comment}" unless user.role.name == 'Manager'
+          else
+            messages << "Invalid total for salary transaction for #{user.name} balance account. Check: ##{records.first.id}" if records.first.try(:total).try(:abs) != t.total.abs
+          end
+
+          team_balance_records = []
+          Team.find_each { |team| team_balance_records << team.balance_account.transactions.where("comment LIKE '#{t.comment.gsub('for', user.name)}'")}
+          team_balance_records.flatten!
+          messages << "Wrong nubmer of salary transactions for #{user.name} team (#{user.team.name}) balance account. Check: #{t.id}: #{t.comment}" if team_balance_records.count > 1
+          if team_balance_records.count < 1
+            messages << "Missing salary transaction for #{user.name} team (#{user.team.name}) balance account. Check: #{t.comment.gsub('for', user.name)}" unless user.role.name == 'Manager'
+          else
+            messages << "Invalid total for salary transaction for #{user.name} team (#{user.team.name}) balance account. Check: ##{records.first.id}" if team_balance_records.first.try(:total).try(:abs) != t.total.abs
+          end
+
+          team_payment_records = []
+          Team.find_each { |team| team_payment_records << team.income_account.transactions.where("comment LIKE '#{t.comment.gsub('for', user.name)}'")}
+          team_payment_records.flatten!
+          messages << "Wrong nubmer of salary transactions for #{user.name} team (#{user.team.name}) payment account. Check: #{t.id}: #{t.comment}" if team_payment_records.count > 1
+          if team_payment_records.count < 1
+            messages << "Missing salary transaction for #{user.name} team (#{user.team.name}) payment account. Check: #{t.comment.gsub('for', user.name)}"
+          else
+            messages << "Invalid total for salary transaction for #{user.name} team (#{user.team.name}) payment account. Check: ##{records.first.id}" if team_payment_records.first.try(:total).try(:abs) != t.total.abs
+          end
+        end
+      end
+    end
+    messages
+  end
 
   def orders_complete_flag
     messages = []
@@ -50,7 +130,7 @@ class SelfCheck
   def task_uniqness
     tasks = []
     messages = []
-    Task.all.each do |task|
+    Task.find_each do |task|
       messages << "Task #{task.external_id} has a double" if tasks.include? task.external_id
       tasks << task.external_id
     end
@@ -59,7 +139,7 @@ class SelfCheck
 
   def accepted_and_paid_transactions
     messages = []
-    Task.where(accepted: true, paid: true).each do |task|
+    Task.includes(:user).where(accepted: true, paid: true).each do |task|
       transactions = []
       next unless task.user.present?
       next if task.accepted && task.user.try(:role).try(:name) == 'Manager'
@@ -74,7 +154,7 @@ class SelfCheck
 
   def task_state
     messages = []
-    Team.all.each do |team|
+    Team.includes(accounts: :transactions).find_each do |team|
       team.balance_account.transactions.where.not('comment LIKE "Salary%"').each do |t|
         @transactions << t.id
         if team.income_account.transactions.where("comment LIKE '#{t.comment}'").empty?
@@ -82,11 +162,11 @@ class SelfCheck
         end
       end
     end
-    Task.all.each do |task|
+    Task.includes(:user).find_each do |task|
       accepted = Transaction.where("comment LIKE 'Accepted and paid issue #{task.external_id}'")
       reopening = Transaction.where("comment LIKE 'Reopening issue #{task.external_id}'")
-      accepted.each { |r| @transactions << r.id }
-      reopening.each { |r| @transactions << r.id }
+      @transactions << accepted.ids
+      @transactions << reopening.ids
       next if accepted.last.nil?
       next if task.accepted && task.user.try(:role).try(:name) == 'Manager'
       if reopening.last.present? && accepted.last.created_at > reopening.last.created_at
@@ -109,7 +189,7 @@ class SelfCheck
 
   def accepted_and_paid_for_teams
     messages = []
-    User.all.each do |user|
+    User.includes(accounts: :transactions).find_each do |user|
       issues = []
       user.balance_account.transactions.where.not('comment LIKE "Salary%"').each do |t|
         issues << t.comment.gsub(/\D/, '')
@@ -140,17 +220,19 @@ class SelfCheck
 
   def salary
     messages = []
-    User.all.each do |user|
-      user.balance_account.transactions.where('comment LIKE "Salary%"').each do |t|
+    User.includes(accounts: :transactions).find_each do |user|
+      user.balance_account.transactions.where('comment LIKE "Salary %"').each do |t|
         @transactions << t.id
         user_income_count = user.income_account.transactions.where("comment LIKE '#{t.comment}' AND total = #{t.total.abs}").count
+        @transactions << user.income_account.transactions.where("comment LIKE '#{t.comment}' AND total = #{t.total.abs}").ids
         team_balance_count = 0
         team_payment_count = 0
-        Team.all.each do |team|
+        Team.includes(accounts: :transactions).find_each do |team|
           team_balance_count += team.balance_account.transactions.where("comment LIKE '#{t.comment.gsub('for', user.name)}'").count
           team_payment_count += team.income_account.transactions.where("comment LIKE '#{t.comment.gsub('for', user.name)}'").count
+          @transactions << team.balance_account.transactions.where("comment LIKE '#{t.comment.gsub('for', user.name)}'").ids
+          @transactions << team.income_account.transactions.where("comment LIKE '#{t.comment.gsub('for', user.name)}'").ids
         end
-        #team_balance_count = user.team.balance_account.transactions.where("comment LIKE '#{t.comment.gsub('for', user.name)}' AND total = #{-t.total.abs}").count
         if user_income_count != 1
           messages << "Wrong salary transaction for #{user.name}'s income account. Details: #{t.comment}"
         end
@@ -167,7 +249,7 @@ class SelfCheck
 
   def accepted_and_paid
     messages = []
-    User.all.each do |user|
+    User.includes(accounts: :transactions).find_each do |user|
       issues = []
       user.balance_account.transactions.where.not('comment LIKE "Salary%"').each do |t|
         issues << t.comment.gsub(/\D/, '')
@@ -199,7 +281,7 @@ class SelfCheck
 
   def ticket_paid_status
     messages = []
-    Task.all.each do |task|
+    Task.includes(:orders).find_each do |task|
       next if task.orders.empty?
       statuses = []
       task.orders.each { |o| statuses << o.paid }
@@ -219,7 +301,7 @@ class SelfCheck
   def paid_status
     # This method should get paid status for suborder and compare it with parent's paid status.
     messages = []
-    Order.where.not(parent_id: nil).each do |order|
+    Order.includes(:parent).where.not(parent_id: nil).each do |order|
       begin
         if order.parent.paid !=  order.paid
           messages << "Expecting order #{order.id} (#{order.name}) to be #{order.parent.paid ? 'paid' : 'unpaid'}"
@@ -234,17 +316,18 @@ class SelfCheck
     # This method should check relationshipt between orders.
     messages = []
     # Suborder should belongs to parent
-    Order.where.not(parent_id: nil).each do |order|
+    Order.includes(:parent).where.not(parent_id: nil).each do |order|
       begin
         unless order.parent.present?
           messages << "SubOrder #{order.id} (#{order.name}) belongs to defunct parent "
         end
       rescue
+        messages << "SubOrder #{order.id} (#{order.name}) belongs to defunct parent "
       end
     end
 
     # Suborder cannot be parent for another suborders
-    Order.where.not(parent_id: nil).each do |order|
+    Order.includes(:parent).where.not(parent_id: nil).each do |order|
       begin
         unless order.sub_orders.empty?
           messages << "SubOrder #{order.id} (#{order.name}) has another suborders"
@@ -258,7 +341,7 @@ class SelfCheck
   def invoiced
     # This method should check thats only orders (NOT suborders) has relationship with invoices.
     messages = []
-    Order.all.each do |order|
+    Order.includes(:invoice).find_each do |order|
       begin
         if order.invoice.present? && order.parent_id.present?
           messages << "SubOrder #{order.id} (#{order.name}) has relationship with invoice"
@@ -272,7 +355,7 @@ class SelfCheck
   def parents_budget
     # This method should check free budget for each parent order.
     messages = []
-    Order.all.each do |order|
+    Order.includes(:task_orders, sub_orders: :task_orders).find_each do |order|
       begin
         if order.sub_orders.present?
           val = 0
@@ -292,7 +375,7 @@ class SelfCheck
   def free_budget
     # This method should check free budget for each order and this value should be >= 0.
     messages = []
-    Order.all.each do |order|
+    Order.includes(:sub_orders, :task_orders).find_each do |order|
       begin
         if order.sub_orders.present?
           val = 0
@@ -301,6 +384,10 @@ class SelfCheck
           calculated_budget = order.allocatable_budget - val
           if calculated_budget < 0
             messages << "Expecting order #{order.id} (#{order.name}) free budget to be greater than zero"
+          end
+          #binding.pry if order.id == 43
+          if val =! (order.free_budget + order.allocatable_budget)
+            messages << "Order #{order.id} (#{order.name}) has invalid free budget!"
           end
         end
       rescue
@@ -312,7 +399,7 @@ class SelfCheck
   def budget_teams
     # This method should check order team.
     messages = []
-    Task.all.each do |task|
+    Task.includes(orders: :team).find_each do |task|
       begin
         teams = []
         task.orders.each { |r| teams << r.team}
@@ -327,14 +414,9 @@ class SelfCheck
 
   def duplicate_budgets
     messages = []
-    Task.all.each do |task|
-      begin
-        orders = []
-        task.task_orders.each { |r| orders << r.order}
-        if orders.length > task.task_orders.count
-          messages << "Task #{task.external_id} has multiple budgets from one order"
-        end
-      rescue
+    Task.includes(:task_orders, :orders).find_each do |task|
+      if task.orders.length > task.task_orders.length
+        messages << "Task #{task.external_id} has multiple budgets from one order"
       end
     end
     messages

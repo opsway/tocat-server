@@ -1,7 +1,7 @@
 require 'will_paginate/array'
 class Task < ActiveRecord::Base
   validates :external_id,  presence: { message: "Missing external task ID" }
-  validates_uniqueness_of :external_id
+  #validates_uniqueness_of :external_id
   validate :check_resolver_team, if: Proc.new { |o| o.user_id_changed? && !o.user_id.nil? }
 
   has_many :task_orders,
@@ -43,12 +43,12 @@ class Task < ActiveRecord::Base
   def handle_paid(paid)
     if paid
       if can_be_paid?
-        return self.update_attributes(paid: true)
+        return self.update_attributes!(paid: true) && self.update_attributes!(accepted: true)
       else
         return false
       end
     else
-      return self.update_attributes(paid: false)
+      return self.update_attributes!(paid: false) && self.update_attributes!(accepted: false)
     end
   end
 

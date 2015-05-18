@@ -1,8 +1,6 @@
-require_relative '../../lib/self_check'
 class StatusController < ApplicationController
-
   def selfcheck
-    messages = SelfCheck.instance.start
-    render json: { messages: messages }
+    report = Selfcheckreport.last
+    render json: { messages: report.messages, timestamp: report.created_at }
   end
 end
