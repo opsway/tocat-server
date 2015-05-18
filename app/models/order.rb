@@ -39,6 +39,7 @@ class Order < ActiveRecord::Base
   before_destroy :check_for_suborder
   before_save :check_if_paid, if: Proc.new { |o| o.invoice_id_changed? }
   before_destroy :check_if_paid_before_destroy
+  after_destroy :recalculate_parent_free_budget, if: Proc.new { |o| o.parent_id.present? }
   before_save :check_if_paid_on_budget_update, if: Proc.new { |o| o.invoiced_budget_changed? }
   before_save :check_if_invoice_already_paid, if: Proc.new { |o| o.invoice_id_changed? }
   before_save :check_for_tasks_on_team_change, if: Proc.new { |o| o.team_id_changed? }

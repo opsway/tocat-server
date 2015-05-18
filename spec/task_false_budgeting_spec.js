@@ -47,13 +47,13 @@ frisby.create('Correct invoice creation')
 						frisby.create('Set task accepted')
                         	.post(url + '/task/' + task.id + '/accept')
                         	.expectStatus(200)
-                        	.toss();	
+                        	.toss();
 
 						frisby.create('Set invoice as paid')
                				.post(url + '/invoice/' + invoice.id + '/paid')
                				.expectStatus(200)
                				.toss();
-													
+
                         frisby.create('Set task Resolver id=2')
 						    .post(url + '/task/' + task.id + '/resolver', {'user_id' : 2})
 						    .expectStatus(200)
@@ -67,7 +67,8 @@ frisby.create('Correct invoice creation')
                         frisby.create('Expecting task NOT to be paid')
                             .get(url + '/task/' + task.id)
                             .expectStatus(200)
-                            .expectJSON({'budget' : 0, 'paid' : false, 'accepted' : false})
+                            .inspectBody()
+                            .expectJSON({'budget' : 32, 'paid' : false, 'accepted' : false})
                             .toss();
 
                         frisby.create('Create another un-paid order')
@@ -96,10 +97,10 @@ frisby.create('Correct invoice creation')
                                 frisby.create('Expecting task NOT to be paid')
                                     .get(url + '/task/' + task.id)
                                     .expectStatus(200)
-                                    .expectJSON({'budget' : 0, 'paid' : false, 'accepted' : false})
-                                    .toss(); 
+                                    .expectJSON({'budget' : 32, 'paid' : false, 'accepted' : false})
+                                    .toss();
                             })
-                            .toss();						
+                            .toss();
             	})
             	.toss();
         })
