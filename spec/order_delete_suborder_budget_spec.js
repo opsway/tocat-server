@@ -4,7 +4,7 @@ var url = config.url;
 frisby.create('Correct invoice')
     .post(url + '/invoices',
     {
-        "external_id": '67899000000303015'
+        "external_id": '67899000000303015' + Math.random()
     })
     .expectStatus(201)
     .afterJSON(function(invoice){
