@@ -5,7 +5,7 @@ var url = config.url;
 frisby.create('Correct invoice creation')
     .post(url + '/invoices',
       {
-          "external_id": '67899000000303001'
+          "external_id": '67899000000303001' + Math.random()
       })
     .expectStatus(201)
     .afterJSON(function(invoice){
@@ -67,7 +67,6 @@ frisby.create('Correct invoice creation')
                         frisby.create('Expecting task NOT to be paid')
                             .get(url + '/task/' + task.id)
                             .expectStatus(200)
-                            .inspectBody()
                             .expectJSON({'budget' : 32, 'paid' : false, 'accepted' : false})
                             .toss();
 
