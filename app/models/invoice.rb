@@ -32,9 +32,9 @@ class Invoice < ActiveRecord::Base
         end
       end
       orders.each do |order|
-        order.tasks.each {|task| task.handle_paid(paid)}
+        order.tasks.each { |task| task.handle_paid(paid) }
         order.sub_orders.each do |sub_order|
-          sub_order.tasks.each {|task| task.handle_paid(paid)}
+          sub_order.tasks.each { |task| task.handle_paid(paid) }
         end
       end
     end

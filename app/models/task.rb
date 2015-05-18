@@ -43,12 +43,12 @@ class Task < ActiveRecord::Base
   def handle_paid(paid)
     if paid
       if can_be_paid?
-        return self.update_attributes(paid: true)
+        return self.update_attributes(paid: true) && self.update_attributes(accepted: true)
       else
         return false
       end
     else
-      return self.update_attributes(paid: false)
+      return self.update_attributes(paid: false) && self.update_attributes(accepted: false)
     end
   end
 
