@@ -81,8 +81,8 @@ class TasksController < ApplicationController
     end
     TaskOrders.transaction do
       messages_ = []
-      @task.task_orders.destroy_all
       begin
+        @task.task_orders.destroy_all
         @task.update(budgets)
       rescue => e
         messages_ << e.message
@@ -110,9 +110,9 @@ class TasksController < ApplicationController
   def set_task
     begin
       if params[:task_id].present?
-        @task = Task.find(params[:task_id])
+        @task = Task.includes(user: :team).find(params[:task_id])
       else
-        @task = Task.find(params[:id])
+        @task = Task.includes(user: :team).find(params[:id])
       end
     rescue ActiveRecord::RecordNotFound
       return render json: {}, status: 404

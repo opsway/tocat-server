@@ -3,9 +3,9 @@ class TransactionsController < ApplicationController
 
   def index
     if params[:search].present?
-      transactions = Transaction.search_for(params[:search])
+      transactions = Transaction.includes(account: :accountable).search_for(params[:search])
     else
-      transactions = Transaction.all
+      transactions = Transaction.includes(account: :accountable).all
     end
 
     if params[:user].present?
@@ -25,6 +25,6 @@ class TransactionsController < ApplicationController
   private
 
   def set_transaction
-    @transaction = Transaction.find(params[:id])
+    @transaction = Transaction.includes(account: :accountable).find(params[:id])
   end
 end

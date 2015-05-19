@@ -5,9 +5,9 @@ class OrdersController < ApplicationController
 
   def index
     if params[:search].present?
-      orders = Order.search_for(params[:search])
+      orders = Order.includes(:invoice, :team).search_for(params[:search])
     else
-      orders = Order.all
+      orders = Order.includes(:invoice, :team).all
     end
 
     @articles = orders.order(sort)
@@ -15,6 +15,7 @@ class OrdersController < ApplicationController
   end
 
   def show
+    @order = Order.includes(:invoice).find(params[:id])
     render json: @order, serializer: OrderShowSerializer
   end
 
@@ -96,7 +97,7 @@ class OrdersController < ApplicationController
     @order.invoiced_budget = order_params[:allocatable_budget]
     @order.parent = Order.find(params[:order_id])
     if @order.save
-      render json: @order, serializer: AfterCreationSerializer, status: 201 # conflict
+      render json: @order, serializer: AfterCreationSerializer, status: 201
     else
       render json: error_builder(@order), status: :unprocessable_entity
     end
