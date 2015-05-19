@@ -31,7 +31,7 @@ frisby.create('Correct invoice')
     .post(url + '/invoices',
 
         {
-          "external_id": '67899000000303002'
+          "external_id": Math.floor(Math.random() * (99999 - 1)) + 30
         })
     .expectStatus(201)
     .afterJSON(function(invoice){
@@ -45,14 +45,14 @@ frisby.create('Correct invoice')
 frisby.create('Correct invoice2')
     .post(url + '/invoices',
       {
-          "external_id": '67899000000303001'
+          "external_id": Math.floor(Math.random() * (99999 - 1)) + 30
       })
     .expectStatus(201)
     .afterJSON(function(invoice2){
       frisby.create('Correct invoice')
         .post(url + '/invoices',
             {
-              "external_id": '67899000000303001'
+              "external_id": Math.floor(Math.random() * (99999 - 1)) + 30
             })
         .expectStatus(201)
         .afterJSON(function(invoice){
@@ -89,7 +89,7 @@ frisby.create('Correct invoice2')
                     .expectStatus(201)
                     .afterJSON(function(subOrder2) {
                        frisby.create('Correct task creation')
-                        .post(url + '/tasks', {"external_id": "TST-102" })
+                        .post(url + '/tasks', {"external_id": Math.floor(Math.random() * (99999 - 1)) + 30 })
                         .expectStatus(201)
                         .afterJSON(function(task){
                             frisby.create('One more order for team 2')
@@ -189,7 +189,7 @@ frisby.create('Correct invoice2')
                                     .toss();
 
                                   frisby.create('Another task creation')
-                                    .post(url + '/tasks', {"external_id": "TST-102" })
+                                    .post(url + '/tasks', {"external_id": Math.floor(Math.random() * (99999 - 1)) + 30 })
                                     .expectStatus(201)
                                     .afterJSON(function(task2){
                                         frisby.create('Set task2 budgets')
@@ -480,14 +480,14 @@ frisby.create('Correct invoice2')
 frisby.create('Correct additional invoice')
  .post(url + '/invoices',
       {
-        "external_id": '67899000000303006'
+        "external_id": Math.floor(Math.random() * (99999 - 1)) + 30
       })
  .expectStatus(201)
  .afterJSON(function(invoice2){
     frisby.create('Correct invoice creation')
     .post(url + '/invoices',
       {
-        "external_id": '67899000000303005'
+        "external_id": Math.floor(Math.random() * (99999 - 1)) + 30
       })
     .expectStatus(201)
     .afterJSON(function(invoice){
@@ -581,6 +581,3 @@ frisby.create('Correct additional invoice')
         .toss();
     })
     .toss();
-
-
-

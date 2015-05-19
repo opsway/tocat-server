@@ -4,11 +4,12 @@
 var config = require('./config');
 var url = config.url;
 
+var task_id = Math.floor(Math.random() * (99999 - 1)) + 30;
 
 frisby.create('Correct invoice creation')
     .post(url + '/invoices',
       {
-          "external_id": '67899000000303001'
+          "external_id": Math.floor(Math.random() * (99999 - 1)) + 30
       })
     .expectStatus(201)
     .afterJSON(function(invoice){
@@ -33,7 +34,7 @@ frisby.create('Correct invoice creation')
                 .toss();
 
             frisby.create('Correct task creation')
-                .post(url + '/tasks', {"external_id": "REDMINE-1021" })
+                .post(url + '/tasks', {"external_id": task_id })
 				.expectStatus(201)
                 .afterJSON(function(task){
 
@@ -50,7 +51,7 @@ frisby.create('Correct invoice creation')
  						frisby.create('Set task Resolver id=2')
                             .post(url + '/task/' + task.id + '/resolver', {'user_id' : 2})
                             .expectStatus(200)
-                            .toss();		
+                            .toss();
 
 						frisby.create('Set task accepted')
                             .post(url + '/task/' + task.id + '/accept')
@@ -72,12 +73,12 @@ frisby.create('Correct invoice creation')
 			                                    .get(url + '/transactions?limit=9999999')
 			                                    .expectStatus(200)
 			                                    .afterJSON(function(transactionsBefore){
-													
+
 													frisby.create('Set invoice as paid')
                                           				.post(url + '/invoice/' + invoice.id + '/paid')
                                           				.expectStatus(200)
                                           				.toss();
-													
+
 													frisby.create('Get new balance account of resolver id=2')
 													    .get(url + '/user/2')
 													    .expectStatus(200)
@@ -97,16 +98,16 @@ frisby.create('Correct invoice creation')
 																        .afterJSON(function(transactionsAfter){
 																        	expect(user.balance_account_state).toBe(balance_user_2 + 32);
 																			expect(team.balance_account_state).toBe(balance_team_2 + 32);
-																			
+
 
 																			expect(transactionsAfter.length - transactionsBefore.length).toBe(3);
-																			
+
 																			userBalanceTransactionsNumber = 0;
 																			teamBalanceTransactionsNumber = 0;
 																			teamPaymentTransactionsNumber = 0;
 
 																			transactionsBefore.forEach(function(tx){
-																				if (tx.comment == "Accepted and paid issue REDMINE-1021") {
+																				if (tx.comment == "Accepted and paid issue " + task_id) {
 																					if (tx['type'] == "balance" && tx.owner['type'] == 'user') {
 																						userBalanceTransactionsNumber +=1;
 																					}
@@ -120,7 +121,7 @@ frisby.create('Correct invoice creation')
 										                                   	});
 
 																			transactionsAfter.forEach(function(tx){
-																				if (tx.comment == "Accepted and paid issue REDMINE-1021") {
+																				if (tx.comment == "Accepted and paid issue " + task_id) {
 																					if (tx['type'] == "balance" && tx.owner['type'] == 'user') {
 																						userBalanceTransactionsNumber -=1;
 																					}
@@ -155,4 +156,3 @@ frisby.create('Correct invoice creation')
         .toss();
     })
 	.toss();
-

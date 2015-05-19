@@ -1,15 +1,16 @@
 var config = require('./config');
 var url = config.url;
 
+var task01 = Math.floor(Math.random() * (99999 - 1)) + 30;
 
 frisby.create('Correct task creation')
- .post(url + '/tasks', {"external_id": "TST-101" })
+ .post(url + '/tasks', {"external_id": +task01 })
  .expectStatus(201)
  .afterJSON(function(task){
     frisby.create('Initial task settings')
       .get(url + '/task/' + task.id)
       .expectStatus(200)
-      .expectJSON({'budget' : 0, 'paid' : false, 'resolver' : {}, 'accepted' : false, 'external_id' : 'TST-101'})
+      .expectJSON({'budget' : 0, 'paid' : false, 'resolver' : {}, 'accepted' : false, 'external_id' : task01.toString() })
       .afterJSON(function(){
           frisby.create('DELETE task - not allowed')
             .delete(url + '/task/' + task.id)
@@ -26,7 +27,7 @@ frisby.create('Correct task creation')
               frisby.create('Attribute paid should not be updatable directly')
                 .get(url + '/task/' + task.id)
                 .expectStatus(200)
-                .expectJSON({'budget' : 0, 'paid' : false, 'resolver' : {}, 'accepted' : false, 'external_id' : 'TST-101'})
+                .expectJSON({'budget' : 0, 'paid' : false, 'resolver' : {}, 'accepted' : false, 'external_id' : task01.toString() })
                 .toss();
             })
             .toss();
@@ -42,7 +43,7 @@ frisby.create('Correct task creation')
               frisby.create('Attribute budget should not be updatable directly')
                 .get(url + '/task/' + task.id)
                 .expectStatus(200)
-                .expectJSON({'budget' : 0, 'paid' : false, 'resolver' : {}, 'accepted' : false, 'external_id' : 'TST-101'})
+                .expectJSON({'budget' : 0, 'paid' : false, 'resolver' : {}, 'accepted' : false, 'external_id' : task01.toString() })
                 .toss();
             })
             .toss();
@@ -62,7 +63,7 @@ frisby.create('Correct task creation')
               frisby.create('Attribute resolver should not be updatable directly')
                 .get(url + '/task/' + task.id)
                 .expectStatus(200)
-                .expectJSON({'budget' : 0, 'paid' : false, 'resolver' : {}, 'accepted' : false, 'external_id' : 'TST-101'})
+                .expectJSON({'budget' : 0, 'paid' : false, 'resolver' : {}, 'accepted' : false, 'external_id' : task01.toString() })
                 .toss();
             })
             .toss();
@@ -77,7 +78,7 @@ frisby.create('Correct task creation')
               frisby.create('Attribute accepted should not be updatable directly')
                 .get(url + '/task/' + task.id)
                 .expectStatus(200)
-                .expectJSON({'budget' : 0, 'paid' : false, 'resolver' : {}, 'accepted' : false, 'external_id' : 'TST-101'})
+                .expectJSON({'budget' : 0, 'paid' : false, 'resolver' : {}, 'accepted' : false, 'external_id' : task01.toString() })
                 .toss();
             })
             .toss();
@@ -85,14 +86,14 @@ frisby.create('Correct task creation')
           frisby.create('Attribute accepted should not be updatable directly')
             .post(url + '/task/' + task.id,
             {
-              'external_id' : "true"
+              'external_id' : Math.floor(Math.random() * (99999 - 1)) + 30
             })
             .expectStatus(405)
             .afterJSON(function(){
               frisby.create('Attribute accepted should not be updatable directly')
                 .get(url + '/task/' + task.id)
                 .expectStatus(200)
-                .expectJSON({'budget' : 0, 'paid' : false, 'resolver' : {}, 'accepted' : false, 'external_id' : 'TST-101'})
+                .expectJSON({'budget' : 0, 'paid' : false, 'resolver' : {}, 'accepted' : false, 'external_id' : task01.toString() })
                 .toss();
             })
             .toss();
@@ -100,14 +101,14 @@ frisby.create('Correct task creation')
           frisby.create('Attribute external_id should not be updatable directly')
             .post(url + '/task/' + task.id,
             {
-              'external_id' : 'test new'
+              'external_id' : Math.floor(Math.random() * (99999 - 1)) + 30
             })
             .expectStatus(405)
             .afterJSON(function(){
               frisby.create('Attribute external_id should not be updatable directly')
                 .get(url + '/task/' + task.id)
                 .expectStatus(200)
-                .expectJSON({'budget' : 0, 'paid' : false, 'resolver' : {}, 'accepted' : false, 'external_id' : 'TST-101'})
+                .expectJSON({'budget' : 0, 'paid' : false, 'resolver' : {}, 'accepted' : false, 'external_id' : task01.toString() })
                 .toss();
             })
             .toss();
@@ -149,7 +150,7 @@ frisby.create('Correct order creation')
        })
       .afterJSON(function(order2){
             frisby.create('Correct task creation')
-              .post(url + '/tasks', {"external_id": "TST-102" })
+              .post(url + '/tasks', {"external_id": Math.floor(Math.random() * (99999 - 1)) + 30 })
               .expectStatus(201)
               .afterJSON(function(task){
 
@@ -273,7 +274,7 @@ frisby.create('Correct order creation')
 
 
                       frisby.create('Create another task')
-                        .post(url + '/tasks', {"external_id": "TST-103" })
+                        .post(url + '/tasks', {"external_id": Math.floor(Math.random() * (99999 - 1)) + 30 })
                         .expectStatus(201)
                         .afterJSON(function(task2){
 
@@ -307,7 +308,7 @@ frisby.create('Correct order creation')
                         .expectStatus(201)
                         .toss();
 
-                      
+
 
 
                       frisby.create('Can not change order team when used for task budgets')
@@ -360,7 +361,7 @@ frisby.create('Correct order creation for unusual team')
        })
       .afterJSON(function(order2){
       frisby.create('Correct task creation')
-        .post(url + '/tasks', {"external_id": "TST-103" })
+        .post(url + '/tasks', {"external_id": Math.floor(Math.random() * (99999 - 1)) + 30 })
         .expectStatus(201)
         .afterJSON(function(task){
           frisby.create('Set task Resolver from different team than we will try to budget')
@@ -384,10 +385,10 @@ frisby.create('Correct order creation for unusual team')
                       }
                     ]})
                     .expectStatus(422)
-                    .expectJSON({errors: 
+                    .expectJSON({errors:
                       [
                         'Orders are created for different teams',
-                        'Task resolver is from different team than order' 
+                        'Task resolver is from different team than order'
                       ]})
                     .afterJSON(function(){
                       frisby.create('Remove resolver from task')
