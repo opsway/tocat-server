@@ -4,7 +4,7 @@ var url = config.url;
 frisby.create('Correct invoice')
     .post(url + '/invoices',
     {
-        "external_id": '67899000000303011'
+        "external_id": Math.floor(Math.random() * (99999 - 1)) + 30
     })
     .expectStatus(201)
     .afterJSON(function(invoice){
@@ -31,7 +31,7 @@ frisby.create('Correct invoice')
                 .post(url + '/invoice/' + invoice.id + '/paid')
                 .expectStatus(200)
                 .toss();
-    
+
               frisby.create('Check that order is paid')
                 .get(url + '/order/' + order.id)
                 .expectStatus(200)
@@ -50,7 +50,7 @@ frisby.create('Correct invoice')
                         .toss();
 
                     frisby.create('Correct task creation')
-                        .post(url + '/tasks', {"external_id": "REDMINE-1021" })
+                        .post(url + '/tasks', {"external_id": Math.floor(Math.random() * (99999 - 1)) + 30 })
                         .expectStatus(201)
                         .afterJSON(function(task1){
 
@@ -68,19 +68,20 @@ frisby.create('Correct invoice')
                                 .post(url + '/task/' + task1.id + '/resolver', {'user_id' : 1})
                                 .expectStatus(200)
                                 .toss();
-                            
+
                             frisby.create('Correct task creation')
-                                .post(url + '/tasks', {"external_id": "REDMINE-1023" })
+                                .post(url + '/tasks', {"external_id": Math.floor(Math.random() * (99999 - 1)) + 30 })
                                 .expectStatus(201)
                                 .afterJSON(function(task2){
 
                                     frisby.create('Set task budgets')
-                                        .post(url + '/task/' + task1.id + '/budget', {'budget' : [
+                                        .post(url + '/task/' + task2.id + '/budget', {'budget' : [
                                             {
                                                 'order_id' : subOrder.id,
                                                 'budget'   : 10
                                             }
                                         ]})
+                                        .inspectBody()
                                         .expectStatus(200)
                                         .toss();
 
@@ -95,7 +96,7 @@ frisby.create('Correct invoice')
                                         .toss();
 
                                     frisby.create('Can complete parent order')
-                                        .post(url + '/order/' + order.id + '/complete/')
+                                        .post(url + '/order/' + order.id + '/complete')
                                         .expectStatus(200)
                                         .toss();
 
@@ -120,7 +121,7 @@ frisby.create('Correct invoice')
                                         ]})
                                         .expectStatus(422)
                                         .expectJSON({errors:['Completed order is used in budgets, can not update task']})
-                                        .toss(); 
+                                        .toss();
 
                                     frisby.create('Should not be able to remove task1 budget')
                                         .post(url + '/task/' + task1.id + '/budget', {'budget' : [
@@ -129,7 +130,7 @@ frisby.create('Correct invoice')
                                         ]})
                                         .expectStatus(422)
                                         .expectJSON({errors:['Completed order is used in budgets, can not update task']})
-                                        .toss();   
+                                        .toss();
 
                                     frisby.create('Should not be able to increase task2 budget')
                                         .post(url + '/task/' + task2.id + '/budget', {'budget' : [
@@ -151,7 +152,7 @@ frisby.create('Correct invoice')
                                         ]})
                                         .expectStatus(422)
                                         .expectJSON({errors:['Completed order is used in budgets, can not update task']})
-                                        .toss(); 
+                                        .toss();
 
                                     frisby.create('Should not be able to remove task2 budget')
                                         .post(url + '/task/' + task2.id + '/budget', {'budget' : [
@@ -160,7 +161,7 @@ frisby.create('Correct invoice')
                                         ]})
                                         .expectStatus(422)
                                         .expectJSON({errors:['Completed order is used in budgets, can not update task']})
-                                        .toss();   
+                                        .toss();
 
                                     frisby.create('Correct task3 creation')
                                         .post(url + '/tasks', {"external_id": "REDMINE-1021" })
@@ -187,11 +188,11 @@ frisby.create('Correct invoice')
                                         .toss();
 
                                     frisby.create('Remove resolver in task1 should not be possible')
-                                        .detele(url + '/task/' + task1.id + '/resolver')
+                                        .delete(url + '/task/' + task1.id + '/resolver')
                                         .expectStatus(422)
                                         .expectJSON({errors:['Completed order is used in budgets, can not update task']})
                                         .toss();
-                    
+
                                     frisby.create('Set resolver in task2 should not be possible')
                                         .post(url + '/task/' + task2.id + '/resolver', {'user_id' : 2})
                                         .expectStatus(422)
@@ -199,7 +200,7 @@ frisby.create('Correct invoice')
                                         .toss();
                         })
                         .toss();
-                                    
+
                     })
                     .toss();
 

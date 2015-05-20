@@ -14,10 +14,20 @@ class TaskOrders < ActiveRecord::Base
   belongs_to :task
 
   before_save :check_free_budget
+  before_save :check_if_order_completed
   before_save :decrease_free_budget
   before_destroy :increase_free_budget
 
   private
+
+  def check_if_order_completed
+    if order.completed
+      errors[:base] << "Completed order is used in budgets, can not update task"
+      false
+    else
+      true
+    end
+  end
 
   def resolver_presence
     return true if task.team.nil?
