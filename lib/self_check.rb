@@ -22,7 +22,8 @@ class SelfCheck
     messages << task_uniqness
     messages << ticket_paid_status
     messages << transactions
-    Transaction.includes(account: :accountable).where.not(id: @transactions.flatten.uniq).where.not('comment LIKE "Paid in cash/bank"').where.not('comment LIKE "%completed%"').each do |transaction|
+    messages << complete_transactions
+    Transaction.includes(account: :accountable).where.not(id: @transactions.flatten.uniq).each do |transaction|
       if /Salary for.*/.match(transaction.comment).present?
         next if transaction.account.accountable.try(:role).try(:name) == 'Manager'
       end
@@ -123,6 +124,33 @@ class SelfCheck
         valid = false unless task.accepted && task.paid
       end
       messages << "Wrong completed flag for #{order.name}. Check suborders and tasks." unless valid
+    end
+    messages
+  end
+
+  def complete_transactions
+    messages = []
+    Order.find_each do |order|
+      completed, uncompleted = 0,0
+      Transaction.where("comment LIKE '%#{order.name}%'").find_each do |t|
+        @transactions << t.id
+        if /.* was completed/.match(t_.comment).present?
+          completed += 1
+        elsif /.* was uncompleted/.match(t_.comment).present?
+          uncompleted += 1
+        end
+      end
+      if completed = 0 && order.completed
+        messages << "Order #{order.id} completed, but theres no transaction for it."
+        next
+      end
+      if uncompleted > completed
+        messages << "Order #{order.id} contains multiple uncompleted transactions."
+        next
+      end
+      if (completed - uncompleted).abs > 1
+        messages << "Order #{order.id} completed transactions wrong, please check it."
+      end
     end
     messages
   end

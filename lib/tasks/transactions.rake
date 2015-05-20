@@ -68,4 +68,25 @@ namespace :zoho do
       order.update_attributes(completed: true) if z_order["Completed"] == true
     end
   end
+
+  task :rename_completed_transactions => :environment do
+    orders = RedmineTocatApi.get_orders
+    orders.each do |z_order|
+      order = Order.where(name: z_order["Comment"]).first
+      if order.present?
+        number = z_order['Number']
+        transactions = Transaction.where("comment LIKE '%completed% %#{number}'")
+        transactions.each do |t|
+          type = t.comment.split.first.downcase
+          if type == 'un-completed'
+            t.update_attributes(comment: "Order ##{order.id}: '#{order.name}' was uncompleted")
+          elsif type == 'completed'
+            t.update_attributes(comment: "Order ##{order.id}: '#{order.name}' was completed")
+          else
+            puts "#{t.id} cant be processed!"
+          end
+        end
+      end
+    end
+  end
 end
