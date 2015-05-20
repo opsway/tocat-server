@@ -62,10 +62,29 @@ class Order < ActiveRecord::Base
     self.transaction do
       if self.completed
         self.update_attributes!(completed: false)
-        self.sub_orders.each { |o| o.update_attributes!(completed: false) }
+        self.sub_orders.each(&:toggle_completed)
+        val = 0
+        budgets = 0
+        val = invoiced_budget - allocatable_budget
+        task_orders.each { |record| budgets += record.budget }
+        sub_orders.each { |order| budgets += order.invoiced_budget }
+        val += allocatable_budget - budgets
+        team.income_account.transactions.create! total: -val,
+                                                 comment: "Order ##{id}: '#{name}' was uncompleted",
+                                                 user_id: 0
       else
-        self.sub_orders.each { |o| o.update_attributes!(completed: true) }
+        self.sub_orders.each(&:toggle_completed)
         self.update_attributes!(completed: true)
+        tasks.each { |t| t.update_attributes!(accepted: true) }
+        val = 0
+        budgets = 0
+        val = invoiced_budget - allocatable_budget
+        task_orders.each { |record| budgets += record.budget }
+        sub_orders.each { |order| budgets += order.invoiced_budget }
+        val += allocatable_budget - budgets
+        team.income_account.transactions.create! total: val,
+                                                 comment: "Order ##{id}: '#{name}' was completed",
+                                                 user_id: 0
       end
     end
   end

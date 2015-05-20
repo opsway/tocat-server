@@ -4,7 +4,7 @@ var url = config.url;
 frisby.create('Correct invoice')
     .post(url + '/invoices',
     {
-        "external_id": '67899000000303011'
+        "external_id": Math.floor(Math.random() * (99999 - 1)) + 30
     })
     .expectStatus(201)
     .afterJSON(function(invoice){
@@ -43,7 +43,7 @@ frisby.create('Correct invoice')
 		        .post(url + '/invoice/' + invoice.id + '/paid')
 		        .expectStatus(200)
 		        .toss();
-    
+
               frisby.create('Check that order is paid')
                 .get(url + '/order/' + order.id)
                 .expectStatus(200)
@@ -68,7 +68,7 @@ frisby.create('Correct invoice')
                         .toss();
 
                     frisby.create('Correct task creation')
-                        .post(url + '/tasks', {"external_id": "REDMINE-1021" })
+                        .post(url + '/tasks', {"external_id": Math.floor(Math.random() * (99999 - 1)) + 30 })
                         .expectStatus(201)
                         .afterJSON(function(task1){
 
@@ -86,14 +86,14 @@ frisby.create('Correct invoice')
                                 .post(url + '/task/' + task1.id + '/resolver', {'user_id' : 1})
                                 .expectStatus(200)
                                 .toss();
-                            
+
                             frisby.create('Correct task creation')
-                                .post(url + '/tasks', {"external_id": "REDMINE-1023" })
+                                .post(url + '/tasks', {"external_id": Math.floor(Math.random() * (99999 - 1)) + 30 })
                                 .expectStatus(201)
                                 .afterJSON(function(task2){
 
                                     frisby.create('Set task budgets')
-                                        .post(url + '/task/' + task1.id + '/budget', {'budget' : [
+                                        .post(url + '/task/' + task2.id + '/budget', {'budget' : [
                                             {
                                                 'order_id' : subOrder.id,
                                                 'budget'   : 10
@@ -120,11 +120,11 @@ frisby.create('Correct invoice')
                                         .toss();
 
                                     frisby.create('Set task2 accepted')
-                                        .post(url + '/task/' + task1.id + '/accept')
+                                        .post(url + '/task/' + task2.id + '/accept')
                                         .expectStatus(200)
                                         .toss();
 
- 
+
                                     frisby.create('Can complete parent order')
                                         .post(url + '/order/' + order.id + '/complete/')
                                         .expectStatus(200)
@@ -153,7 +153,7 @@ frisby.create('Correct invoice')
                                         .delete(url + '/order/' + subOrder.id)
                                         .expectStatus(422)
                                         .expectJSON({errors:['Can not delete suborder when parent order completed']})
-                                        .toss();    
+                                        .toss();
 
                                     frisby.create('Can not un-complete suborder')
                                         .delete(url + '/order/' + subOrder.id + '/complete/')
@@ -171,7 +171,7 @@ frisby.create('Correct invoice')
                                         .delete(url + '/order/' + order.id + '/complete/')
                                         .expectStatus(200)
                                         .toss();
-                                                       
+
                                     frisby.create('Check that order is set un-completed')
                                         .get(url + '/order/' + order.id)
                                         .expectStatus(200)

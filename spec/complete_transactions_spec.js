@@ -4,7 +4,7 @@ var url = config.url;
 frisby.create('Correct invoice')
     .post(url + '/invoices',
     {
-        "external_id": '67899000000303011'
+        "external_id": Math.floor(Math.random() * (99999 - 1)) + 30
     })
     .expectStatus(201)
     .afterJSON(function(invoice){
@@ -31,7 +31,7 @@ frisby.create('Correct invoice')
 		        .post(url + '/invoice/' + invoice.id + '/paid')
 		        .expectStatus(200)
 		        .toss();
-    
+
               frisby.create('Check that order is paid')
                 .get(url + '/order/' + order.id)
                 .expectStatus(200)
@@ -50,7 +50,7 @@ frisby.create('Correct invoice')
                         .toss();
 
                     frisby.create('Correct task creation')
-                        .post(url + '/tasks', {"external_id": "REDMINE-1021" })
+                        .post(url + '/tasks', {"external_id": Math.floor(Math.random() * (99999 - 1)) + 30 })
                         .expectStatus(201)
                         .afterJSON(function(task1){
 
@@ -68,9 +68,9 @@ frisby.create('Correct invoice')
                                 .post(url + '/task/' + task1.id + '/resolver', {'user_id' : 1})
                                 .expectStatus(200)
                                 .toss();
-                            
+
                             frisby.create('Correct task creation')
-                                .post(url + '/tasks', {"external_id": "REDMINE-1023" })
+                                .post(url + '/tasks', {"external_id": Math.floor(Math.random() * (99999 - 1)) + 30 })
                                 .expectStatus(201)
                                 .afterJSON(function(task2){
 
@@ -81,6 +81,7 @@ frisby.create('Correct invoice')
                                                 'budget'   : 10
                                             }
                                         ]})
+                                        .inspectBody()
                                         .expectStatus(200)
                                         .toss();
 
@@ -99,7 +100,7 @@ frisby.create('Correct invoice')
                                         .expectStatus(200)
                                         .afterJSON(function(team1){
                                             income_team_1 = team1.income_account_state;
-                                                
+
                                             frisby.create('Get balance account of team2')
                                                 .get(url + '/team/2')
                                                 .expectStatus(200)
@@ -126,7 +127,7 @@ frisby.create('Correct invoice')
                                                                         .expectStatus(200)
                                                                         .afterJSON(function(team1){
                                                                             income_team_1 = team1.income_account_state;
-                                                                                
+
                                                                             frisby.create('Get balance account of team2')
                                                                                 .get(url + '/team/2')
                                                                                 .expectStatus(200)

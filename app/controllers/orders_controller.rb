@@ -108,13 +108,29 @@ class OrdersController < ApplicationController
     render json: @order, serializer: OrderShowSerializer
   end
 
+  def set_completed
+    if @order.update_attributes(completed: true)
+      render json: @order, serializer: AfterCreationSerializer, status: 200
+    else
+      render json: error_builder(@order), status: :unprocessable_entity
+    end
+  end
+
+  def remove_completed
+    if @order.update_attributes(completed: false)
+      render json: @order, serializer: AfterCreationSerializer, status: 200
+    else
+      render json: error_builder(@order), status: :unprocessable_entity
+    end
+  end
+
   private
 
   def set_order
     if params[:order_id].present?
-      @order = Order.find(params[:order_id])
+      @order = Order.includes(:team, :invoice).find(params[:order_id])
     else
-      @order = Order.find(params[:id])
+      @order = Order.includes(:team, :invoice).find(params[:id])
     end
   end
 
