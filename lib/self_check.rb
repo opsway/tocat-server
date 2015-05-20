@@ -130,7 +130,6 @@ class SelfCheck
 
   def complete_transactions
     messages = []
-    @transactions = []
     Order.find_each do |order|
       completed_count = 0
       uncompleted_count = 0
@@ -174,7 +173,7 @@ class SelfCheck
       next unless task.user.present?
       next if task.accepted && task.user.try(:role).try(:name) == 'Manager'
       val = 0
-      Transaction.where("comment LIKE '%#{task.external_id}%'").each { |r| val += r.total; @transactions << r.id }
+      Transaction.where("comment LIKE '%issue #{task.external_id}%'").each { |r| val += r.total; @transactions << r.id }
       if (task.budget * 3) != val
         messages << "Wrong payment & balance transactions for issue #{task.external_id}"
       end
