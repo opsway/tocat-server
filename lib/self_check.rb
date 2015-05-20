@@ -130,26 +130,27 @@ class SelfCheck
 
   def complete_transactions
     messages = []
+    @transactions = []
     Order.find_each do |order|
-      completed = 0
-      uncompleted = 0
+      completed_count = 0
+      uncompleted_count = 0
       Transaction.where("comment LIKE ?", "%#{order.name}%").find_each do |t|
         @transactions << t.id
         if /.* was completed/.match(t.comment).present?
-          completed += 1
+          completed_count += 1
         elsif /.* was uncompleted/.match(t.comment).present?
-          uncompleted += 1
+          uncompleted_count += 1
         end
       end
-      if completed == 0 && order.completed
+      if completed_count == 0 && order.completed
         messages << "Order #{order.id} completed, but theres no transaction for it."
         next
       end
-      if uncompleted > completed
+      if uncompleted_count > completed_count
         messages << "Order #{order.id} contains multiple uncompleted transactions."
         next
       end
-      if (completed - uncompleted).abs > 1
+      if (completed_count - uncompleted_count).abs > 1
         messages << "Order #{order.id} completed transactions wrong, please check it."
       end
     end
