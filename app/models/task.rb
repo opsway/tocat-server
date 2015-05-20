@@ -48,7 +48,7 @@ class Task < ActiveRecord::Base
         return false
       end
     else
-      return self.update_attributes(paid: false)# && self.update_attributes!(accepted: false)
+      return self.update_attributes(paid: false) && self.update_attributes(accepted: false)
     end
   end
 
