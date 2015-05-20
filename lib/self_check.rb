@@ -131,7 +131,8 @@ class SelfCheck
   def complete_transactions
     messages = []
     Order.find_each do |order|
-      completed, uncompleted = 0,0
+      completed = 0
+      uncompleted = 0
       Transaction.where("comment LIKE '%#{order.name}%'").find_each do |t|
         @transactions << t.id
         if /.* was completed/.match(t_.comment).present?
