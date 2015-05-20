@@ -133,15 +133,15 @@ class SelfCheck
     Order.find_each do |order|
       completed = 0
       uncompleted = 0
-      Transaction.where("comment LIKE '%#{order.name}%'").find_each do |t|
+      Transaction.where("comment LIKE ?", "%#{order.name}%").find_each do |t|
         @transactions << t.id
-        if /.* was completed/.match(t_.comment).present?
+        if /.* was completed/.match(t.comment).present?
           completed += 1
-        elsif /.* was uncompleted/.match(t_.comment).present?
+        elsif /.* was uncompleted/.match(t.comment).present?
           uncompleted += 1
         end
       end
-      if completed = 0 && order.completed
+      if completed == 0 && order.completed
         messages << "Order #{order.id} completed, but theres no transaction for it."
         next
       end
