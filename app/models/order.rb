@@ -49,6 +49,12 @@ class Order < ActiveRecord::Base
   before_save :recalculate_free_budget, if: Proc.new { |o| o.allocatable_budget_changed? && !o.new_record? }
   after_save :recalculate_parent_free_budget, if: Proc.new { |o| o.allocatable_budget_changed? && !o.new_record? && o.parent.present? }
   before_save :check_for_completed, if: Proc.new { |o| !o.completed_changed? }
+  before_save :check_for_paid_before_change_completed, if: Proc.new { |o| o.completed_changed? }
+  before_save :check_if_suborder_before_change_completed, if: Proc.new { |o| o.completed_changed? }
+  before_save :check_for_accepted_tasks_before_completed, if: Proc.new { |o| o.completed_changed? }
+  before_save :check_if_parent_completed_on_suborder_creation, if: Proc.new { |o| o.new_record? && o.parent_id.present? }
+  before_save :handle_completed, if: Proc.new { |o| o.completed_changed? && o.parent_id.nil? }
+  before_destroy :check_if_parent_completed, if: Proc.new { |o| o.parent_id.present? }
 
   def handle_paid(paid)
     return self.update_attributes!(paid: paid)
@@ -58,38 +64,101 @@ class Order < ActiveRecord::Base
     recalculate_free_budget_and_save
   end
 
-  def toggle_completed
+  def handle_completed
     self.transaction do
-      if self.completed
-        self.update_attributes!(completed: false)
-        self.sub_orders.each(&:toggle_completed)
+      if completed
+        sub_orders.each do |suborder|
+          val = 0
+          budgets = 0
+          val = suborder.invoiced_budget - suborder.allocatable_budget
+          task_orders.each { |record| budgets += record.budget }
+          val += budgets
+          suborder.team.income_account.transactions.create! total: val,
+                                                            comment: "Order ##{suborder.id}: '#{suborder.name}' was completed",
+                                                            user_id: 0
+          suborder.update_columns(completed: true)
+        end
         val = 0
         budgets = 0
         val = invoiced_budget - allocatable_budget
         task_orders.each { |record| budgets += record.budget }
         sub_orders.each { |order| budgets += order.invoiced_budget }
-        val += allocatable_budget - budgets
-        team.income_account.transactions.create! total: -val,
-                                                 comment: "Order ##{id}: '#{name}' was uncompleted",
-                                                 user_id: 0
-      else
-        self.sub_orders.each(&:toggle_completed)
-        self.update_attributes!(completed: true)
-        tasks.each { |t| t.update_attributes!(accepted: true) }
-        val = 0
-        budgets = 0
-        val = invoiced_budget - allocatable_budget
-        task_orders.each { |record| budgets += record.budget }
-        sub_orders.each { |order| budgets += order.invoiced_budget }
-        val += allocatable_budget - budgets
+        val += budgets
         team.income_account.transactions.create! total: val,
                                                  comment: "Order ##{id}: '#{name}' was completed",
+                                                 user_id: 0
+      else
+        sub_orders.each do |suborder|
+          val = 0
+          budgets = 0
+          val = suborder.invoiced_budget - suborder.allocatable_budget
+          suborder.task_orders.each { |record| budgets += record.budget }
+          val += budgets
+          suborder.team.income_account.transactions.create! total: -val,
+                                                            comment: "Order ##{suborder.id}: '#{suborder.name}' was uncompleted",
+                                                            user_id: 0
+          suborder.update_columns(completed: false)
+        end
+        val = 0
+        budgets = 0
+        val = invoiced_budget - allocatable_budget
+        task_orders.each { |record| budgets += record.budget }
+        sub_orders.each { |order| budgets += order.invoiced_budget }
+        val += budgets
+        team.income_account.transactions.create! total: -val,
+                                                 comment: "Order ##{id}: '#{name}' was uncompleted",
                                                  user_id: 0
       end
     end
   end
 
+
   private
+
+  def check_if_parent_completed
+    if parent.try(:completed)
+      errors[:base] << 'Can not delete suborder when parent order completed'
+      false
+    end
+  end
+
+  def check_if_parent_completed_on_suborder_creation
+    if parent.completed?
+      errors[:base] << 'Can not create suborder from completed order'
+      false
+    end
+  end
+
+  def check_for_accepted_tasks_before_completed
+    tasks_array = []
+    tasks_array << tasks
+    sub_orders.each { |o| tasks_array << o.tasks}
+    tasks_array.flatten!
+    if tasks_array.collect(&:accepted).include?(false)
+      unaccepted_ids = []
+      tasks_array.each { |task| unaccepted_ids << task.id unless task.accepted}
+      errors[:base] << "Can not complete order: tasks #{unaccepted_ids.join(',')} are not accepted"
+      false
+    end
+  end
+
+  def check_if_suborder_before_change_completed
+    if parent_id.present?
+      if completed
+        errors[:base] << 'Can not complete suborder'
+      else
+        errors[:base] << 'Can not un-complete suborder'
+      end
+      false
+    end
+  end
+
+  def check_for_paid_before_change_completed
+    unless paid
+      errors[:base] << 'Can not complete unpaid order'
+      false
+    end
+  end
 
   def check_for_completed
     if self.completed_was

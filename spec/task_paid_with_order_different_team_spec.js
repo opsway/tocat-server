@@ -8,7 +8,7 @@ frisby.create('Correct invoice')
     })
     .expectStatus(201)
     .afterJSON(function(invoice){
-        
+
               frisby.create('Invoice order id=1 with correct invoice. Order is hardcoded in import.sql')
                 .post(url + '/order/1/invoice', {'invoice_id' : invoice.id})
                 .expectStatus(200)

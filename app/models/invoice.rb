@@ -1,7 +1,7 @@
 require 'will_paginate/array'
 class Invoice < ActiveRecord::Base
-  validates_presence_of :external_id
-  validates_uniqueness_of :external_id
+  validates :external_id,  presence: { message: "Missing external invoice ID" }, uniqueness: { message: "ID is already used" }
+  
   has_many :orders
 
   before_destroy :check_if_invoice_used

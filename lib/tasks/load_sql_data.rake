@@ -1,8 +1,8 @@
 namespace :sql_data do
   desc "Load data from sql file."
-  task :load do
+  task load: :environment do
     fail 'SQL file not found' unless File.exist?('db/import.sql')
-    unless Rails.env.production?
+    #unless Rails.env.production?
       connection = ActiveRecord::Base.connection
       connection.tables.each do |table|
         connection.execute("TRUNCATE #{table}") unless table == "schema_migrations"
@@ -17,6 +17,6 @@ namespace :sql_data do
           connection.execute(statement)
         end
       end
-    end
+    #end
   end
 end

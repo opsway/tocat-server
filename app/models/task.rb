@@ -1,14 +1,14 @@
 require 'will_paginate/array'
 class Task < ActiveRecord::Base
-  validates :external_id,  presence: { message: "Missing external task ID" }
-  validates_uniqueness_of :external_id
+  validates :external_id,  presence: { message: "Missing external task ID" }, uniqueness: { message: "ID is already used" }
   validate :check_resolver_team, if: Proc.new { |o| o.user_id_changed? && !o.user_id.nil? }
+  validate :check_if_order_completed, if: Proc.new { |o| o.task_orders.any? }
 
   has_many :task_orders,
            class_name: 'TaskOrders',
-           before_add: :reject_budget_change_if_task_accepted_and_paid,
+           before_add: :reject_budget_change_if_task_accepted_and_paid_or_order_completed,
            after_add: [:handle_invoice_paid_status, :increase_budget],
-           before_remove: [:reject_budget_change_if_task_accepted_and_paid, :decrease_budget]
+           before_remove: [:reject_budget_change_if_task_accepted_and_paid_or_order_completed, :decrease_budget]
 
   has_many :orders, through: :task_orders
 
@@ -43,12 +43,12 @@ class Task < ActiveRecord::Base
   def handle_paid(paid)
     if paid
       if can_be_paid?
-        return self.update_attributes!(paid: true)
+        return self.update_attributes(paid: true)
       else
         return false
       end
     else
-      return self.update_attributes!(paid: false) && self.update_attributes!(accepted: false)
+      return self.update_attributes(paid: false) && self.update_attributes(accepted: false)
     end
   end
 
@@ -70,9 +70,18 @@ class Task < ActiveRecord::Base
 
   private
 
-  def reject_budget_change_if_task_accepted_and_paid(budget)
+  def check_if_order_completed
+    if orders.collect(&:completed).include?(true)
+      errors[:base] << 'Completed order is used in budgets, can not update task'
+    end
+  end
+
+  def reject_budget_change_if_task_accepted_and_paid_or_order_completed(budget)
     if accepted && paid
       raise 'Can not update budget for task that is Accepted and paid'
+    end
+    if orders.collect(&:completed).include?(true)
+      raise 'Completed order is used in budgets, can not update task'
     end
   end
 

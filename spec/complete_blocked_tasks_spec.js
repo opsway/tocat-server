@@ -91,7 +91,7 @@ frisby.create('Correct invoice')
                                         .toss();
 
                                     frisby.create('Set task2 accepted')
-                                        .post(url + '/task/' + task1.id + '/accept')
+                                        .post(url + '/task/' + task2.id + '/accept')
                                         .expectStatus(200)
                                         .toss();
 

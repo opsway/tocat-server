@@ -23,7 +23,7 @@ class SelfCheck
     messages << ticket_paid_status
     messages << transactions
     messages << complete_transactions
-    Transaction.includes(account: :accountable).where.not(id: @transactions.flatten.uniq).each do |transaction|
+    Transaction.includes(account: :accountable).where.not(id: @transactions.flatten.uniq).where.not('comment LIKE "%Paid in cash/bank%"').each do |transaction|
       if /Salary for.*/.match(transaction.comment).present?
         next if transaction.account.accountable.try(:role).try(:name) == 'Manager'
       end
@@ -39,7 +39,7 @@ class SelfCheck
     messages.flatten!
   end
 
-  #private
+  private
 
   def transactions
     messages = []

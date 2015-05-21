@@ -109,6 +109,9 @@ class OrdersController < ApplicationController
   end
 
   def set_completed
+    if @order.completed == true
+      return render json: { errors: ['Can not complete already completed order'] }, status: :unprocessable_entity # FIXME
+    end
     if @order.update_attributes(completed: true)
       render json: @order, serializer: AfterCreationSerializer, status: 200
     else
@@ -117,6 +120,9 @@ class OrdersController < ApplicationController
   end
 
   def remove_completed
+    if @order.completed == false
+      return render json: { errors: ['Can not un-complete order, that is not completed'] }, status: :unprocessable_entity # FIXME
+    end
     if @order.update_attributes(completed: false)
       render json: @order, serializer: AfterCreationSerializer, status: 200
     else

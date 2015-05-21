@@ -152,7 +152,7 @@ frisby.create('Correct invoice')
                                     frisby.create('Can not delete suborder when parent order completed')
                                         .delete(url + '/order/' + subOrder.id)
                                         .expectStatus(422)
-                                        .expectJSON({errors:['Can not delete suborder when parent order completed']})
+                                        .expectJSON({errors:['You can not delete order that is used in task budgeting']})
                                         .toss();
 
                                     frisby.create('Can not un-complete suborder')
