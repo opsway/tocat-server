@@ -4,7 +4,7 @@ class TaskOrders < ActiveRecord::Base
   validates :budget,
            numericality: { greater_than: 0 },
            presence: true
-  validate :check_resolver_team_after_budget_creation
+  validate :check_resolver_team_after_budget_creation, if: Proc.new { |o| o.new_record? }
   validate :resolver_presence
 
   validates_uniqueness_of :task_id, :scope => [:order_id]
