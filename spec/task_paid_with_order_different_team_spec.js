@@ -14,12 +14,105 @@ frisby.create('Correct invoice')
                 .expectStatus(200)
                 .toss();
 
-              frisby.create('Set invoice paid')
-                .post(url + '/invoice/' + invoice.id + '/paid')
-                .expectStatus(200)
-                .toss();
+              
+            //TODO: Check that team2 tx created, check that user1 tx created
+
+
+            frisby.create('Get balance account of resolver id=1')
+                            .get(url + '/user/1')
+                            .expectStatus(200)
+                            .afterJSON(function(user){
+                                balance_user = user.balance_account_state;
+
+                                frisby.create('Get balance account of team2')
+                                    .get(url + '/team/2')
+                                    .expectStatus(200)
+                                    .afterJSON(function(team){
+                                        balance_team = team.balance_account_state;
+                                            frisby.create('Get current Transactions')
+                                                .get(url + '/transactions?limit=9999999')
+                                                .expectStatus(200)
+                                                .afterJSON(function(transactionsBefore){
+
+                                                    ////////
+                                                    frisby.create('Set invoice paid')
+                                                        .post(url + '/invoice/' + invoice.id + '/paid')
+                                                        .expectStatus(200)
+                                                        .toss();
     
-              frisby.create('Check that order is paid')
+                                                    frisby.create('Get new balance account of resolver id=1')
+                                                        .get(url + '/user/1')
+                                                        .expectStatus(200)
+                                                        .afterJSON(function(user){
+                                                            frisby.create('Get balance account of team2')
+                                                                .get(url + '/team/2')
+                                                                .expectStatus(200)
+                                                                .afterJSON(function(team){
+
+                                                                    //Expecting 3 transactions:
+                                                                    //User1 balance 
+                                                                    //Team2 balance
+                                                                    //Team2 payment
+                                                                    frisby.create('Check new transactions')
+                                                                        .get(url + '/transactions?limit=9999999')
+                                                                        .expectStatus(200)
+                                                                        .afterJSON(function(transactionsAfter){
+                                                                            expect(user.balance_account_state).toBe(balance_user + 30);
+                                                                            expect(team.balance_account_state).toBe(balance_team + 30);
+
+
+                                                                            expect(transactionsAfter.length - transactionsBefore.length).toBe(3);
+
+                                                                            userBalanceTransactionsNumber = 0;
+                                                                            teamBalanceTransactionsNumber = 0;
+                                                                            teamPaymentTransactionsNumber = 0;
+
+                                                                            transactionsBefore.forEach(function(tx){
+                                                                                if (tx.comment == "Accepted and paid issue " + task_id) {
+                                                                                    if (tx['type'] == "balance" && tx.owner['type'] == 'user') {
+                                                                                        userBalanceTransactionsNumber +=1;
+                                                                                    }
+                                                                                    if (tx['type'] == "balance" && tx.owner['type'] == 'team') {
+                                                                                        teamBalanceTransactionsNumber +=1;
+                                                                                    }
+                                                                                    if (tx['type'] == "payment" && tx.owner['type'] == 'team') {
+                                                                                        teamPaymentTransactionsNumber +=1;
+                                                                                    }
+                                                                                }
+                                                                            });
+
+                                                                            transactionsAfter.forEach(function(tx){
+                                                                                if (tx.comment == "Accepted and paid issue " + task_id) {
+                                                                                    if (tx['type'] == "balance" && tx.owner['type'] == 'user') {
+                                                                                        userBalanceTransactionsNumber -=1;
+                                                                                    }
+                                                                                    if (tx['type'] == "balance" && tx.owner['type'] == 'team') {
+                                                                                        teamBalanceTransactionsNumber -=1;
+                                                                                    }
+                                                                                    if (tx['type'] == "payment" && tx.owner['type'] == 'team') {
+                                                                                        teamPaymentTransactionsNumber -=1;
+                                                                                    }
+                                                                                }
+                                                                            });
+
+                                                                            expect(userBalanceTransactionsNumber).toBe(-1);
+                                                                            expect(teamPaymentTransactionsNumber).toBe(-1);
+                                                                            expect(teamBalanceTransactionsNumber).toBe(-1);
+
+                                                                        })
+                                                                        .toss();
+                                                                })
+                                                                .toss();
+                                                        })
+                                                        .toss();
+                                                })
+                                                .toss();
+                                     })
+                                    .toss();
+                            })
+                            .toss();
+
+            frisby.create('Check that order is paid')
                 .get(url + '/order/1')
                 .expectStatus(200)
                 .expectJSON({'paid' : true})
@@ -31,7 +124,5 @@ frisby.create('Correct invoice')
                 .inspectBody()
                 .expectJSON({'paid' : true})
                 .toss();
-
-            //TODO: Check that team2 tx created, check that user1 tx created
     })
     .toss();
