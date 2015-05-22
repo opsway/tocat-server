@@ -9,7 +9,8 @@ class Transaction < ActiveRecord::Base
   belongs_to :team
   belongs_to :account
 
-  scoped_search :on => [:comment]
+  scoped_search on: [:comment]
+  scoped_search in: :account, on: :account_type, rename: :account, only_explicit: true
 
 
 
