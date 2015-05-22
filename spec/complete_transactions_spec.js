@@ -58,7 +58,7 @@ frisby.create('Correct invoice')
                                 .post(url + '/task/' + task1.id + '/budget', {'budget' : [
                                     {
                                         'order_id' : order.id,
-                                        'budget'   : 30
+                                        'budget'   : 25
                                     }
                                 ]})
                                 .expectStatus(200)
@@ -131,8 +131,8 @@ frisby.create('Correct invoice')
                                                                                 .expectStatus(200)
                                                                                 .afterJSON(function(team2){
 
-                                                                                    expect(team1.income_account_state).toBe(income_team_1 + 100);
-                                                                                    expect(team2.income_account_state).toBe(income_team_2 + 10);
+                                                                                    expect(team1.income_account_state).toBe(income_team_1 + 125);
+                                                                                    expect(team2.income_account_state).toBe(income_team_2 + 20);
                                                                                     expect(transactionsAfter.length - transactionsBefore.length).toBe(2);
 
                                                                                 })
