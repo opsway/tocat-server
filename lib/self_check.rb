@@ -133,7 +133,7 @@ class SelfCheck
     Order.find_each do |order|
       completed_count = 0
       uncompleted_count = 0
-      Transaction.where("comment LIKE ?", "Order ##{order.id}: '#{order.name}' was %".find_each do |t|
+      Transaction.where("comment LIKE ?", "Order ##{order.id}: '#{order.name}' was %").find_each do |t|
         @transactions << t.id
         if /.* was completed/.match(t.comment).present?
           completed_count += 1

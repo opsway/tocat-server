@@ -62,13 +62,15 @@ namespace :zoho do
   end
 
   task :complete_orders => :environment do
-    completed_ids = Order.where(completed: true).where(parent_id: nil).ids
-    Order.where(completed: true).all.each { |o| o.update_column(:completed, false) }
-    Transaction.where("comment LIKE '%completed%'").destroy_all
-    completed_ids.each do |id|
-      order = Order.find(id)
-      result = order.update_attributes(completed:true)
-      puts order.id unless result
+    Transaction.transaction do
+      completed_ids = Order.where(completed: true).where(parent_id: nil).ids
+      Order.where(completed: true).all.each { |o| o.update_column(:completed, false) }
+      Transaction.where("comment LIKE '%completed%'").destroy_all
+      completed_ids.each do |id|
+        order = Order.find(id)
+        result = order.update_attributes(completed:true)
+        puts order.id unless result
+      end
     end
   end
 

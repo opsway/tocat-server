@@ -59,7 +59,7 @@ frisby.create('Correct invoice creation')
 						    .expectStatus(200)
 						    .toss();
 
-                        frisby.create('Remove accepted flag from task')
+                        frisby.create('Set invoice Unpaid')
                             .delete(url + '/invoice/' + invoice.id + '/paid')
                             .expectStatus(200)
                             .toss();
@@ -68,7 +68,7 @@ frisby.create('Correct invoice creation')
                             .get(url + '/task/' + task.id)
                             .expectStatus(200)
                             .inspectBody()
-                            .expectJSON({'budget' : 32, 'paid' : false, 'accepted' : false})
+                            .expectJSON({'budget' : 32, 'paid' : false, 'accepted' : true})
                             .toss();
 
                         frisby.create('Create another un-paid order')
@@ -97,7 +97,7 @@ frisby.create('Correct invoice creation')
                                 frisby.create('Expecting task NOT to be paid')
                                     .get(url + '/task/' + task.id)
                                     .expectStatus(200)
-                                    .expectJSON({'budget' : 32, 'paid' : false, 'accepted' : false})
+                                    .expectJSON({'budget' : 32, 'paid' : false, 'accepted' : true})
                                     .toss();
                             })
                             .toss();
