@@ -79,17 +79,18 @@ frisby.create('Correct invoice')
                                 .expectStatus(200)
                                 .toss();
 
-                            frisby.create('Set task Resolver id=2')
-                                .post(url + '/task/' + task1.id + '/resolver', {'user_id' : 2})
-                                .expectStatus(200)
-                                .toss();
 
                             frisby.create('Task1 is not paid, but it is accepted #1')
                                         .get(url + '/task/' + task1.id)
                                         .expectStatus(200)
                                         .inspectBody()
-                                        .expectJSON({'paid' : false, 'accepted' : true })
+                                        .expectJSON({'paid' : false, 'accepted' : false })
                                         .toss();
+
+                            frisby.create('Set task Resolver id=2')
+                                .post(url + '/task/' + task1.id + '/resolver', {'user_id' : 2})
+                                .expectStatus(200)
+                                .toss();
 
                             frisby.create('Set task1 accepted')
                                         .post(url + '/task/' + task1.id + '/accept')
