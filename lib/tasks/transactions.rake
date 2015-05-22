@@ -62,10 +62,13 @@ namespace :zoho do
   end
 
   task :complete_orders => :environment do
-    orders = RedmineTocatApi.get_orders
-    orders.each do |z_order|
-      order = Order.where(name: z_order["Comment"]).first
-      order.update_attributes(completed: true) if z_order["Completed"] == true
+    completed_ids = Order.where(completed: true).where(parent_id: nil).ids
+    Order.where(completed: true).all.each { |o| o.update_column(:completed, false) }
+    Transaction.where("comment LIKE '%completed%'").destroy_all
+    completed_ids.each do |id|
+      order = Order.find(id)
+      result = order.update_attributes(completed:true)
+      puts order.id unless result
     end
   end
 
