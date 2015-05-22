@@ -442,6 +442,19 @@ frisby.create('Correct invoice2')
                                                                 .expectJSON({'paid' : false})
                                                                 .toss();
 
+                                                              frisby.create('Task1 is still accepted')
+                                                                .get(url + '/task/' + task.id)
+                                                                .expectStatus(200)
+                                                                .expectJSON({'accepted' : true})
+                                                                .toss();
+
+                                                              frisby.create('Task2 is still accepted')
+                                                                .get(url + '/task/' + task2.id)
+                                                                .expectStatus(200)
+                                                                .expectJSON({'accepted' : true})
+                                                                .toss();
+
+
                                                               frisby.create('Delete used invoice is not allowed')
                                                                 .delete(url + '/invoice/' + invoice.id)
                                                                 .expectStatus(422)
