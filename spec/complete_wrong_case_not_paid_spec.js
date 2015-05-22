@@ -121,7 +121,7 @@ frisby.create('Correct invoice')
                                     frisby.create('Can not complete order with un-paid tasks')
                                         .post(url + '/order/' + order.id + '/complete/')
                                         .expectStatus(422)
-                                        .expectJSON({errors:['Can not complete order: task(s) ' + task1.id + ',' + task2.id + ' not Accepted&Paid']})
+                                        .expectJSON({errors:['Can not complete order: task(s) ' + task1.external_id + ',' + task2.external_id + ' not Accepted&Paid']})
                                         .toss();
 
                                     frisby.create('Correct invoice2')
