@@ -18,6 +18,12 @@ frisby.create('Correct invoice')
                 .post(url + '/task/1/accept')
                 .expectStatus(200)
                 .toss();
+
+            ////////
+            frisby.create('Set invoice paid')
+                .post(url + '/invoice/' + invoice.id + '/paid')
+                .expectStatus(200)
+                .toss();
               
             frisby.create('Get balance account of resolver id=1')
                             .get(url + '/user/1')
@@ -35,12 +41,12 @@ frisby.create('Correct invoice')
                                                 .expectStatus(200)
                                                 .afterJSON(function(transactionsBefore){
 
-                                                    ////////
-                                                    frisby.create('Set invoice paid')
-                                                        .post(url + '/invoice/' + invoice.id + '/paid')
+
+                                                    frisby.create('Remove task accepted flag')
+                                                        .delte(url + '/task/1/accept')
                                                         .expectStatus(200)
                                                         .toss();
-    
+                                                    
                                                     frisby.create('Get new balance account of resolver id=1')
                                                         .get(url + '/user/1')
                                                         .expectStatus(200)
@@ -58,8 +64,8 @@ frisby.create('Correct invoice')
                                                                         .get(url + '/transactions?limit=9999999')
                                                                         .expectStatus(200)
                                                                         .afterJSON(function(transactionsAfter){
-                                                                            expect(user.balance_account_state).toBe(balance_user + 30);
-                                                                            expect(team.balance_account_state).toBe(balance_team + 30);
+                                                                            expect(user.balance_account_state).toBe(balance_user - 30);
+                                                                            expect(team.balance_account_state).toBe(balance_team - 30);
 
 
                                                                             expect(transactionsAfter.length - transactionsBefore.length).toBe(3);
@@ -69,28 +75,29 @@ frisby.create('Correct invoice')
                                                                             teamPaymentTransactionsNumber = 0;
 
                                                                             transactionsBefore.forEach(function(tx){
-                                                                                if (tx.comment == "Accepted and paid issue " + task_id) {
-                                                                                    if (tx['type'] == "balance" && tx.owner['type'] == 'user') {
+                                                                                if (tx.comment == "Reopening issue " + task_id) {
+
+                                                                                    if (tx['type'] == "balance" && tx.owner["type"] == 'user') {
                                                                                         userBalanceTransactionsNumber +=1;
                                                                                     }
-                                                                                    if (tx['type'] == "balance" && tx.owner['type'] == 'team') {
+                                                                                    if (tx["type"] == "balance" && tx.owner["type"] == 'team') {
                                                                                         teamBalanceTransactionsNumber +=1;
                                                                                     }
-                                                                                    if (tx['type'] == "payment" && tx.owner['type'] == 'team') {
+                                                                                    if (tx["type"] == "payment" && tx.owner["type"] == 'team') {
                                                                                         teamPaymentTransactionsNumber +=1;
                                                                                     }
                                                                                 }
                                                                             });
 
                                                                             transactionsAfter.forEach(function(tx){
-                                                                                if (tx.comment == "Accepted and paid issue " + task_id) {
-                                                                                    if (tx['type'] == "balance" && tx.owner['type'] == 'user') {
+                                                                                if (tx.comment == "Reopening issue " + task_id) {
+                                                                                    if (tx['type'] == "balance" && tx.owner["type"] == 'user') {
                                                                                         userBalanceTransactionsNumber -=1;
                                                                                     }
-                                                                                    if (tx['type'] == "balance" && tx.owner['type'] == 'team') {
+                                                                                    if (tx["type"] == "balance" && tx.owner["type"] == 'team') {
                                                                                         teamBalanceTransactionsNumber -=1;
                                                                                     }
-                                                                                    if (tx['type'] == "payment" && tx.owner['type'] == 'team') {
+                                                                                    if (tx["type"] == "payment" && tx.owner["type"] == 'team') {
                                                                                         teamPaymentTransactionsNumber -=1;
                                                                                     }
                                                                                 }
@@ -99,7 +106,6 @@ frisby.create('Correct invoice')
                                                                             expect(userBalanceTransactionsNumber).toBe(-1);
                                                                             expect(teamPaymentTransactionsNumber).toBe(-1);
                                                                             expect(teamBalanceTransactionsNumber).toBe(-1);
-
                                                                         })
                                                                         .toss();
                                                                 })
@@ -113,17 +119,5 @@ frisby.create('Correct invoice')
                             })
                             .toss();
 
-            frisby.create('Check that order is paid')
-                .get(url + '/order/1')
-                .expectStatus(200)
-                .expectJSON({'paid' : true})
-                .toss();
-            
-              frisby.create('Expecting task 1 (hardcoded) to be paid')
-                .get(url + '/task/1')
-                .expectStatus(200)
-                .inspectBody()
-                .expectJSON({'paid' : true})
-                .toss();
     })
     .toss();
