@@ -75,13 +75,12 @@ frisby.create('Correct invoice')
                                 .afterJSON(function(task2){
 
                                     frisby.create('Set task budgets')
-                                        .post(url + '/task/' + task1.id + '/budget', {'budget' : [
+                                        .post(url + '/task/' + task2.id + '/budget', {'budget' : [
                                             {
                                                 'order_id' : subOrder.id,
                                                 'budget'   : 10
                                             }
                                         ]})
-                                        .inspectBody()
                                         .expectStatus(200)
                                         .toss();
 
@@ -91,7 +90,7 @@ frisby.create('Correct invoice')
                                         .toss();
 
                                     frisby.create('Set task2 accepted')
-                                        .post(url + '/task/' + task1.id + '/accept')
+                                        .post(url + '/task/' + task2.id + '/accept')
                                         .expectStatus(200)
                                         .toss();
 
