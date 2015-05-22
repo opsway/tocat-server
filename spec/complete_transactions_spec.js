@@ -125,13 +125,11 @@ frisby.create('Correct invoice')
                                                                         .get(url + '/team/1')
                                                                         .expectStatus(200)
                                                                         .afterJSON(function(team1){
-                                                                            income_team_1 = team1.income_account_state;
 
                                                                             frisby.create('Get balance account of team2')
                                                                                 .get(url + '/team/2')
                                                                                 .expectStatus(200)
                                                                                 .afterJSON(function(team2){
-                                                                                    income_team_2 = team2.income_account_state;
 
                                                                                     expect(team1.income_account_state).toBe(income_team_1 + 100);
                                                                                     expect(team2.income_account_state).toBe(income_team_2 + 10);
