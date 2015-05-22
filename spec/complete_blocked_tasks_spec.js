@@ -109,7 +109,7 @@ frisby.create('Correct invoice')
                                             }
                                         ]})
                                         .expectStatus(422)
-                                        .expectJSON({errors:['Completed order is used in budgets, can not update task']})
+                                        .expectJSON({errors:['Can not update budget for task that is Accepted and paid']})
                                         .toss();
 
                                     frisby.create('Should not be able to decrease task1 budget')
@@ -120,7 +120,7 @@ frisby.create('Correct invoice')
                                             }
                                         ]})
                                         .expectStatus(422)
-                                        .expectJSON({errors:['Completed order is used in budgets, can not update task']})
+                                        .expectJSON({errors:['Can not update budget for task that is Accepted and paid']})
                                         .toss();
 
                                     frisby.create('Should not be able to remove task1 budget')
@@ -129,7 +129,7 @@ frisby.create('Correct invoice')
                                             }
                                         ]})
                                         .expectStatus(422)
-                                        .expectJSON({errors:['Completed order is used in budgets, can not update task']})
+                                        .expectJSON({errors:['Can not update budget for task that is Accepted and paid']})
                                         .toss();
 
                                     frisby.create('Should not be able to increase task2 budget')
@@ -140,7 +140,7 @@ frisby.create('Correct invoice')
                                             }
                                         ]})
                                         .expectStatus(422)
-                                        .expectJSON({errors:['Completed order is used in budgets, can not update task']})
+                                        .expectJSON({errors:['Can not update budget for task that is Accepted and paid']})
                                         .toss();
 
                                     frisby.create('Should not be able to decrease task2 budget')
@@ -151,7 +151,7 @@ frisby.create('Correct invoice')
                                             }
                                         ]})
                                         .expectStatus(422)
-                                        .expectJSON({errors:['Completed order is used in budgets, can not update task']})
+                                        .expectJSON({errors:['Can not update budget for task that is Accepted and paid']})
                                         .toss();
 
                                     frisby.create('Should not be able to remove task2 budget')
@@ -160,7 +160,7 @@ frisby.create('Correct invoice')
                                             }
                                         ]})
                                         .expectStatus(422)
-                                        .expectJSON({errors:['Completed order is used in budgets, can not update task']})
+                                        .expectJSON({errors:['Can not update budget for task that is Accepted and paid']})
                                         .toss();
 
                                     frisby.create('Correct task3 creation')
