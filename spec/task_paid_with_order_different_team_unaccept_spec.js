@@ -43,10 +43,10 @@ frisby.create('Correct invoice')
 
 
                                                     frisby.create('Remove task accepted flag')
-                                                        .delte(url + '/task/1/accept')
+                                                        .delete(url + '/task/1/accept')
                                                         .expectStatus(200)
                                                         .toss();
-                                                    
+
                                                     frisby.create('Get new balance account of resolver id=1')
                                                         .get(url + '/user/1')
                                                         .expectStatus(200)

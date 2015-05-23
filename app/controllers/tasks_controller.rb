@@ -84,8 +84,9 @@ class TasksController < ApplicationController
       begin
         @task.task_orders.destroy_all
         @task.update(budgets)
+        @task.recalculate_paid_status! # FIXME
       rescue => e
-        messages_ << e.message
+        messages_ << e.record.errors.full_messages
       end
       @task.task_orders.each do |task_order|
         if task_order.errors.present?

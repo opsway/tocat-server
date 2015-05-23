@@ -69,7 +69,7 @@ frisby.create('Correct invoice')
                                                                             teamPaymentTransactionsNumber = 0;
 
                                                                             transactionsBefore.forEach(function(tx){
-                                                                                if (tx.comment == "Accepted and paid issue " + task_id) {
+                                                                                if (tx.comment == "Accepted and paid issue WRONGORDER-TEST") {
                                                                                     if (tx['type'] == "balance" && tx.owner['type'] == 'user') {
                                                                                         userBalanceTransactionsNumber +=1;
                                                                                     }
@@ -83,7 +83,7 @@ frisby.create('Correct invoice')
                                                                             });
 
                                                                             transactionsAfter.forEach(function(tx){
-                                                                                if (tx.comment == "Accepted and paid issue " + task_id) {
+                                                                                if (tx.comment == "Accepted and paid issue WRONGORDER-TEST") {
                                                                                     if (tx['type'] == "balance" && tx.owner['type'] == 'user') {
                                                                                         userBalanceTransactionsNumber -=1;
                                                                                     }
@@ -118,11 +118,10 @@ frisby.create('Correct invoice')
                 .expectStatus(200)
                 .expectJSON({'paid' : true})
                 .toss();
-            
+
               frisby.create('Expecting task 1 (hardcoded) to be paid')
                 .get(url + '/task/1')
                 .expectStatus(200)
-                .inspectBody()
                 .expectJSON({'paid' : true})
                 .toss();
     })

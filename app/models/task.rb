@@ -7,7 +7,7 @@ class Task < ActiveRecord::Base
   has_many :task_orders,
            class_name: 'TaskOrders',
            before_add: :reject_budget_change_if_task_accepted_and_paid_or_order_completed,
-           after_add: [:handle_invoice_paid_status, :increase_budget],
+           after_add: [:increase_budget],
            before_remove: [:reject_budget_change_if_task_accepted_and_paid_or_order_completed, :decrease_budget]
 
   has_many :orders, through: :task_orders
@@ -33,11 +33,11 @@ class Task < ActiveRecord::Base
   end
 
   def can_be_paid?
-    can_be_paid = true
-    orders.each do |order|
-      can_be_paid = order.paid unless order.paid
+    if task_orders.collect{ |r| r.try(:order).try(:paid) }.include? false
+      return false
+    else
+      return true
     end
-    can_be_paid
   end
 
   def handle_paid(paid)
@@ -68,6 +68,10 @@ class Task < ActiveRecord::Base
     #Settings.external_tracker.url + external_id
   end
 
+  def recalculate_paid_status!
+    self.update_attributes!(paid: can_be_paid?)
+  end
+
   private
 
   def check_if_order_completed
@@ -91,15 +95,6 @@ class Task < ActiveRecord::Base
 
   def decrease_budget(task_order)
     self.update_attributes(budget: self.budget -= task_order.budget)
-  end
-
-  def handle_invoice_paid_status(budget)
-    if budget.order.present?
-      if budget.order.paid
-        self.update_attributes!(paid: true)
-      end
-    end
-    true
   end
 
   def validate_unique_task_orders
@@ -218,7 +213,7 @@ module ActiveRecord
       teams = []
       collection.each { |r| teams << r.order.team if r.order.present? }
       if teams.uniq.length > 1
-        collection.first.errors[:base] << message
+        errors[:base] << message
       end
     end
   end
