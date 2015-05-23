@@ -69,7 +69,7 @@ namespace :zoho do
       completed_ids.each do |id|
         order = Order.find(id)
         result = order.update_attributes(completed:true)
-        puts order.id unless result
+        puts "#{order.id} - #{order.errors.messages}" if result == false
       end
     end
   end

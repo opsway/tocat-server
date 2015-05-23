@@ -133,10 +133,13 @@ class SelfCheck
     Order.find_each do |order|
       completed_count = 0
       uncompleted_count = 0
-      Transaction.where("comment LIKE ?", "Order ##{order.id}: '#{order.name}' was %").find_each do |t|
+      Transaction.where("comment LIKE ?", "Order ##{order.id} was %").find_each do |t|
         @transactions << t.id
         if /.* was completed/.match(t.comment).present?
           completed_count += 1
+          if t.total != (order.invoiced_budget - order.sub_orders.sum(:invoiced_budget))
+            messages << "Wrong complete transaction total for ##{order.id} order"
+          end
         elsif /.* was uncompleted/.match(t.comment).present?
           uncompleted_count += 1
         end
