@@ -131,8 +131,8 @@ frisby.create('Correct invoice')
                                                                                 .expectStatus(200)
                                                                                 .afterJSON(function(team2){
 
-                                                                                    expect(team1.income_account_state).toBe(income_team_1 + 130);
-                                                                                    expect(team2.income_account_state).toBe(income_team_2 + 20);
+                                                                                    expect(team1.income_account_state).toBe(income_team_1 + 105);
+                                                                                    expect(team2.income_account_state).toBe(income_team_2 + 10);
                                                                                     expect(transactionsAfter.length - transactionsBefore.length).toBe(2);
 
                                                                                 })
