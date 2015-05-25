@@ -48,8 +48,10 @@ class Transaction < ActiveRecord::Base
   end
 
   def check_owner
-    unless account.account_type == 'payment' && account.accountable_type == 'User'
-      errors[:base] << "Invalid owner"
+    if comment == "Paid in cash/bank"
+      unless account.account_type == 'payment' && account.accountable_type == 'User'
+        errors[:base] << "Invalid owner"
+      end
     end
   end
 
