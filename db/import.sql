@@ -40,6 +40,6 @@ insert into accounts values(14, 'payment', now(), now(), 4, 'User');
 insert into accounts values(16, 'payment', now(), now(), 5, 'User');
 
 insert into orders values(1, 'Test', 'Order for team2', 0, 2, null, 100, 50, now(), now(), null, 20, 0);
-insert into tasks values(1, 'WRONGORDER-TEST', 1, 0, 0, now(), now(), 150);
+insert into tasks values(1, 'WRONGORDER-TEST', 1, 0, 0, now(), now(), 30);
 insert into task_orders values(null, 1, 1, 30, now(), now());
 

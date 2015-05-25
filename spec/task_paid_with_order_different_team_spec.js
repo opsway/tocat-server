@@ -100,6 +100,18 @@ frisby.create('Correct invoice')
                                                                             expect(teamPaymentTransactionsNumber).toBe(-1);
                                                                             expect(teamBalanceTransactionsNumber).toBe(-1);
 
+                                                                            frisby.create('Check that order is paid')
+                                                                                .get(url + '/order/1')
+                                                                                .expectStatus(200)
+                                                                                .expectJSON({'paid' : true})
+                                                                                .toss();
+
+                                                                              frisby.create('Expecting task 1 (hardcoded) to be paid')
+                                                                                .get(url + '/task/1')
+                                                                                .expectStatus(200)
+                                                                                .expectJSON({'paid' : true})
+                                                                                .toss();
+
                                                                         })
                                                                         .toss();
                                                                 })
@@ -113,16 +125,5 @@ frisby.create('Correct invoice')
                             })
                             .toss();
 
-            frisby.create('Check that order is paid')
-                .get(url + '/order/1')
-                .expectStatus(200)
-                .expectJSON({'paid' : true})
-                .toss();
-
-              frisby.create('Expecting task 1 (hardcoded) to be paid')
-                .get(url + '/task/1')
-                .expectStatus(200)
-                .expectJSON({'paid' : true})
-                .toss();
     })
     .toss();
