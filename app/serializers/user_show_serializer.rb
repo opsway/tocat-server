@@ -8,6 +8,7 @@ class UserShowSerializer < ActiveModel::Serializer
              :daily_rate,
              :role,
              :links,
+             :accounts,
              :balance_account_state,
              :income_account_state
 
@@ -36,10 +37,10 @@ class UserShowSerializer < ActiveModel::Serializer
     data
   end
 
-  def attributes
-    data = super
-    balance = {}
-    income = {}
+  def accounts
+    data = {}
+    data[:balance] = {id: object.balance_account.id}
+    data[:income] = {id: object.income_account.id}
     data
   end
 
