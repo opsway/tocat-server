@@ -64,8 +64,8 @@ frisby.create('Correct invoice')
                                                                         .get(url + '/transactions?limit=9999999')
                                                                         .expectStatus(200)
                                                                         .afterJSON(function(transactionsAfter){
-                                                                            expect(user.balance_account_state).toBe(balance_user - 150);
-                                                                            expect(team.balance_account_state).toBe(balance_team - 150);
+                                                                            expect(user.balance_account_state).toBe(balance_user - 30);
+                                                                            expect(team.balance_account_state).toBe(balance_team - 30);
 
 
                                                                             expect(transactionsAfter.length - transactionsBefore.length).toBe(3);
