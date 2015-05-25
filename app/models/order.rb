@@ -68,23 +68,27 @@ class Order < ActiveRecord::Base
     self.transaction do
       if completed
         sub_orders.each do |suborder|
-          suborder.team.income_account.transactions.create! total: suborder.invoiced_budget,
+          # вычитаем бюджеты тасков
+          val = suborder.invoiced_budget - suborder.task_orders.sum(:budget)
+          suborder.team.income_account.transactions.create! total: val,
                                                             comment: "Order ##{suborder.id} was completed",
                                                             user_id: 0
           suborder.update_columns(completed: true)
         end
-        val = invoiced_budget - sub_orders.sum(:invoiced_budget)
+        #из ивойсед вычитаем сабордеры и таски
+        val = invoiced_budget - sub_orders.sum(:invoiced_budget) - task_orders.sum(:budget)
         team.income_account.transactions.create! total: val,
                                                  comment: "Order ##{id} was completed",
                                                  user_id: 0
       else
         sub_orders.each do |suborder|
-          suborder.team.income_account.transactions.create! total: -suborder.invoiced_budget,
+          val = suborder.invoiced_budget - suborder.task_orders.sum(:budget)
+          suborder.team.income_account.transactions.create! total: -val,
                                                             comment: "Order ##{suborder.id} was uncompleted",
                                                             user_id: 0
           suborder.update_columns(completed: false)
         end
-        val = invoiced_budget - sub_orders.sum(:invoiced_budget)
+        val = invoiced_budget - sub_orders.sum(:invoiced_budget) - task_orders.sum(:budget)
         team.income_account.transactions.create! total: -val,
                                                  comment: "Order ##{id} was uncompleted",
                                                  user_id: 0

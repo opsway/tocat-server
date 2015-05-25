@@ -24,7 +24,7 @@ frisby.create('Correct invoice')
                 .post(url + '/invoice/' + invoice.id + '/paid')
                 .expectStatus(200)
                 .toss();
-              
+
             frisby.create('Get balance account of resolver id=1')
                             .get(url + '/user/1')
                             .expectStatus(200)
@@ -57,15 +57,15 @@ frisby.create('Correct invoice')
                                                                 .afterJSON(function(team){
 
                                                                     //Expecting 3 transactions:
-                                                                    //User1 balance 
+                                                                    //User1 balance
                                                                     //Team2 balance
                                                                     //Team2 payment
                                                                     frisby.create('Check new transactions')
                                                                         .get(url + '/transactions?limit=9999999')
                                                                         .expectStatus(200)
                                                                         .afterJSON(function(transactionsAfter){
-                                                                            expect(user.balance_account_state).toBe(balance_user - 30);
-                                                                            expect(team.balance_account_state).toBe(balance_team - 30);
+                                                                            expect(user.balance_account_state).toBe(balance_user - 150);
+                                                                            expect(team.balance_account_state).toBe(balance_team - 150);
 
 
                                                                             expect(transactionsAfter.length - transactionsBefore.length).toBe(3);
@@ -75,7 +75,7 @@ frisby.create('Correct invoice')
                                                                             teamPaymentTransactionsNumber = 0;
 
                                                                             transactionsBefore.forEach(function(tx){
-                                                                                if (tx.comment == "Reopening issue " + task_id) {
+                                                                                if (tx.comment == "Reopening issue WRONGORDER-TEST") {
 
                                                                                     if (tx['type'] == "balance" && tx.owner["type"] == 'user') {
                                                                                         userBalanceTransactionsNumber +=1;
@@ -90,7 +90,7 @@ frisby.create('Correct invoice')
                                                                             });
 
                                                                             transactionsAfter.forEach(function(tx){
-                                                                                if (tx.comment == "Reopening issue " + task_id) {
+                                                                                if (tx.comment == "Reopening issue WRONGORDER-TEST") {
                                                                                     if (tx['type'] == "balance" && tx.owner["type"] == 'user') {
                                                                                         userBalanceTransactionsNumber -=1;
                                                                                     }

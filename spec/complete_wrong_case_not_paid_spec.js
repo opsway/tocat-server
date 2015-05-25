@@ -86,7 +86,6 @@ frisby.create('Correct invoice')
                             frisby.create('Task1 is not paid, but it is accepted #1')
                                         .get(url + '/task/' + task1.id)
                                         .expectStatus(200)
-                                        .inspectBody()
                                         .expectJSON({'paid' : false, 'accepted' : false })
                                         .toss();
 
@@ -124,7 +123,6 @@ frisby.create('Correct invoice')
                                     frisby.create('Task1 is not paid, but it is accepted #2')
                                         .get(url + '/task/' + task1.id)
                                         .expectStatus(200)
-                                        .inspectBody()
                                         .expectJSON({'paid' : false, 'accepted' : true })
                                         .toss();
 

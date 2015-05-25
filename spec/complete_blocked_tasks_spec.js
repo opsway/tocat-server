@@ -81,7 +81,6 @@ frisby.create('Correct invoice')
                                                 'budget'   : 10
                                             }
                                         ]})
-                                        .inspectBody()
                                         .expectStatus(200)
                                         .toss();
 

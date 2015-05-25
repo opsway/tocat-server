@@ -15,10 +15,19 @@ class TaskOrders < ActiveRecord::Base
 
   before_save :check_free_budget
   before_save :check_if_order_completed
+  before_save :check_if_task_accepted_and_paid
+  before_destroy :check_if_task_accepted_and_paid
   before_save :decrease_free_budget
   before_destroy :increase_free_budget
 
   private
+
+  def check_if_task_accepted_and_paid
+    if task.accepted && task.paid
+      errors[:base] << 'Can not update budget for task that is Accepted and paid'
+      return false
+    end
+  end
 
   def check_if_order_completed
     if order.completed

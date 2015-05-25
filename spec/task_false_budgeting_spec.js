@@ -67,7 +67,6 @@ frisby.create('Correct invoice creation')
                         frisby.create('Expecting task NOT to be paid')
                             .get(url + '/task/' + task.id)
                             .expectStatus(200)
-                            .inspectBody()
                             .expectJSON({'budget' : 32, 'paid' : false, 'accepted' : true})
                             .toss();
 
