@@ -11,9 +11,7 @@ class ApplicationController < ActionController::API
   end
 
   def error_builder(object)
-    messages = []
-    object.errors.messages.each { |e| messages << e.second.first }
-    { errors: messages }
+    { errors: object.errors.full_messages }
   end
 
   def no_method

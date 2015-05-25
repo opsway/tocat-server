@@ -40,7 +40,7 @@ Rails.application.routes.draw do
             path: 'transactions',
             controller: 'transactions',
             defaults: { format: 'json' },
-            only: [:index]
+            only: [:index, :create]
 
   resources :transaction,
             path: 'transaction',

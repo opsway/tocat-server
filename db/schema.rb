@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150516110256) do
+ActiveRecord::Schema.define(version: 20150525165213) do
 
   create_table "accounts", force: :cascade do |t|
     t.string   "account_type",     limit: 255, null: false
@@ -105,7 +105,7 @@ ActiveRecord::Schema.define(version: 20150516110256) do
     t.decimal  "total",                  precision: 10, scale: 2, null: false
     t.string   "comment",    limit: 255,                          null: false
     t.integer  "account_id", limit: 4,                            null: false
-    t.integer  "user_id",    limit: 4,                            null: false
+    t.integer  "user_id",    limit: 4
     t.datetime "created_at"
     t.datetime "updated_at"
   end

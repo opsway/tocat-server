@@ -1,9 +1,15 @@
 class Transaction < ActiveRecord::Base
   validates :account_id, presence: true
-  validates :user_id, presence: true
+  validates :comment, presence: true
   validates :total,
             numericality: true,
             presence: true
+
+  # validations for transactions thats created from api
+  validate :check_comment, on: :api
+  validate :check_owner, on: :api
+  validate :check_total, on: :api
+  #
 
   belongs_to :user
   belongs_to :team
@@ -31,6 +37,30 @@ class Transaction < ActiveRecord::Base
   }
 
   scope :with_account_ids, -> (account_ids) { Transaction.where(account_id: [*account_ids]) }
+
+  private
+
+  def check_comment
+    comments = ["Paid in cash/bank"]
+    unless comments.include?(comment)
+      errors[:base] << "Invalid comment"
+    end
+  end
+
+  def check_owner
+    unless account.account_type == 'payment' && account.accountable_type == 'User'
+      errors[:base] << "Invalid owner"
+    end
+  end
+
+  def check_total
+    if comment == 'Paid in cash/bank'
+      # if account.accountable.income_account.abs > total.abs
+      #   errors[:base] << "Total can't be more than owner income balace"
+      # end
+      errors[:base] << "Total for income account can't be greather than 0" if total > 0
+    end
+  end
 
 
 end
