@@ -387,8 +387,8 @@ frisby.create('Correct order creation for unusual team')
                     .expectStatus(422)
                     .expectJSON({errors:
                       [
-                        'Orders are created for different teams',
-                        'Task resolver is from different team than order'
+                        'Task resolver is from different team than order',
+                        'Orders are created for different teams'
                       ]})
                     .afterJSON(function(){
                       frisby.create('Remove resolver from task')

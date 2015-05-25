@@ -6,9 +6,8 @@ class Task < ActiveRecord::Base
 
   has_many :task_orders,
            class_name: 'TaskOrders',
-           before_add: :reject_budget_change_if_task_accepted_and_paid_or_order_completed,
            after_add: [:increase_budget],
-           before_remove: [:reject_budget_change_if_task_accepted_and_paid_or_order_completed, :decrease_budget]
+           before_remove: [:decrease_budget]
 
   has_many :orders, through: :task_orders
 
@@ -80,15 +79,6 @@ class Task < ActiveRecord::Base
     end
   end
 
-  def reject_budget_change_if_task_accepted_and_paid_or_order_completed(budget)
-    if accepted && paid
-      raise 'Can not update budget for task that is Accepted and paid'
-    end
-    if orders.collect(&:completed).include?(true)
-      raise 'Completed order is used in budgets, can not update task'
-    end
-  end
-
   def increase_budget(task_order)
     self.update_attributes(budget: self.budget += task_order.budget)
   end
@@ -111,10 +101,10 @@ class Task < ActiveRecord::Base
         user.balance_account.transactions.create! total: budget,
                                                  comment: "Accepted and paid issue #{self.external_id}",
                                                  user_id: 0
-        user.team.balance_account.transactions.create! total: budget,
+        team.balance_account.transactions.create! total: budget,
                                                  comment: "Accepted and paid issue #{self.external_id}",
                                                  user_id: 0
-         user.team.income_account.transactions.create! total: budget,
+         team.income_account.transactions.create! total: budget,
                                                   comment: "Accepted and paid issue #{self.external_id}",
                                                   user_id: 0
       else
@@ -122,10 +112,10 @@ class Task < ActiveRecord::Base
           user.balance_account.transactions.create! total: - budget,
                                                    comment: "Reopening issue #{self.external_id}",
                                                    user_id: 0
-          user.team.balance_account.transactions.create! total: - budget,
+          team.balance_account.transactions.create! total: - budget,
                                                    comment: "Reopening issue #{self.external_id}",
                                                    user_id: 0
-          user.team.income_account.transactions.create! total: - budget,
+          team.income_account.transactions.create! total: - budget,
                                                    comment: "Reopening issue #{self.external_id}",
                                                    user_id: 0
         end
