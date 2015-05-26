@@ -6,9 +6,9 @@ class Transaction < ActiveRecord::Base
             presence: true
 
   # validations for transactions thats created from api
-  validate :check_comment, on: :api
-  validate :check_owner, on: :api
-  validate :check_total, on: :api
+  # validate :check_comment, on: :api
+  # validate :check_owner, on: :api
+  # validate :check_total, on: :api
   #
 
   belongs_to :user
