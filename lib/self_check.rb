@@ -1,4 +1,5 @@
 require 'singleton'
+require_relative 'zoho/api'
 
 class SelfCheck
   include Singleton
@@ -23,6 +24,7 @@ class SelfCheck
     messages << ticket_paid_status
     messages << transactions
     messages << complete_transactions
+    messages << check_invoices
     Transaction.includes(account: :accountable).where.not(id: @transactions.flatten.uniq).where.not('comment LIKE "%Paid in cash/bank%"').each do |transaction|
       if /Salary for.*/.match(transaction.comment).present?
         next if transaction.account.accountable.try(:role).try(:name) == 'Manager'
@@ -40,6 +42,26 @@ class SelfCheck
   end
 
   private
+
+  def check_invoices
+    messages = []
+    RedmineTocatApi.get_invoices.each do |record|
+      record.symbolize_keys!
+      invoice = Invoice.where(external_id: record[:invoice_id]).first
+      if invoice.present?
+        if record[:currency_code] == "USD"
+          messages << "Invoice #{invoice.external_id} has invalid total: It has #{invoice.total}, but it should be #{record[:total]}." if invoice.total != record[:total]
+          record[:status] == 'paid' ?
+            status = true :
+            status = false
+          messages << "Invoice #{invoice.external_id} has invalid paid status." if invoice.paid != status
+        else
+          messages << "Invoice #{invoice.external_id} cannot be proceeed: it has total in #{record[:currency_code]}"
+        end
+      end
+    end
+    messages
+  end
 
   def transactions
     messages = []

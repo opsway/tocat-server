@@ -60,6 +60,25 @@ class RedmineTocatApi
     end
   end
 
+  def self.get_invoices(page = 1)
+    url, org_id, auth = generate_url('get_invoices')
+    params  = { :params => { "organization_id"    => org_id,
+                             'authtoken'        => auth,
+                             'accept'          => 'json',
+                             'page'            => page
+    } }
+    request = get(url, params)
+    invoices = []
+    if request && !request.empty? && request != "{}"
+      request = JSON.parse(request)
+      invoices << request["invoices"]
+      if request['page_context']['has_more_page'] == true
+        invoices << get_invoices(request["page_context"]["page"].to_i + 1)
+      end
+    end
+    return invoices.flatten!
+  end
+
   protected
 
 
@@ -124,10 +143,15 @@ class RedmineTocatApi
   def self.generate_url(action)
     server    = 'https://creator.zoho.com/api/'
     protocol  = 'json/'
-    auth      = '8fa0b27a260be8a7fc5a980389867d25'
+    auth      = Settings.creator.auth
     app_name  = 'tocat'
-    app_owner = 'verlgoff'
+    app_owner = Settings.creator.owner
+    org_id    = Settings.zoho_books.organization
+    auth2     = Settings.zoho_books.auth
     case action
+    when 'get_invoices'
+        #https://books.zoho.com/api/v3/invoices/
+        return 'https://books.zoho.com/api/v3/invoices/', org_id, auth2
       when 'delete_issue_orders'
         #https://creator.zoho.com/api/verlgoff/json/tocat/form/IssueOrder/record/delete/
         return "#{server + app_owner}" + '/' + "#{protocol + app_name.downcase}/form/IssueOrder/record/delete/", auth

@@ -41,8 +41,3 @@ group :test do
   gem 'guard-rspec'
   gem 'capybara'
 end
-
-# FIXME
-
-gem 'activerecord'
-gem 'sqlite3'
