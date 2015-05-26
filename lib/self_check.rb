@@ -56,7 +56,7 @@ class SelfCheck
             status = false
           messages << "Invoice #{invoice.external_id} has invalid paid status." if invoice.paid != status
         else
-          messages << "Invoice #{invoice.external_id} cannot be proceeed: it has total in #{record[:currency_code]}"
+          messages << "Invoice #{invoice.external_id} cannot be proceed: it has total in #{record[:currency_code]}"
         end
       end
     end
