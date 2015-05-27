@@ -1,8 +1,8 @@
 require 'will_paginate/array'
 class Task < ActiveRecord::Base
   validates :external_id,  presence: { message: "Missing external task ID" }, uniqueness: { message: "External ID is already used" }
-  validate :check_resolver_team, if: Proc.new { |o| o.user_id_changed? && !o.user_id.nil? }
-  validate :check_if_order_completed, if: Proc.new { |o| o.task_orders.any? }
+  validate :check_resolver_team, if: proc { |o| o.user_id_changed? && !o.user_id.nil? }
+  validate :check_if_order_completed, if: proc { |o| o.task_orders.any? }
 
   has_many :task_orders,
            class_name: 'TaskOrders',
@@ -11,9 +11,9 @@ class Task < ActiveRecord::Base
 
   has_many :orders, through: :task_orders
 
-  before_save :handle_balance_after_changing_resolver, if: Proc.new { |o| o.paid && o.accepted && o.user_id_changed? }
-  before_save :handle_balance_after_changing_paid_status, if: Proc.new { |o| (o.accepted_changed? || o.paid_changed?) && o.user_id.present? }
-  before_save :handle_balance_after_changing_budget, if: Proc.new { |o| o.paid && o.accepted && o.budget_changed? }
+  before_save :handle_balance_after_changing_resolver, if: proc { |o| o.paid && o.accepted && o.user_id_changed? }
+  before_save :handle_balance_after_changing_paid_status, if: proc { |o| (o.accepted_changed? || o.paid_changed?) && o.user_id.present? }
+  before_save :handle_balance_after_changing_budget, if: proc { |o| o.paid && o.accepted && o.budget_changed? }
 
 
   belongs_to :user
@@ -32,7 +32,7 @@ class Task < ActiveRecord::Base
   end
 
   def can_be_paid?
-    if task_orders.collect{ |r| r.try(:order).try(:paid) }.include? false
+    if task_orders.collect { |r| r.try(:order).try(:paid) }.include? false
       return false
     else
       return true
@@ -47,14 +47,14 @@ class Task < ActiveRecord::Base
         return false
       end
     else
-      return self.update_attributes!(paid: false)# && self.update_attributes(accepted: false)
+      return self.update_attributes!(paid: false)
     end
   end
 
   def team
     team = nil
     if task_orders.present?
-      task_orders.reload.each { |o| team = o.order.team if team != o.order.team}
+      task_orders.reload.each { |o| team = o.order.team if team != o.order.team }
     end
     team
   end
@@ -98,26 +98,10 @@ class Task < ActiveRecord::Base
   def handle_balance_after_changing_paid_status
     self.transaction do
       if accepted && paid
-        user.balance_account.transactions.create! total: budget,
-                                                 comment: "Accepted and paid issue #{self.external_id}",
-                                                 user_id: 0
-        team.balance_account.transactions.create! total: budget,
-                                                 comment: "Accepted and paid issue #{self.external_id}",
-                                                 user_id: 0
-         team.income_account.transactions.create! total: budget,
-                                                  comment: "Accepted and paid issue #{self.external_id}",
-                                                  user_id: 0
+        create_transactions(user, team, budget, "Accepted and paid issue #{self.external_id}")
       else
         if accepted_was == true && paid_was == true
-          user.balance_account.transactions.create! total: - budget,
-                                                   comment: "Reopening issue #{self.external_id}",
-                                                   user_id: 0
-          team.balance_account.transactions.create! total: - budget,
-                                                   comment: "Reopening issue #{self.external_id}",
-                                                   user_id: 0
-          team.income_account.transactions.create! total: - budget,
-                                                   comment: "Reopening issue #{self.external_id}",
-                                                   user_id: 0
+          create_transactions(user, team, -budget, "Reopening issue #{self.external_id}")
         end
       end
     end
@@ -126,15 +110,7 @@ class Task < ActiveRecord::Base
   def handle_balance_after_changing_budget
     self.transaction do
       if budget_was != nil && budget == 0
-        user.balance_account.transactions.create! total: - budget_was,
-                                                  comment: "Reopening issue #{self.external_id}",
-                                                  user_id: 0
-        user.team.balance_account.transactions.create! total: - budget_was,
-                                                       comment: "Reopening issue #{self.external_id}",
-                                                       user_id: 0
-        user.team.income_account.transactions.create!  total: - budget_was,
-                                                       comment: "Reopening issue #{self.external_id}",
-                                                       user_id: 0
+        create_transactions(user, user.team, -budget_was, "Reopening issue #{self.external_id}")
       end
     end
   end
@@ -143,28 +119,24 @@ class Task < ActiveRecord::Base
     self.transaction do
       if user_id_was != nil
         old_user = User.find(user_id_was)
-        old_user.balance_account.transactions.create! total: - budget,
-                                                      comment: "Reopening issue #{self.external_id}",
-                                                      user_id: 0
-        old_user.team.balance_account.transactions.create! total: - budget,
-                                                           comment: "Reopening issue #{self.external_id}",
-                                                           user_id: 0
-        old_user.team.income_account.transactions.create!  total: - budget,
-                                                           comment: "Reopening issue #{self.external_id}",
-                                                           user_id: 0
+        create_transactions(old_user, team, -budget, "Reopening issue #{self.external_id}")
       end
       if user_id != nil
-        user.balance_account.transactions.create! total: budget,
-                                                 comment: "Accepted and paid issue #{self.external_id}",
-                                                 user_id: 0
-        user.team.balance_account.transactions.create! total: budget,
-                                                 comment: "Accepted and paid issue #{self.external_id}",
-                                                 user_id: 0
-        user.team.income_account.transactions.create! total: budget,
-                                                 comment: "Accepted and paid issue #{self.external_id}",
-                                                 user_id: 0
+        create_transactions(user, team, budget, "Accepted and paid issue #{self.external_id}")
       end
     end
+  end
+
+  def create_transactions(owner, group, total, message)
+    owner.balance_account.transactions.create! total: total,
+                                               comment: message,
+                                               user_id: 0
+    group.balance_account.transactions.create! total: total,
+                                               comment: message,
+                                               user_id: 0
+    group.income_account.transactions.create! total: total,
+                                              comment: message,
+                                              user_id: 0
   end
 
   def check_resolver_team

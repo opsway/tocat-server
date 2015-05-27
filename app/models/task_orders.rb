@@ -4,11 +4,11 @@ class TaskOrders < ActiveRecord::Base
   validates :budget,
            numericality: { greater_than: 0 },
            presence: true
-  validate :check_resolver_team_after_budget_creation, if: Proc.new { |o| o.new_record? }
+  validate :check_resolver_team_after_budget_creation, if: proc { |o| o.new_record? }
   validate :resolver_presence
 
-  validates_uniqueness_of :task_id, :scope => [:order_id]
-  validates_uniqueness_of :order_id, :scope => [:task_id]
+  validates_uniqueness_of :task_id, scope: [:order_id]
+  validates_uniqueness_of :order_id, scope: [:task_id]
 
   belongs_to :order
   belongs_to :task
@@ -61,11 +61,9 @@ class TaskOrders < ActiveRecord::Base
 
   def decrease_free_budget
     if new_record?
-      val = self.order.free_budget - self.budget
-      self.order.update_attributes(free_budget: val)
+      self.order.update_attributes(free_budget: order.free_budget - budget)
     else
-      old_val = self.budget_was
-      order.free_budget += old_val
+      order.free_budget += budget_was
       new_free_budget = order.free_budget - budget
       order.update_attributes(free_budget: new_free_budget)
     end

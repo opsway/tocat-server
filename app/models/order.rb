@@ -34,30 +34,30 @@ class Order < ActiveRecord::Base
   has_many :sub_orders, class_name: 'Order', foreign_key: 'parent_id'
   belongs_to :parent, class_name: 'Order'
 
-  before_save :set_free_budget, if: Proc.new { |o| o.new_record? }
+  before_save :set_free_budget, if: proc { |o| o.new_record? }
   before_destroy :check_if_order_has_tasks
   before_destroy :check_for_suborder
-  before_save :check_if_paid, if: Proc.new { |o| o.invoice_id_changed? }
+  before_save :check_if_paid, if: proc { |o| o.invoice_id_changed? }
   before_destroy :check_if_paid_before_destroy
-  after_destroy :recalculate_parent_free_budget, if: Proc.new { |o| o.parent_id.present? }
-  before_save :check_if_paid_on_budget_update, if: Proc.new { |o| o.invoiced_budget_changed? }
-  before_save :check_if_invoice_already_paid, if: Proc.new { |o| o.invoice_id_changed? }
-  before_save :check_for_tasks_on_team_change, if: Proc.new { |o| o.team_id_changed? }
-  before_save :check_if_suborder, if: Proc.new { |o| o.invoice_id_changed? }
-  before_save :paid_from_parent, if: Proc.new { |o| o.parent_id.present? }
-  before_save :check_if_allocatable_budget_lt_used, if: Proc.new { |o| o.allocatable_budget_changed? }
-  before_save :recalculate_free_budget, if: Proc.new { |o| o.allocatable_budget_changed? && !o.new_record? }
-  after_save :recalculate_parent_free_budget, if: Proc.new { |o| o.allocatable_budget_changed? && !o.new_record? && o.parent.present? }
-  before_save :check_for_completed, if: Proc.new { |o| !o.completed_changed? }
-  before_save :check_for_paid_before_change_completed, if: Proc.new { |o| o.completed_changed? }
-  before_save :check_if_suborder_before_change_completed, if: Proc.new { |o| o.completed_changed? }
-  before_save :check_for_accepted_tasks_before_completed, if: Proc.new { |o| o.completed_changed? }
-  before_save :check_if_parent_completed_on_suborder_creation, if: Proc.new { |o| o.new_record? && o.parent_id.present? }
-  before_save :handle_completed, if: Proc.new { |o| o.completed_changed? && o.parent_id.nil? }
-  before_destroy :check_if_parent_completed, if: Proc.new { |o| o.parent_id.present? }
+  after_destroy :recalculate_parent_free_budget, if: proc { |o| o.parent_id.present? }
+  before_save :check_if_paid_on_budget_update, if: proc { |o| o.invoiced_budget_changed? }
+  before_save :check_if_invoice_already_paid, if: proc { |o| o.invoice_id_changed? }
+  before_save :check_for_tasks_on_team_change, if: proc { |o| o.team_id_changed? }
+  before_save :check_if_suborder, if: proc { |o| o.invoice_id_changed? }
+  before_save :paid_from_parent, if: proc { |o| o.parent_id.present? }
+  before_save :check_if_allocatable_budget_lt_used, if: proc { |o| o.allocatable_budget_changed? }
+  before_save :recalculate_free_budget, if: proc { |o| o.allocatable_budget_changed? && !o.new_record? }
+  after_save :recalculate_parent_free_budget, if: proc { |o| o.allocatable_budget_changed? && !o.new_record? && o.parent.present? }
+  before_save :check_for_completed, if: proc { |o| !o.completed_changed? }
+  before_save :check_for_paid_before_change_completed, if: proc { |o| o.completed_changed? }
+  before_save :check_if_suborder_before_change_completed, if: proc { |o| o.completed_changed? }
+  before_save :check_for_accepted_tasks_before_completed, if: proc { |o| o.completed_changed? }
+  before_save :check_if_parent_completed_on_suborder_creation, if: proc { |o| o.new_record? && o.parent_id.present? }
+  before_save :handle_completed, if: proc { |o| o.completed_changed? && o.parent_id.nil? }
+  before_destroy :check_if_parent_completed, if: proc { |o| o.parent_id.present? }
 
   def handle_paid(paid)
-    return self.update_attributes!(paid: paid)
+    self.update_attributes!(paid: paid)
   end
 
   def recalculate_free_budget!
@@ -116,7 +116,7 @@ class Order < ActiveRecord::Base
   def check_for_accepted_tasks_before_completed
     tasks_array = []
     tasks_array << tasks
-    sub_orders.each { |o| tasks_array << o.tasks}
+    tasks_array << sub_orders.collect(&:tasks)
     tasks_array.flatten!
     ids = tasks_array.select { |o| !o.paid || !o.accepted }.collect(&:external_id)
     if ids.any?
@@ -144,7 +144,7 @@ class Order < ActiveRecord::Base
   end
 
   def check_for_completed
-    if self.completed_was
+    if completed_was
       errors[:base] << 'Can not modify completed order'
       false
     else
@@ -157,23 +157,20 @@ class Order < ActiveRecord::Base
   end
 
   def recalculate_free_budget
-    val = 0
-    task_orders.each { |record| val += record.budget }
-    sub_orders.each { |order| val += order.invoiced_budget }
+    val = task_orders.sum(:budget)
+    val += sub_orders.sum(:invoiced_budget)
     self.free_budget = allocatable_budget - val
   end
 
   def recalculate_free_budget_and_save
-    val = 0
-    task_orders.each { |record| val += record.budget }
-    sub_orders.each { |order| val += order.invoiced_budget }
+    val = task_orders.sum(:budget)
+    val += sub_orders.sum(:invoiced_budget)
     self.update_attributes!(free_budget: allocatable_budget - val)
   end
 
   def check_if_allocatable_budget_lt_used
-    used_budget = 0
-    task_orders.each { |r| used_budget += r.budget }
-    sub_orders.each { |r| used_budget += r.allocatable_budget }
+    used_budget = task_orders.sum(:budget)
+    used_budget += sub_orders.sum(:allocatable_budget)
     if allocatable_budget < used_budget
       errors[:base] << 'Allocatable bugdet is less than already used from order'
       false
@@ -182,7 +179,7 @@ class Order < ActiveRecord::Base
 
   def paid_from_parent
     self.paid = parent.paid
-    return true
+    true
   end
 
   def check_if_suborder
