@@ -209,7 +209,7 @@ class Order < ActiveRecord::Base
   end
 
   def check_if_paid_on_budget_update
-    if paid
+    if paid && parent_id.nil?
       errors[:base] << 'Order is already paid, can not update invoiced budget'
       return false
     end

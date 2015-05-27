@@ -19,7 +19,7 @@ frisby.create('Duplicate invoice creation')
           "external_id": invoice_id
       })
     .expectStatus(422)
-    .expectJSON({errors: ['ID is already used']})
+    .expectJSON({errors: ['External ID is already used']})
     .toss();
 
 frisby.create('Correct task creation')
@@ -30,5 +30,5 @@ frisby.create('Correct task creation')
 frisby.create('Duplicate task creation')
     .post(url + '/tasks', {"external_id": task_id})
     .expectStatus(422)
-    .expectJSON({errors: ['ID is already used']})
+    .expectJSON({errors: ['External ID is already used']})
     .toss();
