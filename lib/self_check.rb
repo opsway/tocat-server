@@ -41,12 +41,13 @@ class SelfCheck
     messages.flatten!
   end
 
-  private
+  #private
 
   def check_invoices
     messages = []
     RedmineTocatApi.get_invoices.each do |record|
       record.symbolize_keys!
+      binding.pry
       invoice = Invoice.where(external_id: record[:invoice_id]).first
       if invoice.present?
         if record[:currency_code] == "USD"
@@ -56,7 +57,8 @@ class SelfCheck
             status = false
           messages << "Invoice #{invoice.external_id}(#{record[:invoice_number]} in zoho) has invalid paid status." if invoice.paid != status
         else
-          messages << "Invoice #{invoice.external_id}(#{record[:invoice_number]} in zoho) cannot be proceed: it has total in #{record[:currency_code]}"
+          messages << "Invoice #{invoice.external_id}(#{record[:invoice_number]} in zoho) has invalid total: It has #{invoice.total}, but it should be #{record[:total] * record[:exchange_rate]}." if invoice.total != (record[:total] * record[:exchange_rate])
+          #messages << "Invoice #{invoice.external_id}(#{record[:invoice_number]} in zoho) cannot be proceed: it has total in #{record[:currency_code]}"
         end
       end
     end
