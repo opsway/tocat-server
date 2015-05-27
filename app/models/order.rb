@@ -70,33 +70,17 @@ class Order < ActiveRecord::Base
 
   def handle_completed
     self.transaction do
-      if completed
-        sub_orders.each do |suborder|
-          # вычитаем бюджеты тасков
-          val = suborder.invoiced_budget - suborder.task_orders.sum(:budget)
-          suborder.team.income_account.transactions.create! total: val,
-                                                            comment: "Order ##{suborder.id} was completed",
-                                                            user_id: 0
-          suborder.update_columns(completed: true)
-        end
-        #из ивойсед вычитаем сабордеры и таски
-        val = invoiced_budget - sub_orders.sum(:invoiced_budget) - task_orders.sum(:budget)
-        team.income_account.transactions.create! total: val,
-                                                 comment: "Order ##{id} was completed",
-                                                 user_id: 0
-      else
-        sub_orders.each do |suborder|
-          val = suborder.invoiced_budget - suborder.task_orders.sum(:budget)
-          suborder.team.income_account.transactions.create! total: -val,
-                                                            comment: "Order ##{suborder.id} was uncompleted",
-                                                            user_id: 0
-          suborder.update_columns(completed: false)
-        end
-        val = invoiced_budget - sub_orders.sum(:invoiced_budget) - task_orders.sum(:budget)
-        team.income_account.transactions.create! total: -val,
-                                                 comment: "Order ##{id} was uncompleted",
-                                                 user_id: 0
+      sub_orders.each do |suborder|
+        val = suborder.invoiced_budget - suborder.task_orders.sum(:budget)
+        suborder.team.income_account.transactions.create! total: completed ? val : -val,
+                                                          comment: "Order ##{suborder.id} was #{ completed ? 'completed' : 'uncompleted'}",
+                                                          user_id: 0
+        suborder.update_columns(completed: completed)
       end
+      val = invoiced_budget - sub_orders.sum(:invoiced_budget) - task_orders.sum(:budget)
+      team.income_account.transactions.create! total: completed ? val : -val,
+                                               comment: "Order ##{id} was #{completed ? 'completed' : 'uncompleted'}",
+                                               user_id: 0
     end
   end
 
