@@ -11,12 +11,7 @@ class TransactionsController < ApplicationController
   end
 
   def index
-    if params[:search].present?
-      transactions = Transaction.includes(:account).search_for(params[:search])
-    else
-      transactions = Transaction.includes(:account).all
-    end
-
+    transactions = Transaction.includes(:account).search_for(params[:search])
     if params[:user].present?
       transactions = transactions.user(params[:user])
     elsif params[:team].present?
@@ -38,6 +33,10 @@ class TransactionsController < ApplicationController
   end
 
   def transaction_params
-    params.permit(:total, :comment).merge({account_id: params.try(:[], 'account').try(:[], 'id')})
+    output = params.permit(:total, :comment)
+    if params[:account].present?
+      output.merge!({ account_id: params.try(:[], 'account').try(:[], 'id') })
+    end
+    output
   end
 end

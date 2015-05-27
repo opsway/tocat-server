@@ -1,6 +1,10 @@
 class Order < ActiveRecord::Base
   validates :name, presence: { message: "Order name can not be empty" }
-  validates :team_id, presence: true
+  validates :team, presence: { message: "Team does not exists" }
+  validates :allocatable_budget, presence: { message: "Allocatable budget is missing" }
+  validates :invoiced_budget, presence: { message: "Invoiced budget is missing" }
+  validate :existence_of_invoice, if: :invoice_id?
+
   validates_numericality_of :invoiced_budget,
                             greater_than: 0,
                             message: "Invoiced budget should be greater than 0"
@@ -10,8 +14,7 @@ class Order < ActiveRecord::Base
   validates_numericality_of :allocatable_budget,
                             greater_than_or_equal_to: 0,
                             message: "Allocatable should be positive number"
-  validates_presence_of :invoiced_budget
-  validates_presence_of :allocatable_budget
+
   scoped_search on: [:name, :description, :invoiced_budget, :allocatable_budget, :free_budget, :paid, :completed]
   scoped_search in: :team, on: :name, rename: :team, only_explicit: true
   scoped_search on: :parent_id, only_explicit: true
@@ -23,8 +26,8 @@ class Order < ActiveRecord::Base
   validate :check_if_team_exists
   validate :sub_order_team
   validate :check_inheritance
-  validate :check_budgets_for_sub_order
-  validate :check_sub_order_after_update
+  before_save :check_budgets_for_sub_order
+  before_save :check_sub_order_after_update
 
   belongs_to :team
   belongs_to :invoice
@@ -34,6 +37,7 @@ class Order < ActiveRecord::Base
   has_many :sub_orders, class_name: 'Order', foreign_key: 'parent_id'
   belongs_to :parent, class_name: 'Order'
 
+  before_save :set_invoiced, if: proc { |o| o.new_record? && o.parent.present? }
   before_save :set_free_budget, if: proc { |o| o.new_record? }
   before_destroy :check_if_order_has_tasks
   before_destroy :check_for_suborder
@@ -98,6 +102,14 @@ class Order < ActiveRecord::Base
 
 
   private
+
+  def set_invoiced
+    self.invoiced_budget = allocatable_budget
+  end
+
+  def existence_of_invoice
+    errors[:base] << 'Invoice does not exist' unless invoice.present?
+  end
 
   def check_if_parent_completed
     if parent.try(:completed)
@@ -249,6 +261,7 @@ class Order < ActiveRecord::Base
       if allocatable_budget_changed? || invoiced_budget_changed?
         if allocatable_budget > (parent.free_budget + allocatable_budget_was.to_i) || invoiced_budget > (parent.free_budget + invoiced_budget_was.to_i)
           errors[:base] << 'Suborder can not be invoiced more than parent free budget'
+          return false
         end
       end
     end
@@ -266,6 +279,7 @@ class Order < ActiveRecord::Base
     if new_record? && parent.present?
       if invoiced_budget > parent.free_budget
         errors[:base] << 'Suborder can not be invoiced more than parent free budget'
+        return false
       end
     end
   end

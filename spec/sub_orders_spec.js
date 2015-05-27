@@ -20,7 +20,7 @@ frisby.create('Correct order creation')
       frisby.create('No team specified in suborder creation')
         .post(url + '/order/' + order.id + '/suborder', {'allocatable_budget': 50, 'name' : "new order"})
         .expectStatus(422)
-        .expectJSON({errors:['Team value is missing']})
+        .expectJSON({errors:['Team does not exists']})
         .toss();
 
       frisby.create('No allocatable_budget specified in suborder creation')

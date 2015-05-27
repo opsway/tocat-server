@@ -2,13 +2,7 @@ class UsersController < ApplicationController
   before_action :set_user, except: [:index]
 
   def index
-    if params[:search].present?
-      users = User.search_for(params[:search])
-    else
-      users = User.all
-    end
-
-    @articles = users.order(sort)
+    @articles = User.search_for(params[:search]).order(sort)
     paginate json: @articles, per_page: params[:limit]
   end
 
