@@ -2,20 +2,12 @@ class InvoicesController < ApplicationController
   before_action :set_invoice, except: [:index, :create]
 
   def index
-    if params[:search].present?
-      invoices = Invoice.search_for(params[:search])
-    else
-      invoices = Invoice.all
-    end
-    @articles = invoices.order(sort)
-    if params[:sort].present?
-      params[:sort].split.each do |o|
-        if o == 'total:asc' || o == 'total:desc'
-          @articles = Invoice.sorted_by_total(o.split(':').second)
-        end
+    @articles = Invoice.search_for(params[:search]).order(sort)
+    params[:sort].split.each do |o|
+      if o == 'total:asc' || o == 'total:desc'
+        @articles = Invoice.sorted_by_total(o.split(':').second)
       end
     end
-
     paginate json: @articles, per_page: params[:limit]
   end
 
@@ -41,8 +33,7 @@ class InvoicesController < ApplicationController
   end
 
   def set_paid
-    @invoice.paid = true
-    if @invoice.save
+    if @invoice.update_attributes(paid: true)
       render json: {}, status: 200
     else
       render json: error_builder(@invoice), status: :unprocessable_entity
@@ -50,8 +41,7 @@ class InvoicesController < ApplicationController
   end
 
   def delete_paid
-    @invoice.paid = false
-    if @invoice.save
+    if @invoice.update_attributes(paid: false)
       render json: {}, status: 200
     else
       render json: error_builder(@invoice), status: :unprocessable_entity
@@ -69,7 +59,6 @@ class InvoicesController < ApplicationController
   end
 
   def invoice_params
-    params.permit(:external_id,
-    :client)
+    params.permit(:external_id, :client)
   end
 end

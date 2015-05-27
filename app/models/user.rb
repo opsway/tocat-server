@@ -1,4 +1,5 @@
 class User < ActiveRecord::Base
+  include Accounts
   validates :name, presence: true
   validates :login, presence: true
   validates :team_id, presence: true
@@ -11,39 +12,16 @@ class User < ActiveRecord::Base
   belongs_to :role
 
   has_many :transactions
-  has_many :accounts, as: :accountable, dependent: :destroy
   has_many :tasks
 
   before_save :normalize_data
-  after_create :create_accounts
-  after_destroy :destroy_accounts
 
   scoped_search on: [:name, :login]
-  scoped_search :in => :team, :on => :name, :rename => :team, :only_explicit => true
-  scoped_search :in => :role, :on => :name, :rename => :role, :only_explicit => true
+  scoped_search in: :team, on: :name, rename: :team, only_explicit: true
+  scoped_search in: :role, on: :name, rename: :role, only_explicit: true
 
-  def balance_account
-    Account.where(accountable_id: self.id,
-                  accountable_type: self.class.name,
-                  account_type: 'balance').first
-  end
-
-  def income_account
-    Account.where(accountable_id: self.id,
-                  accountable_type: self.class.name,
-                  account_type: 'payment').first
-  end
 
   private
-
-  def create_accounts
-    self.accounts.create! account_type: 'balance'
-    self.accounts.create! account_type: 'payment'
-  end
-
-  def destroy_accounts
-    self.accounts.destroy_all
-  end
 
   def normalize_data
     self.login = self.login.downcase

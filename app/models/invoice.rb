@@ -1,24 +1,24 @@
 require 'will_paginate/array'
 class Invoice < ActiveRecord::Base
   validates :external_id,  presence: { message: "Missing external invoice ID" }, uniqueness: { message: "ID is already used" }
-  
+
   has_many :orders
 
   before_destroy :check_if_invoice_used
-  before_save :handle_paid_status, if: Proc.new { |o| o.paid_changed? }
+  before_save :handle_paid_status, if: proc { |o| o.paid_changed? }
 
   scoped_search on: [:external_id, :client, :paid]
 
   def total
-    value = BigDecimal.new 0
-    orders.each { |o| value += o.invoiced_budget }
-    value
+    orders.sum(:invoiced_budget)
   end
 
   def self.sorted_by_total(order)
-    order == 'asc' ?
-      Invoice.all.sort_by(&:total) :
+    if order == 'asc'
+      Invoice.all.sort_by(&:total)
+    else
       Invoice.all.sort_by(&:total).reverse!
+    end
   end
 
   private

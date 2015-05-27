@@ -2,13 +2,7 @@ class TasksController < ApplicationController
   before_action :set_task, except: [:index, :create]
 
   def index
-    if params[:search].present?
-      tasks = Task.search_for(params[:search])
-    else
-      tasks = Task.all
-    end
-
-    @articles = tasks.order(sort)
+    @articles = Task.search_for(params[:search]).order(sort)
     paginate json: @articles, per_page: params[:limit]
   end
 
@@ -26,8 +20,7 @@ class TasksController < ApplicationController
   end
 
   def set_accepted
-    @task.accepted = true
-    if @task.save
+    if @task.update_attributes(accepted: true)
       render json: {}, status: 200
     else
       render json: error_builder(@task), status: :unprocessable_entity
@@ -35,8 +28,7 @@ class TasksController < ApplicationController
   end
 
   def delete_accepted
-    @task.accepted = false
-    if @task.save
+    if @task.update_attributes(accepted: false)
       render json: {}, status: 200
     else
       render json: error_builder(@task), status: :unprocessable_entity
@@ -44,22 +36,15 @@ class TasksController < ApplicationController
   end
 
   def set_resolver
-    user = User.where(id: params[:user_id])
-    if user.present?
-      @task.user = user.first
-      if @task.save
-        render json: {}, status: 200
-      else
-        render json: error_builder(@task), status: :unprocessable_entity
-      end
+    if @task.update_attributes(user_id: params[:user_id])
+      render json: {}, status: 200
     else
-      render json: { user: 'Must exists' }, status: :unprocessable_entity
+      render json: error_builder(@task), status: :unprocessable_entity
     end
   end
 
   def delete_resolver
-    @task.user_id = nil
-    if @task.save
+    if @task.update_attributes(user_id: nil)
       render json: {}, status: 200
     else
       render json: error_builder(@task), status: :unprocessable_entity
@@ -80,23 +65,22 @@ class TasksController < ApplicationController
       budgets[:task_orders_attributes] = task_params[:budget]
     end
     TaskOrders.transaction do
-      messages_ = []
+      messages = []
       begin
         @task.task_orders.destroy_all
         @task.update(budgets)
         @task.recalculate_paid_status! # FIXME
-      rescue => e
-        #messages_ << e.message
+      rescue
       end
       @task.task_orders.each do |task_order|
         if task_order.errors.present?
-          messages_ << task_order.errors.full_messages
+          messages << task_order.errors.full_messages
         end
       end
-      if messages_.empty?
+      if messages.empty?
         render json: {}, status: 200
       else
-        render json: { errors: messages_.flatten }, status: :unprocessable_entity
+        render json: { errors: messages.flatten }, status: :unprocessable_entity
         raise ActiveRecord::Rollback.new
       end
     end
@@ -121,6 +105,6 @@ class TasksController < ApplicationController
   end
 
   def task_params
-    params.permit(:external_id, :accepted, budget:[:order_id, :budget])
+    params.permit(:external_id, :accepted, budget: [:order_id, :budget])
   end
 end

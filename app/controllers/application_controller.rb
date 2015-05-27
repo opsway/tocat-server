@@ -11,7 +11,15 @@ class ApplicationController < ActionController::API
   end
 
   def error_builder(object)
-    { errors: object.errors.full_messages }
+    case object.class.name
+    when 'Order'
+      messages = object.errors.messages.values.flatten
+    when 'Task'
+      messages = object.errors.messages.values.flatten
+    else
+      messages = object.errors.full_messages
+    end
+    { errors: messages }
   end
 
   def no_method

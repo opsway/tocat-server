@@ -18,9 +18,7 @@ class Account < ActiveRecord::Base
 
 
   def balance
-    value = BigDecimal.new 0
-    transactions.each { |t| value += t.total }
-    value
+    transactions.sum(:total)
   end
 
   private
