@@ -5,7 +5,7 @@ namespace :test do
     files.each do |file|
       begin
         Rake::Task["sql_data:load"].execute
-        sh("jasmine-node #{file}")
+        sh("jasmine-node --junitreport #{file}")
       rescue => e
         messages << file
       end
