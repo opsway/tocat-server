@@ -52,6 +52,7 @@ class Order < ActiveRecord::Base
   before_save :check_if_allocatable_budget_lt_used, if: proc { |o| o.allocatable_budget_changed? }
   before_save :recalculate_free_budget, if: proc { |o| o.allocatable_budget_changed? && !o.new_record? }
   after_save :recalculate_parent_free_budget, if: proc { |o| o.allocatable_budget_changed? && !o.new_record? && o.parent.present? }
+  after_save :recalculate_parent_free_budget, if: proc { |o| o.invoiced_budget_changed? && !o.new_record? && o.parent.present? }
   before_save :check_for_completed, if: proc { |o| !o.completed_changed? }
   before_save :check_for_paid_before_change_completed, if: proc { |o| o.completed_changed? }
   before_save :check_if_suborder_before_change_completed, if: proc { |o| o.completed_changed? }

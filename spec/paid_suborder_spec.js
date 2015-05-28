@@ -64,7 +64,7 @@ frisby.create('Correct invoice')
                           frisby.create('Allocatable budget on parent order should NOT increase, free budget should increase')
                             .get(url + '/order/' + order.id)
                             .expectStatus(200)
-                            .expectJSON({'invoiced_budget' : 140, 'allocatable_budget' : 90, 'free_budget': 80})
+                            .expectJSON({'allocatable_budget' : 100, 'free_budget': 90})
                             .toss()
                         })
                         .toss();
@@ -73,7 +73,7 @@ frisby.create('Correct invoice')
                 .toss();
 
 
-                
+
 
             })
             .toss();
