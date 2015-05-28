@@ -22,12 +22,4 @@ class TransactionsController < ApplicationController
   def set_transaction
     @transaction = Transaction.includes(account: :accountable).find(params[:id])
   end
-
-  def transaction_params
-    output = params.permit(:total, :comment)
-    if params[:account].present?
-      output.merge!({ account_id: params.try(:[], 'account').try(:[], 'id') })
-    end
-    output
-  end
 end
