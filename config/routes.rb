@@ -47,7 +47,6 @@ Rails.application.routes.draw do
             controller: 'transactions',
             defaults: { format: 'json' },
             only: [:show]
-
   #users
   resources :user,
             path: 'users',
@@ -59,7 +58,10 @@ Rails.application.routes.draw do
             path: 'user',
             controller: 'users',
             defaults: { format: 'json' },
-            only: [ :show]
+            only: [:show] do
+    post 'add_payment', to: 'users#add_payment', as: 'add_payment', format: 'json'
+    post 'pay_bonus', to: 'users#pay_bonus', as: 'pay_bonus', format: 'json'
+  end
 
   #tasks
   resources :task,

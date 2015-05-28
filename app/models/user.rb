@@ -20,6 +20,36 @@ class User < ActiveRecord::Base
   scoped_search in: :team, on: :name, rename: :team, only_explicit: true
   scoped_search in: :role, on: :name, rename: :role, only_explicit: true
 
+  def add_payment(comment, total)
+    income_account.transactions.create total: total,
+                                        comment: comment,
+                                        user_id: id
+  end
+
+  def paid_bonus(income, percentage)
+    unless role.name == 'Manager'
+      errors[:base] = "User should be a manager"
+      return false
+    end
+    status = false
+    self.transaction do
+      co_team = Team.find_by_name!('Central Office')
+      income_account.transactions.create! total: income * percentage,
+                                               comment: "Bonus Calculation #{percentage}%",
+                                               user_id: id
+      team.income_account.transactions.create! total: -income,
+                                               comment: "Income transfer #{team.name}",
+                                               user_id: id
+      co_team.income_account.transactions.create! total: -(income * percentage),
+                                                  comment: "Bonus Calculation #{percentage}% #{name}",
+                                                  user_id: id
+      co_team.income_account.transactions.create! total: income,
+                                                  comment: "Income transfer #{team.name}",
+                                                  user_id: id
+      status = true
+    end
+    status
+  end
 
   private
 
