@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150528063943) do
+ActiveRecord::Schema.define(version: 20150528094309) do
 
   create_table "accounts", force: :cascade do |t|
     t.string   "account_type",     limit: 255, null: false
@@ -24,14 +24,12 @@ ActiveRecord::Schema.define(version: 20150528063943) do
   add_index "accounts", ["accountable_id"], name: "index_accounts_on_accountable_id", using: :btree
 
   create_table "invoices", force: :cascade do |t|
-    t.string   "client",      limit: 255
     t.string   "external_id", limit: 255
     t.boolean  "paid",        limit: 1,   default: false
     t.datetime "created_at"
     t.datetime "updated_at"
   end
 
-  add_index "invoices", ["client"], name: "index_invoices_on_client", using: :btree
   add_index "invoices", ["external_id"], name: "index_invoices_on_external_id", unique: true, using: :btree
 
   create_table "orders", force: :cascade do |t|
