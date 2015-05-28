@@ -17,6 +17,8 @@ gem 'rest-client'
 gem 'hirb'
 
 group :development do
+  gem 'traceroute'
+  gem "rails_best_practices"
   gem 'guard-rubocop'
   gem 'better_errors'
   gem 'binding_of_caller'
@@ -31,7 +33,6 @@ gem "bullet", :group => "development"
 
 group :test do
   gem 'rubocop', require: false
-  gem 'pry'
   gem 'json-schema'
   gem 'database_cleaner', '~> 1.4.0'
   gem 'simplecov', require: false
