@@ -61,6 +61,6 @@ class InvoicesController < ApplicationController
   end
 
   def invoice_params
-    params.permit(:external_id, :client)
+    params.permit(:external_id)
   end
 end

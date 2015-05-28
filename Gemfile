@@ -19,15 +19,8 @@ gem 'hirb'
 group :development do
   gem 'traceroute'
   gem "rails_best_practices"
-  gem 'guard-rubocop'
-  gem 'better_errors'
-  gem 'binding_of_caller'
-  gem 'meta_request'
-  gem 'brakeman', require: false
-  gem 'terminal-notifier-guard'
   gem 'pry'
 end
-gem "bullet", :group => "development"
 
 
 
