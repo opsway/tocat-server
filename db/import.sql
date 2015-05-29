@@ -1,3 +1,4 @@
+set FOREIGN_KEY_CHECKS=0;
 truncate accounts;
 truncate task_orders;
 truncate orders;
@@ -6,6 +7,8 @@ truncate transactions;
 truncate users;
 truncate teams;
 truncate roles;
+set FOREIGN_KEY_CHECKS=1;
+
 
 insert into roles values (1, "Manager", now(), now());
 insert into roles values (2, "Developer", now(), now());
@@ -42,4 +45,3 @@ insert into accounts values(16, 'payment', now(), now(), 5, 'User');
 insert into orders values(1, 'Test', 'Order for team2', 0, 2, null, 100, 50, now(), now(), null, 20, 0);
 insert into tasks values(1, 'WRONGORDER-TEST', 1, 0, 0, now(), now(), 30);
 insert into task_orders values(null, 1, 1, 30, now(), now());
-

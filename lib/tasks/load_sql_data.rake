@@ -4,10 +4,6 @@ namespace :sql_data do
     fail 'SQL file not found' unless File.exist?('db/import.sql')
     #unless Rails.env.production?
       connection = ActiveRecord::Base.connection
-      connection.tables.each do |table|
-        connection.execute("TRUNCATE #{table}") unless table == "schema_migrations"
-      end
-
       sql = File.read('db/import.sql')
       statements = sql.split(/;$/)
       statements.pop
