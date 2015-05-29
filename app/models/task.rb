@@ -130,13 +130,13 @@ class Task < ActiveRecord::Base
   def create_transactions(owner, group, total, message)
     owner.balance_account.transactions.create! total: total,
                                                comment: message,
-                                               user_id: 0
+                                               user_id: owner.id
     group.balance_account.transactions.create! total: total,
                                                comment: message,
-                                               user_id: 0
+                                               user_id: owner.id
     group.income_account.transactions.create! total: total,
                                               comment: message,
-                                              user_id: 0
+                                              user_id: owner.id
   end
 
   def check_resolver_team
