@@ -42,7 +42,7 @@ class ApplicationController < ActionController::API
       end
       order.join(', ')
     else
-      "#{controller_name.classify.downcase.pluralize}.created_at asc"
+      "#{controller_name.classify.downcase.pluralize}.created_at desc"
     end
   end
 
