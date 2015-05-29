@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150528094309) do
+ActiveRecord::Schema.define(version: 20150529022952) do
 
   create_table "accounts", force: :cascade do |t|
     t.string   "account_type",     limit: 255, null: false
@@ -131,4 +131,16 @@ ActiveRecord::Schema.define(version: 20150528094309) do
   add_index "users", ["role_id"], name: "index_users_on_role_id", using: :btree
   add_index "users", ["team_id"], name: "index_users_on_team_id", using: :btree
 
+  add_foreign_key "orders", "invoices"
+  add_foreign_key "orders", "invoices"
+  add_foreign_key "orders", "orders", column: "parent_id"
+  add_foreign_key "orders", "teams"
+  add_foreign_key "orders", "teams"
+  add_foreign_key "task_orders", "orders"
+  add_foreign_key "task_orders", "tasks"
+  add_foreign_key "tasks", "users"
+  add_foreign_key "transactions", "accounts"
+  add_foreign_key "transactions", "users"
+  add_foreign_key "users", "roles"
+  add_foreign_key "users", "teams"
 end
