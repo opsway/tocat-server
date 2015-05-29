@@ -33,14 +33,15 @@ class User < ActiveRecord::Base
     end
     status = false
     self.transaction do
+      total = (income / 100) * percentage
       co_team = Team.find_by_name!('Central Office')
-      income_account.transactions.create! total: income * percentage,
-                                               comment: "Bonus Calculation #{percentage}%",
-                                               user_id: id
+      income_account.transactions.create! total: total,
+                                          comment: "Bonus Calculation #{percentage}%",
+                                          user_id: id
       team.income_account.transactions.create! total: -income,
                                                comment: "Income transfer #{team.name}",
                                                user_id: id
-      co_team.income_account.transactions.create! total: -(income * percentage),
+      co_team.income_account.transactions.create! total: -total,
                                                   comment: "Bonus Calculation #{percentage}% #{name}",
                                                   user_id: id
       co_team.income_account.transactions.create! total: income,
