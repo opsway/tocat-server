@@ -21,7 +21,7 @@ class User < ActiveRecord::Base
   scoped_search in: :role, on: :name, rename: :role, only_explicit: true
 
   def add_payment(comment, total)
-    income_account.transactions.create total: total.to_i.abs,
+    income_account.transactions.create total: -total.to_i,
                                         comment: comment,
                                         user_id: id
   end
