@@ -40,14 +40,13 @@ Rails.application.routes.draw do
             path: 'transactions',
             controller: 'transactions',
             defaults: { format: 'json' },
-            only: [:index, :create]
+            only: [:index]
 
   resources :transaction,
             path: 'transaction',
             controller: 'transactions',
             defaults: { format: 'json' },
             only: [:show]
-
   #users
   resources :user,
             path: 'users',
@@ -59,7 +58,10 @@ Rails.application.routes.draw do
             path: 'user',
             controller: 'users',
             defaults: { format: 'json' },
-            only: [ :show]
+            only: [:show] do
+    post 'add_payment', to: 'users#add_payment', as: 'add_payment', format: 'json'
+    post 'pay_bonus', to: 'users#pay_bonus', as: 'pay_bonus', format: 'json'
+  end
 
   #tasks
   resources :task,
@@ -93,7 +95,7 @@ Rails.application.routes.draw do
             path: 'invoice',
             controller: 'invoices',
             defaults: { format: 'json' },
-            only: [:show, :edit, :update, :destroy] do
+            only: [:show, :destroy] do
 
     post 'paid', to: 'invoices#set_paid', as: 'invoice_set_paid', format: 'json'
     delete 'paid', to: 'invoices#delete_paid', as: 'invoice_remove_paid', format: 'json'

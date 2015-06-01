@@ -19,8 +19,7 @@ namespace :zoho do
           end
           account_.transactions.create! comment: transaction['Comment'],
                                        total: transaction['Total'].split('$ ').last.gsub(',','').to_d,
-                                       created_at: Time.parse(transaction['Date_Time']),
-                                       user_id: 0
+                                       created_at: Time.parse(transaction['Date_Time'])
 
         end
         puts "#{account_.transactions.count} transactions was created for #{user.name} #{account_.account_type} account"
@@ -44,8 +43,7 @@ namespace :zoho do
           end
           account_.transactions.create! comment: transaction['Comment'],
                                        total: transaction['Total'].split('$ ').last.gsub(',','').to_d,
-                                       created_at: Time.parse(transaction['Date_Time']),
-                                       user_id: 0
+                                       created_at: Time.parse(transaction['Date_Time'])
 
         end
         puts "#{account_.transactions.count} transactions was created for #{group.name} #{account_.account_type} account"

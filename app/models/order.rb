@@ -52,6 +52,7 @@ class Order < ActiveRecord::Base
   before_save :check_if_allocatable_budget_lt_used, if: proc { |o| o.allocatable_budget_changed? }
   before_save :recalculate_free_budget, if: proc { |o| o.allocatable_budget_changed? && !o.new_record? }
   after_save :recalculate_parent_free_budget, if: proc { |o| o.allocatable_budget_changed? && !o.new_record? && o.parent.present? }
+  after_save :recalculate_parent_free_budget, if: proc { |o| o.invoiced_budget_changed? && !o.new_record? && o.parent.present? }
   before_save :check_for_completed, if: proc { |o| !o.completed_changed? }
   before_save :check_for_paid_before_change_completed, if: proc { |o| o.completed_changed? }
   before_save :check_if_suborder_before_change_completed, if: proc { |o| o.completed_changed? }
@@ -73,14 +74,12 @@ class Order < ActiveRecord::Base
       sub_orders.each do |suborder|
         val = suborder.invoiced_budget - suborder.task_orders.sum(:budget)
         suborder.team.income_account.transactions.create! total: completed ? val : -val,
-                                                          comment: "Order ##{suborder.id} was #{ completed ? 'completed' : 'uncompleted'}",
-                                                          user_id: 0
+                                                          comment: "Order ##{suborder.id} was #{ completed ? 'completed' : 'uncompleted'}"
         suborder.update_columns(completed: completed)
       end
       val = invoiced_budget - sub_orders.sum(:invoiced_budget) - task_orders.sum(:budget)
       team.income_account.transactions.create! total: completed ? val : -val,
-                                               comment: "Order ##{id} was #{completed ? 'completed' : 'uncompleted'}",
-                                               user_id: 0
+                                               comment: "Order ##{id} was #{completed ? 'completed' : 'uncompleted'}"
     end
   end
 

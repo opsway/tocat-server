@@ -115,7 +115,8 @@ class OrdersController < ApplicationController
       output.merge!({ team_id: params.try(:[], 'team').try(:[], 'id') })
     end
     if params[:order_id].present?
-      output.merge!({ parent_id: params.try(:[], 'order_id'), invoiced_budget: params[:allocatable_budget] })
+      output.merge!({ parent_id: params.try(:[], 'order_id')})
+      output.merge!({ invoiced_budget: params[:allocatable_budget] }) unless params[:invoiced_budget].present?
     end
     output
   end

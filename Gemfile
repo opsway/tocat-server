@@ -17,21 +17,15 @@ gem 'rest-client'
 gem 'hirb'
 
 group :development do
-  gem 'guard-rubocop'
-  gem 'better_errors'
-  gem 'binding_of_caller'
-  gem 'meta_request'
-  gem 'brakeman', require: false
-  gem 'terminal-notifier-guard'
+  gem 'traceroute'
+  gem "rails_best_practices"
   gem 'pry'
 end
-gem "bullet", :group => "development"
 
 
 
 group :test do
   gem 'rubocop', require: false
-  gem 'pry'
   gem 'json-schema'
   gem 'database_cleaner', '~> 1.4.0'
   gem 'simplecov', require: false

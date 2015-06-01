@@ -7,7 +7,7 @@ class Invoice < ActiveRecord::Base
   before_destroy :check_if_invoice_used
   before_save :handle_paid_status, if: proc { |o| o.paid_changed? }
 
-  scoped_search on: [:external_id, :client, :paid]
+  scoped_search on: [:external_id, :paid]
 
   def total
     orders.sum(:invoiced_budget)

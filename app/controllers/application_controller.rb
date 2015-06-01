@@ -42,7 +42,7 @@ class ApplicationController < ActionController::API
       end
       order.join(', ')
     else
-      "#{controller_name.classify.downcase.pluralize}.created_at asc"
+      "#{controller_name.classify.downcase.pluralize}.created_at desc"
     end
   end
 
@@ -55,11 +55,4 @@ class ApplicationController < ActionController::API
     end
   end
 
-  def check_format
-    return true if %w(GET DELETE).include? request.method
-    if request.format != Mime::JSON || request.content_type != 'application/json'
-      render json: { error: 'ERROR', message: "Format #{request.content_type} not supported for #{request.path}" }
-      return 0
-    end
-  end
 end
