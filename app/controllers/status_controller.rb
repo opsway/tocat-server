@@ -1,6 +1,13 @@
 class StatusController < ApplicationController
-  def selfcheck
-    report = Selfcheckreport.last
-    render json: { messages: report.messages, timestamp: report.created_at }
+
+  def index
+    messages = DbError.search_for(params[:search]).map(&:as_json)
+    render json: { messages: messages, timestamp: Rails.cache.fetch(:selfcheck_last_run) }
+  end
+
+  def checked
+    message = DbError.find(params[:id])
+    message.update_attributes(checked: request.delete? ? false : true)
+    render json: {}, status: 200
   end
 end

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150529022952) do
+ActiveRecord::Schema.define(version: 20150602065415) do
 
   create_table "accounts", force: :cascade do |t|
     t.string   "account_type",     limit: 255, null: false
@@ -22,6 +22,14 @@ ActiveRecord::Schema.define(version: 20150529022952) do
   end
 
   add_index "accounts", ["accountable_id"], name: "index_accounts_on_accountable_id", using: :btree
+
+  create_table "db_errors", force: :cascade do |t|
+    t.text     "alert",      limit: 65535,                 null: false
+    t.boolean  "checked",    limit: 1,     default: false, null: false
+    t.datetime "last_run"
+    t.datetime "created_at",                               null: false
+    t.datetime "updated_at",                               null: false
+  end
 
   create_table "invoices", force: :cascade do |t|
     t.string   "external_id", limit: 255
@@ -55,12 +63,6 @@ ActiveRecord::Schema.define(version: 20150529022952) do
     t.string   "name",       limit: 255, null: false
     t.datetime "created_at"
     t.datetime "updated_at"
-  end
-
-  create_table "selfcheckreports", force: :cascade do |t|
-    t.text     "messages",   limit: 65535, null: false
-    t.datetime "created_at",               null: false
-    t.datetime "updated_at",               null: false
   end
 
   create_table "task_orders", force: :cascade do |t|
@@ -132,9 +134,7 @@ ActiveRecord::Schema.define(version: 20150529022952) do
   add_index "users", ["team_id"], name: "index_users_on_team_id", using: :btree
 
   add_foreign_key "orders", "invoices"
-  add_foreign_key "orders", "invoices"
   add_foreign_key "orders", "orders", column: "parent_id"
-  add_foreign_key "orders", "teams"
   add_foreign_key "orders", "teams"
   add_foreign_key "task_orders", "orders"
   add_foreign_key "task_orders", "tasks"

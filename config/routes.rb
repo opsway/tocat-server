@@ -101,7 +101,8 @@ Rails.application.routes.draw do
     delete 'paid', to: 'invoices#delete_paid', as: 'invoice_remove_paid', format: 'json'
   end
 
-  match '/status/selfcheck', to: 'status#selfcheck', via: :get
+  match '/status', to: 'status#index', via: :get
+  match '/status/:id/checked', to: 'status#checked', via: [:put, :post, :delete]
 
   match '*path', to: 'application#no_method', via: :all
 end
