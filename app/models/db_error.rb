@@ -13,7 +13,7 @@ class DbError < ActiveRecord::Base
     unless DbError.where(alert: message).any?
       record = DbError.create!(alert: message)
       Rails.cache.write(:selfcheck_last_run, Time.now)
+      return record.id
     end
-    record.id
   end
 end

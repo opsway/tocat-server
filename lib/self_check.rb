@@ -196,7 +196,7 @@ class SelfCheck
 
   def task_state
     Team.includes(accounts: :transactions).find_each do |team|
-      team.balance_account.transactions.where.not('comment LIKE "Salary%"').each do |t|
+      team.balance_account.transactions.where.not('comment LIKE "Salary%"').where.not('comment LIKE "Setup new team"').each do |t|
         @transactions << t.id
         if team.income_account.transactions.where("comment LIKE '#{t.comment}'").empty?
           @alerts << DbError.store("Wrong payment & balance transactions for issue #{t.comment.gsub(/\D/, '')}")
