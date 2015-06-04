@@ -68,7 +68,11 @@ class Task < ActiveRecord::Base
   end
 
   def recalculate_paid_status!
-    self.update_attributes!(paid: can_be_paid?)
+    if task_orders.any?
+      self.update_attributes!(paid: can_be_paid?)
+    else
+      self.update_attributes!(paid: false)
+    end
   end
 
   private
