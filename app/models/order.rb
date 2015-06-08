@@ -19,6 +19,8 @@ class Order < ActiveRecord::Base
   scoped_search on: [:name, :description, :invoiced_budget, :allocatable_budget, :free_budget, :paid, :completed]
   scoped_search in: :team, on: :name, rename: :team, only_explicit: true
   scoped_search on: :parent_id, only_explicit: true
+  scoped_search on: :invoice_id, only_explicit: true
+
 
 
 
