@@ -1,5 +1,6 @@
 require 'will_paginate/array'
 class Task < ActiveRecord::Base
+  include PublicActivity::Common
   validates :external_id,  presence: { message: "Missing external task ID" }, uniqueness: { message: "External ID is already used" }
   validate :check_resolver_team, if: proc { |o| o.user_id_changed? && !o.user_id.nil? }
   validate :check_if_order_completed, if: proc { |o| o.task_orders.any? }

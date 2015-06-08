@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150602065415) do
+ActiveRecord::Schema.define(version: 20150608113456) do
 
   create_table "accounts", force: :cascade do |t|
     t.string   "account_type",     limit: 255, null: false
@@ -22,6 +22,23 @@ ActiveRecord::Schema.define(version: 20150602065415) do
   end
 
   add_index "accounts", ["accountable_id"], name: "index_accounts_on_accountable_id", using: :btree
+
+  create_table "activities", force: :cascade do |t|
+    t.integer  "trackable_id",   limit: 4
+    t.string   "trackable_type", limit: 255
+    t.integer  "owner_id",       limit: 4
+    t.string   "owner_type",     limit: 255
+    t.string   "key",            limit: 255
+    t.text     "parameters",     limit: 65535
+    t.integer  "recipient_id",   limit: 4
+    t.string   "recipient_type", limit: 255
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "activities", ["owner_id", "owner_type"], name: "index_activities_on_owner_id_and_owner_type", using: :btree
+  add_index "activities", ["recipient_id", "recipient_type"], name: "index_activities_on_recipient_id_and_recipient_type", using: :btree
+  add_index "activities", ["trackable_id", "trackable_type"], name: "index_activities_on_trackable_id_and_trackable_type", using: :btree
 
   create_table "db_errors", force: :cascade do |t|
     t.text     "alert",      limit: 65535,                 null: false
@@ -134,7 +151,9 @@ ActiveRecord::Schema.define(version: 20150602065415) do
   add_index "users", ["team_id"], name: "index_users_on_team_id", using: :btree
 
   add_foreign_key "orders", "invoices"
+  add_foreign_key "orders", "invoices"
   add_foreign_key "orders", "orders", column: "parent_id"
+  add_foreign_key "orders", "teams"
   add_foreign_key "orders", "teams"
   add_foreign_key "task_orders", "orders"
   add_foreign_key "task_orders", "tasks"

@@ -1,5 +1,6 @@
 class User < ActiveRecord::Base
   include Accounts
+  include PublicActivity::Common
   validates :name, presence: true
   validates :login, presence: true
   validates :team_id, presence: true
@@ -21,9 +22,13 @@ class User < ActiveRecord::Base
   scoped_search in: :role, on: :name, rename: :role, only_explicit: true
 
   def add_payment(comment, total)
-    income_account.transactions.create total: -total.to_i,
-                                        comment: comment,
-                                        user_id: id
+    self.transaction do
+      income_account.transactions.create! total: -total.to_i,
+                                          comment: comment,
+                                          user_id: id
+      create_activity key: :add_payment,
+                      parameters: { total: -total.to_i, comment: comment }
+    end
   end
 
   def paid_bonus(income, percentage)
@@ -47,6 +52,8 @@ class User < ActiveRecord::Base
       co_team.income_account.transactions.create! total: income,
                                                   comment: "Income transfer #{team.name}",
                                                   user_id: id
+      create_activity key: :add_bonus,
+                      parameters: { income: income, percentage: percentage }
       status = true
     end
     status

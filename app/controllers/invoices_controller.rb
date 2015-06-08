@@ -20,6 +20,7 @@ class InvoicesController < ApplicationController
   def create
     @invoice = Invoice.new(invoice_params)
     if @invoice.save
+      @invoice.create_activity :created, parameters: invoice_params
       render json: @invoice, status: 201, serializer: InvoiceShowSerializer
     else
       render json: error_builder(@invoice), status: :unprocessable_entity
@@ -28,6 +29,7 @@ class InvoicesController < ApplicationController
 
   def destroy
     if @invoice.destroy
+      PublicActivity::Activity.create! owner: @invoice, key: 'invoice.destroy'
       render json: {}, status: 200
     else
       render json: error_builder(@invoice), status: :unprocessable_entity
@@ -36,6 +38,9 @@ class InvoicesController < ApplicationController
 
   def set_paid
     if @invoice.update_attributes(paid: true)
+      @invoice.create_activity :paid_update,
+                               parameters: { old: !@invoice.paid,
+                                             new: @invoice.paid }
       render json: {}, status: 200
     else
       render json: error_builder(@invoice), status: :unprocessable_entity
@@ -44,6 +49,9 @@ class InvoicesController < ApplicationController
 
   def delete_paid
     if @invoice.update_attributes(paid: false)
+      @invoice.create_activity :paid_update,
+                               parameters: { old: !@invoice.paid,
+                                             new: @invoice.paid }
       render json: {}, status: 200
     else
       render json: error_builder(@invoice), status: :unprocessable_entity

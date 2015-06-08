@@ -15,6 +15,7 @@ gem 'shiftplanning', '~> 0.0.3'
 gem "scoped_search"
 gem 'rest-client'
 gem 'hirb'
+gem 'public_activity'
 
 group :development do
   gem 'traceroute'

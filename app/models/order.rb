@@ -1,4 +1,5 @@
 class Order < ActiveRecord::Base
+  include PublicActivity::Common
   validates :name, presence: { message: "Order name can not be empty" }
   validates :team, presence: { message: "Team does not exists" }
   validates :allocatable_budget, presence: { message: "Allocatable budget is missing" }

@@ -1,6 +1,8 @@
 #  FIXME refactor this!!!
 
 Rails.application.routes.draw do
+  get 'activity/index'
+
   #orders
   resources :order,
             path: 'orders',
@@ -23,6 +25,12 @@ Rails.application.routes.draw do
     delete 'complete', to: 'orders#remove_completed', as: 'remove_completed', format: 'json'
   end
 
+  #activity
+  resources :activity,
+            path: 'activity',
+            controller: 'activity',
+            defaults: { format: 'json' }
+            
   #teams
   resources :team,
             path: 'teams',

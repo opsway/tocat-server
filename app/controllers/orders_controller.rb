@@ -19,6 +19,7 @@ class OrdersController < ApplicationController
   def create
     @order = Order.new(order_params)
     if @order.save
+      @order.create_activity :created, parameters: order_params
       render json: @order, serializer: AfterCreationSerializer, status: 201
     else
       render json: error_builder(@order), status: :unprocessable_entity
@@ -27,6 +28,7 @@ class OrdersController < ApplicationController
 
   def update
     if @order.update(order_params)
+      @order.create_activity :update, parameters: order_params
       render json: @order, serializer: AfterCreationSerializer, status: 200
     else
       render json: error_builder(@order), status: :unprocessable_entity
@@ -35,6 +37,7 @@ class OrdersController < ApplicationController
 
   def destroy
     if @order.destroy
+      PublicActivity::Activity.create! owner: @order, key: 'order.destroy'
       render json: {}, status: 200
     else
       render json: error_builder(@order), status: :unprocessable_entity
@@ -43,6 +46,7 @@ class OrdersController < ApplicationController
 
   def set_invoice
     if @order.update_attributes(invoice_id: params[:invoice_id])
+      @order.create_activity :invoice_update, recipient: @order.invoice
       render json: {}, status: 200
     else
       render json: error_builder(@order), status: :unprocessable_entity
@@ -51,6 +55,7 @@ class OrdersController < ApplicationController
 
   def delete_invoice
     if @order.update_attributes(invoice_id: nil)
+      @order.create_activity :invoice_update, recipient: nil
       render json: {}, status: 202
     else
       render json: error_builder(@order), status: :unprocessable_entity
@@ -60,6 +65,7 @@ class OrdersController < ApplicationController
   def create_suborder
     @order = Order.new(order_params)
     if @order.save
+      @order.create_activity :create, parameters: order_params
       render json: @order, serializer: AfterCreationSerializer, status: 201
     else
       render json: error_builder(@order), status: :unprocessable_entity
@@ -76,6 +82,9 @@ class OrdersController < ApplicationController
       return render json: { errors: ['Can not complete already completed order'] }, status: :unprocessable_entity # FIXME
     end
     if @order.update_attributes(completed: true)
+      @order.create_activity :completed_update,
+                               parameters: { new: @order.completed,
+                                             old: !@order.completed }
       render json: @order, serializer: AfterCreationSerializer, status: 200
     else
       render json: error_builder(@order), status: :unprocessable_entity
@@ -87,6 +96,9 @@ class OrdersController < ApplicationController
       return render json: { errors: ['Can not un-complete order, that is not completed'] }, status: :unprocessable_entity # FIXME
     end
     if @order.update_attributes(completed: false)
+      @order.create_activity :completed_update,
+                               parameters: { new: @order.completed,
+                                             old: !@order.completed }
       render json: @order, serializer: AfterCreationSerializer, status: 200
     else
       render json: error_builder(@order), status: :unprocessable_entity

@@ -1,5 +1,6 @@
 require 'will_paginate/array'
 class Invoice < ActiveRecord::Base
+  include PublicActivity::Common
   validates :external_id,  presence: { message: "Missing external invoice ID" }, uniqueness: { message: "ID is already used" }
 
   has_many :orders

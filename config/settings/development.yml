@@ -1,1 +1,6 @@
-size: 6
+zoho_books:
+  auth: 'fa757e0cb2a995ba61008e5ef62f12c3'
+  organization: 30656104
+creator:
+  auth: '8fa0b27a260be8a7fc5a980389867d25'
+  owner: 'verlgoff'
