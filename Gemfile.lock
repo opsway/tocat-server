@@ -92,6 +92,7 @@ GEM
       guard (~> 2.1)
       guard-compat (~> 1.1)
       rspec (>= 2.99.0, < 4.0)
+    hashdiff (0.2.2)
     hike (1.2.3)
     hirb (0.7.3)
     hitimes (1.2.2)
@@ -263,6 +264,7 @@ DEPENDENCIES
   database_cleaner (~> 1.4.0)
   factory_girl_rails
   guard-rspec
+  hashdiff
   hirb
   json-schema
   mysql2

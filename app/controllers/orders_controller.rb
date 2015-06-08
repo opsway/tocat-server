@@ -19,7 +19,7 @@ class OrdersController < ApplicationController
   def create
     @order = Order.new(order_params)
     if @order.save
-      @order.create_activity :created, parameters: order_params
+      @order.create_activity :create, parameters: order_params
       render json: @order, serializer: AfterCreationSerializer, status: 201
     else
       render json: error_builder(@order), status: :unprocessable_entity
@@ -27,8 +27,14 @@ class OrdersController < ApplicationController
   end
 
   def update
+    order_attr = {}
+    order_attr['name'] = @order.name
+    order_attr['description'] = @order.description
+    order_attr['invoiced_budget'] = @order.invoiced_budget.to_s
+    order_attr['allocatable_budget'] = @order.allocatable_budget.to_s
+    order_attr['team_id'] = @order.team_id.to_s
     if @order.update(order_params)
-      @order.create_activity :update, parameters: order_params
+      @order.create_activity :update, parameters: { changes: HashDiff.diff(order_attr, order_params) }
       render json: @order, serializer: AfterCreationSerializer, status: 200
     else
       render json: error_builder(@order), status: :unprocessable_entity
@@ -47,6 +53,7 @@ class OrdersController < ApplicationController
   def set_invoice
     if @order.update_attributes(invoice_id: params[:invoice_id])
       @order.create_activity :invoice_update, recipient: @order.invoice
+      @order.invoice.create_activity :orders_update, recipient: @order
       render json: {}, status: 200
     else
       render json: error_builder(@order), status: :unprocessable_entity
@@ -54,8 +61,17 @@ class OrdersController < ApplicationController
   end
 
   def delete_invoice
+    invoice_was = @order.invoice
     if @order.update_attributes(invoice_id: nil)
-      @order.create_activity :invoice_update, recipient: nil
+      @order.create_activity :invoice_update,
+                              recipient: nil,
+                              parameters: { invoice_id_was: invoice_was.id,
+                                            invoice_external_id_was: invoice_was.external_id }
+      invoice_was.create_activity :orders_update,
+                                   recipient: nil,
+                                   parameters: {
+                                     order_id_was: @order.id,
+                                     order_name_was: @order.name }
       render json: {}, status: 202
     else
       render json: error_builder(@order), status: :unprocessable_entity

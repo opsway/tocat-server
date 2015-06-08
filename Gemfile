@@ -16,6 +16,8 @@ gem "scoped_search"
 gem 'rest-client'
 gem 'hirb'
 gem 'public_activity'
+gem 'hashdiff'
+
 
 group :development do
   gem 'traceroute'

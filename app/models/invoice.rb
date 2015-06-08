@@ -28,14 +28,46 @@ class Invoice < ActiveRecord::Base
     self.transaction do
       orders.each do |order|
         order.handle_paid(paid)
+        order.create_activity :paid_update,
+                                 parameters: {
+                                     invoice_id: id,
+                                     invoice_external_id: external_id,
+                                     old: !paid,
+                                     new: paid
+                                   }
         order.sub_orders.each do |sub_order|
           sub_order.handle_paid(paid)
+          sub_order.create_activity :paid_update,
+                                       parameters: {
+                                           invoice_id: id,
+                                           invoice_external_id: external_id,
+                                           old: !paid,
+                                           new: paid
+                                         }
         end
       end
       orders.each do |order|
-        order.tasks.each { |task| task.handle_paid(paid) }
+        order.tasks.each do |task|
+          task.handle_paid(paid)
+          task.create_activity :paid_update,
+                                 parameters: {
+                                     invoice_id: id,
+                                     invoice_external_id: external_id,
+                                     old: !paid,
+                                     new: paid
+                                   }
+        end
         order.sub_orders.each do |sub_order|
-          sub_order.tasks.each { |task| task.handle_paid(paid) }
+          sub_order.tasks.each  do |task|
+            task.handle_paid(paid)
+            task.create_activity :paid_update,
+                                   parameters: {
+                                       invoice_id: id,
+                                       invoice_external_id: external_id,
+                                       old: !paid,
+                                       new: paid
+                                     }
+          end
         end
       end
     end

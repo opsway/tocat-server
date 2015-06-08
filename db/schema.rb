@@ -151,9 +151,7 @@ ActiveRecord::Schema.define(version: 20150608113456) do
   add_index "users", ["team_id"], name: "index_users_on_team_id", using: :btree
 
   add_foreign_key "orders", "invoices"
-  add_foreign_key "orders", "invoices"
   add_foreign_key "orders", "orders", column: "parent_id"
-  add_foreign_key "orders", "teams"
   add_foreign_key "orders", "teams"
   add_foreign_key "task_orders", "orders"
   add_foreign_key "task_orders", "tasks"
