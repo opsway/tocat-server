@@ -133,6 +133,10 @@ class Task < ActiveRecord::Base
   end
 
   def create_transactions(owner, group, total, message)
+    owner_balance_was = owner.balance_account.balance
+    group_balance_was = group.balance_account.balance
+    group_income_was = group.income_account.balance
+
     owner.balance_account.transactions.create! total: total,
                                                comment: message,
                                                user_id: owner.id
@@ -142,6 +146,24 @@ class Task < ActiveRecord::Base
     group.income_account.transactions.create! total: total,
                                               comment: message,
                                               user_id: owner.id
+    owner.create_activity :balance_update,
+                                  parameters: { type: 'balance',
+                                                was: owner_balance_was,
+                                                new: owner.balance_account.balance,
+                                                message: message },
+                                  recipient: owner.balance_account
+    group.create_activity :balance_update,
+                                  parameters: { type: 'balance',
+                                                was: group_balance_was,
+                                                new: group.balance_account.balance,
+                                                message: message },
+                                  recipient: group.balance_account
+    group.create_activity :balance_update,
+                                  parameters: { type: 'payment',
+                                                was: group_income_was,
+                                                new: group.income_account.balance,
+                                                message: message },
+                                  recipient: group.income_account
   end
 
   def check_resolver_team
