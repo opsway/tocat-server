@@ -13,7 +13,7 @@ class TasksController < ApplicationController
   def create
     @task = Task.new(task_params)
     if @task.save
-      @task.create_activity :create, parameters: task_params
+      @task.create_activity :create, parameters: task_params, owner: User.current_user
       render json: @task, serializer: AfterCreationSerializer, status: 201
     else
       render json: error_builder(@task), status: :unprocessable_entity
@@ -23,8 +23,11 @@ class TasksController < ApplicationController
   def set_accepted
     if @task.update_attributes(accepted: true)
       @task.create_activity :accepted_update,
-                               parameters: { old: !@task.accepted,
-                                             new: @task.accepted }
+                               parameters: {
+                                 old: !@task.accepted,
+                                 new: @task.accepted
+                               },
+                               owner: User.current_user
       render json: {}, status: 200
     else
       render json: error_builder(@task), status: :unprocessable_entity
@@ -34,8 +37,11 @@ class TasksController < ApplicationController
   def delete_accepted
     if @task.update_attributes(accepted: false)
       @task.create_activity :accepted_update,
-                               parameters: { old: !@task.accepted,
-                                             new: @task.accepted }
+                               parameters: {
+                                 old: !@task.accepted,
+                                 new: @task.accepted
+                               },
+                               owner: User.current_user
       render json: {}, status: 200
     else
       render json: error_builder(@task), status: :unprocessable_entity
@@ -44,7 +50,9 @@ class TasksController < ApplicationController
 
   def set_resolver
     if @task.update_attributes(user_id: params[:user_id])
-      @task.create_activity :resolver_update, recipient: @task.resolver
+      @task.create_activity :resolver_update,
+                               recipient: @task.resolver,
+                               owner: User.current_user
       render json: {}, status: 200
     else
       render json: error_builder(@task), status: :unprocessable_entity
@@ -53,7 +61,7 @@ class TasksController < ApplicationController
 
   def delete_resolver
     if @task.update_attributes(user_id: nil)
-      @task.create_activity :resolver_update, recipient: nil
+      @task.create_activity :resolver_update, recipient: nil, owner: User.current_user
       render json: {}, status: 200
     else
       render json: error_builder(@task), status: :unprocessable_entity
@@ -89,8 +97,11 @@ class TasksController < ApplicationController
       end
       if messages.empty?
         @task.create_activity :budget_update,
-                                 parameters: { old: budget_was,
-                                               new: @task.task_orders.each(&:serializable_hash) }
+                                 parameters: {
+                                   old: budget_was,
+                                   new: @task.task_orders.each(&:serializable_hash)
+                                 },
+                                 owner: User.current_user
         render json: {}, status: 200
       else
         render json: { errors: messages.flatten }, status: :unprocessable_entity

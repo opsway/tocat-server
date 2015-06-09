@@ -13,10 +13,6 @@ class Account < ActiveRecord::Base
 
   scope :with_accountable, -> (id, type) { Account.where(accountable_id: id, accountable_type: type.upcase) }
 
-
-
-
-
   def balance
     transactions.sum(:total)
   end

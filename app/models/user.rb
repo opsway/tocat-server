@@ -21,13 +21,22 @@ class User < ActiveRecord::Base
   scoped_search in: :team, on: :name, rename: :team, only_explicit: true
   scoped_search in: :role, on: :name, rename: :role, only_explicit: true
 
+  def self.current_user
+    Thread.current[:current_user]
+  end
+
+  def self.current_user=(usr)
+    Thread.current[:current_user] = usr
+  end
+
   def add_payment(comment, total)
     self.transaction do
       income_account.transactions.create! total: -total.to_i,
                                           comment: comment,
                                           user_id: id
       create_activity key: :add_payment,
-                      parameters: { total: -total.to_i, comment: comment }
+                      parameters: { total: -total.to_i, comment: comment },
+                      owner: User.current_user
     end
   end
 
@@ -53,7 +62,8 @@ class User < ActiveRecord::Base
                                                   comment: "Income transfer #{team.name}",
                                                   user_id: id
       create_activity key: :add_bonus,
-                      parameters: { income: income, percentage: percentage }
+                      parameters: { income: income, percentage: percentage },
+                      owner: User.current_user
       status = true
     end
     status

@@ -19,7 +19,9 @@ class OrdersController < ApplicationController
   def create
     @order = Order.new(order_params)
     if @order.save
-      @order.create_activity :create, parameters: order_params
+      @order.create_activity :create,
+                              parameters: order_params,
+                              owner: User.current_user
       render json: @order, serializer: AfterCreationSerializer, status: 201
     else
       render json: error_builder(@order), status: :unprocessable_entity
@@ -34,7 +36,11 @@ class OrdersController < ApplicationController
     order_attr['allocatable_budget'] = @order.allocatable_budget.to_s
     order_attr['team_id'] = @order.team_id.to_s
     if @order.update(order_params)
-      @order.create_activity :update, parameters: { changes: HashDiff.diff(order_attr, order_params) }
+      @order.create_activity :update,
+                              parameters: {
+                                changes: HashDiff.diff(order_attr, order_params)
+                              },
+                              owner: User.current_user
       render json: @order, serializer: AfterCreationSerializer, status: 200
     else
       render json: error_builder(@order), status: :unprocessable_entity
@@ -43,7 +49,9 @@ class OrdersController < ApplicationController
 
   def destroy
     if @order.destroy
-      PublicActivity::Activity.create! owner: @order, key: 'order.destroy'
+      PublicActivity::Activity.create! trackable: @order,
+                                       key: 'order.destroy',
+                                       owner: User.current_user
       render json: {}, status: 200
     else
       render json: error_builder(@order), status: :unprocessable_entity
@@ -52,8 +60,12 @@ class OrdersController < ApplicationController
 
   def set_invoice
     if @order.update_attributes(invoice_id: params[:invoice_id])
-      @order.create_activity :invoice_update, recipient: @order.invoice
-      @order.invoice.create_activity :orders_update, recipient: @order
+      @order.create_activity :invoice_update,
+                              recipient: @order.invoice,
+                              owner: User.current_user
+      @order.invoice.create_activity :orders_update,
+                                     recipient: @order,
+                                     owner: User.current_user
       render json: {}, status: 200
     else
       render json: error_builder(@order), status: :unprocessable_entity
@@ -65,13 +77,18 @@ class OrdersController < ApplicationController
     if @order.update_attributes(invoice_id: nil)
       @order.create_activity :invoice_update,
                               recipient: nil,
-                              parameters: { invoice_id_was: invoice_was.id,
-                                            invoice_external_id_was: invoice_was.external_id }
+                              parameters: {
+                                invoice_id_was: invoice_was.id,
+                                invoice_external_id_was: invoice_was.external_id
+                              },
+                              owner: User.current_user
       invoice_was.create_activity :orders_update,
                                    recipient: nil,
                                    parameters: {
                                      order_id_was: @order.id,
-                                     order_name_was: @order.name }
+                                     order_name_was: @order.name
+                                   },
+                                   owner: User.current_user
       render json: {}, status: 202
     else
       render json: error_builder(@order), status: :unprocessable_entity
@@ -81,7 +98,7 @@ class OrdersController < ApplicationController
   def create_suborder
     @order = Order.new(order_params)
     if @order.save
-      @order.create_activity :create, parameters: order_params
+      @order.create_activity :create, parameters: order_params, owner: User.current_user
       render json: @order, serializer: AfterCreationSerializer, status: 201
     else
       render json: error_builder(@order), status: :unprocessable_entity
@@ -99,8 +116,11 @@ class OrdersController < ApplicationController
     end
     if @order.update_attributes(completed: true)
       @order.create_activity :completed_update,
-                               parameters: { new: @order.completed,
-                                             old: !@order.completed }
+                               parameters: {
+                                 new: @order.completed,
+                                 old: !@order.completed
+                               },
+                               owner: User.current_user
       render json: @order, serializer: AfterCreationSerializer, status: 200
     else
       render json: error_builder(@order), status: :unprocessable_entity
@@ -113,8 +133,11 @@ class OrdersController < ApplicationController
     end
     if @order.update_attributes(completed: false)
       @order.create_activity :completed_update,
-                               parameters: { new: @order.completed,
-                                             old: !@order.completed }
+                               parameters: {
+                                 new: @order.completed,
+                                 old: !@order.completed
+                               },
+                               owner: User.current_user
       render json: @order, serializer: AfterCreationSerializer, status: 200
     else
       render json: error_builder(@order), status: :unprocessable_entity

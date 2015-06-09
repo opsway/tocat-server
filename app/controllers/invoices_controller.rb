@@ -20,7 +20,7 @@ class InvoicesController < ApplicationController
   def create
     @invoice = Invoice.new(invoice_params)
     if @invoice.save
-      @invoice.create_activity :created, parameters: invoice_params
+      @invoice.create_activity :created, parameters: invoice_params, owner: User.current_user
       render json: @invoice, status: 201, serializer: InvoiceShowSerializer
     else
       render json: error_builder(@invoice), status: :unprocessable_entity
@@ -40,7 +40,8 @@ class InvoicesController < ApplicationController
     if @invoice.update_attributes(paid: true)
       @invoice.create_activity :paid_update,
                                parameters: { old: !@invoice.paid,
-                                             new: @invoice.paid }
+                                             new: @invoice.paid },
+                               owner: User.current_user
       render json: {}, status: 200
     else
       render json: error_builder(@invoice), status: :unprocessable_entity
@@ -51,7 +52,8 @@ class InvoicesController < ApplicationController
     if @invoice.update_attributes(paid: false)
       @invoice.create_activity :paid_update,
                                parameters: { old: !@invoice.paid,
-                                             new: @invoice.paid }
+                                             new: @invoice.paid },
+                               owner: User.current_user
       render json: {}, status: 200
     else
       render json: error_builder(@invoice), status: :unprocessable_entity

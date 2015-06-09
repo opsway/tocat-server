@@ -34,7 +34,8 @@ class Invoice < ActiveRecord::Base
                                      invoice_external_id: external_id,
                                      old: !paid,
                                      new: paid
-                                   }
+                                   },
+                                  owner: User.current_user
         order.sub_orders.each do |sub_order|
           sub_order.handle_paid(paid)
           sub_order.create_activity :paid_update,
@@ -43,7 +44,8 @@ class Invoice < ActiveRecord::Base
                                            invoice_external_id: external_id,
                                            old: !paid,
                                            new: paid
-                                         }
+                                         },
+                                         owner: User.current_user
         end
       end
       orders.each do |order|
@@ -55,7 +57,8 @@ class Invoice < ActiveRecord::Base
                                      invoice_external_id: external_id,
                                      old: !paid,
                                      new: paid
-                                   }
+                                   },
+                                   owner: User.current_user
         end
         order.sub_orders.each do |sub_order|
           sub_order.tasks.each  do |task|
@@ -66,7 +69,8 @@ class Invoice < ActiveRecord::Base
                                        invoice_external_id: external_id,
                                        old: !paid,
                                        new: paid
-                                     }
+                                     },
+                                     owner: User.current_user
           end
         end
       end

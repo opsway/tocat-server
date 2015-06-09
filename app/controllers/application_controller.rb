@@ -6,8 +6,20 @@ class ApplicationController < ActionController::API
   #before_filter :check_format
   include ActionController::Serialization
 
+  helper_method :current_user
+  hide_action :current_user
+  hide_action :default_serializer_options
+  hide_action :error_builder
+
+  around_filter :set_current_user
+
+
   def default_serializer_options
     { root: false }
+  end
+
+  def current_user
+    @current_user ||= User.find_by_name(params[:current_user]) if params[:current_user]
   end
 
   def error_builder(object)
@@ -28,6 +40,14 @@ class ApplicationController < ActionController::API
   end
 
   private
+
+  def set_current_user
+    User.current_user = User.find_by_name(params[:current_user]) if params[:current_user]
+    yield
+  ensure
+    # to address the thread variable leak issues in Puma/Thin webserver
+    User.current_user = nil
+  end
 
   def sort
     if params[:sort].present?
