@@ -151,21 +151,21 @@ class Task < ActiveRecord::Base
                                                 was: owner_balance_was,
                                                 new: owner.balance_account.balance,
                                                 message: message },
-                                  recipient: owner.balance_account,
+                                  recipient: owner,
                                   owner: User.current_user
     group.create_activity :balance_update,
                                   parameters: { type: 'balance',
                                                 was: group_balance_was,
                                                 new: group.balance_account.balance,
                                                 message: message },
-                                  recipient: group.balance_account,
+                                  recipient: group,
                                   owner: User.current_user
     group.create_activity :balance_update,
                                   parameters: { type: 'payment',
                                                 was: group_income_was,
                                                 new: group.income_account.balance,
                                                 message: message },
-                                  recipient: group.income_account,
+                                  recipient: group,
                                   owner: User.current_user
   end
 

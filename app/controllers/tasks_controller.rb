@@ -25,7 +25,8 @@ class TasksController < ApplicationController
       @task.create_activity :accepted_update,
                                parameters: {
                                  old: !@task.accepted,
-                                 new: @task.accepted
+                                 new: @task.accepted,
+                                 balance: @task.budget
                                },
                                owner: User.current_user
       render json: {}, status: 200
@@ -39,7 +40,8 @@ class TasksController < ApplicationController
       @task.create_activity :accepted_update,
                                parameters: {
                                  old: !@task.accepted,
-                                 new: @task.accepted
+                                 new: @task.accepted,
+                                 balance: @task.budget
                                },
                                owner: User.current_user
       render json: {}, status: 200

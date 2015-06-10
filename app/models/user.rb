@@ -36,6 +36,7 @@ class User < ActiveRecord::Base
                                           user_id: id
       create_activity key: :add_payment,
                       parameters: { total: -total.to_i, comment: comment },
+                      recipient: self,
                       owner: User.current_user
     end
   end
