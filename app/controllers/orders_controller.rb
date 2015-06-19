@@ -13,6 +13,14 @@ class OrdersController < ApplicationController
     render json: @order, serializer: OrderShowSerializer
   end
 
+  def budgets
+    if @order.task_orders.present?
+      render json: @order.task_orders, each_serializer: TaskOrdersSerializer, root: "budget"
+    else
+      render json: {}, status: 200
+    end
+  end
+
   def edit
   end
 

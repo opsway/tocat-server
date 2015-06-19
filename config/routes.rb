@@ -23,6 +23,8 @@ Rails.application.routes.draw do
     post 'suborder', to: 'orders#create_suborder', as: 'new_suborder', format: 'json'
     post 'complete', to: 'orders#set_completed', as: 'set_completed', format: 'json'
     delete 'complete', to: 'orders#remove_completed', as: 'remove_completed', format: 'json'
+    get 'budget', to: 'orders#budgets', format: 'json'
+
   end
 
   #activity

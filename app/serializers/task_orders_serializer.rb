@@ -1,5 +1,5 @@
 class TaskOrdersSerializer < ActiveModel::Serializer
-  attributes :order_id, :budget
+  attributes :order_id, :task_id, :budget
 
   private
 
