@@ -37,4 +37,27 @@ class Transaction < ActiveRecord::Base
 
   scope :with_account_ids, -> (account_ids) { Transaction.where(account_id: [*account_ids]) }
 
+  def destroy
+    fail "Transaction cannot be destroyed"
+  end
+
+  alias_method :destroy!, :destroy
+  alias_method :delete, :destroy
+  alias_method :delete!, :destroy
+
+  def self.destroy_all
+    fail "Transactions cannot be destroyed"
+  end
+
+  def self.destroy_all!
+    fail "Transactions cannot be destroyed"
+  end
+
+  def self.delete_all
+    fail "Transactions cannot be destroyed"
+  end
+
+  def self.delete_all!
+    fail "Transactions cannot be destroyed"
+  end
 end
