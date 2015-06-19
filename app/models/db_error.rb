@@ -9,11 +9,11 @@ class DbError < ActiveRecord::Base
   end
 
   def self.store(message)
-    record = nil
-    unless DbError.where(alert: message).any?
+    record = DbError.where(alert: message).first
+    unless record
       record = DbError.create!(alert: message)
       Rails.cache.write(:selfcheck_last_run, Time.now)
-      return record.id
     end
+    record.id
   end
 end

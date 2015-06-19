@@ -152,9 +152,6 @@ class SelfCheck
         @transactions << t.id
         if /.* was completed/.match(t.comment).present?
           completed_count += 1
-          if t.total != (order.invoiced_budget - order.sub_orders.sum(:invoiced_budget) - order.task_orders.sum(:budget))
-            @alerts << DbError.store("Wrong complete transaction total for ##{order.id} order")
-          end
         elsif /.* was uncompleted/.match(t.comment).present?
           uncompleted_count += 1
         end
