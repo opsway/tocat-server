@@ -34,7 +34,7 @@ class User < ActiveRecord::Base
       income_account.transactions.create! total: -total.to_i,
                                           comment: comment,
                                           user_id: id
-      create_activity key: :add_payment,
+      create_activity key: 'user.add_payment',
                       parameters: { total: -total.to_i, comment: comment },
                       recipient: self,
                       owner: User.current_user
