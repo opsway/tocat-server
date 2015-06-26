@@ -32,7 +32,7 @@ Rails.application.routes.draw do
             path: 'activity',
             controller: 'activity',
             defaults: { format: 'json' }
-            
+
   #teams
   resources :team,
             path: 'teams',
@@ -93,6 +93,8 @@ Rails.application.routes.draw do
     get 'budget', to: 'tasks#budgets', as: 'get_budget', format: 'json'
     post 'budget', to: 'tasks#set_budgets', as: 'set_budget', format: 'json'
     get 'orders', to: 'tasks#orders', as: 'get_orders', format: 'json'
+    post 'review', to: 'tasks#handle_review_request', as: 'request_review', format: 'json'
+    delete 'review', to: 'tasks#handle_review_request', as: 'reviewed', format: 'json'
   end
 
   #invoices

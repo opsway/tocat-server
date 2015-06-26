@@ -20,6 +20,21 @@ class TasksController < ApplicationController
     end
   end
 
+  def handle_review_request
+    if @task.review_requested != request.post? && @task.update_attributes(review_requested: request.post?)
+      @task.create_activity :review_updated,
+                               parameters: {
+                                 old: !@task.review_requested,
+                                 new: @task.review_requested
+                               },
+                               owner: User.current_user,
+                               recipient: @task.user
+      render json: {}, status: 200
+    else
+      render json: error_builder(@task), status: :unprocessable_entity
+    end
+  end
+
   def set_accepted
     if @task.update_attributes(accepted: true)
       @task.create_activity :accepted_update,

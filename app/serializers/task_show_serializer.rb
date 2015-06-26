@@ -4,6 +4,7 @@ class TaskShowSerializer < ActiveModel::Serializer
              :external_id,
              :budget,
              :paid,
+             :review_requested,
              :accepted,
              :resolver,
              :links
