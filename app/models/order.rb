@@ -20,10 +20,7 @@ class Order < ActiveRecord::Base
   scoped_search in: :team, on: :name, rename: :team, only_explicit: true
   scoped_search on: :parent_id, only_explicit: true
   scoped_search on: :invoice_id, only_explicit: true
-
-
-
-
+  scoped_search on: :id, only_explicit: true
 
   validate :check_budgets
   validate :check_if_team_exists
