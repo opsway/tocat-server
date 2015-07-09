@@ -62,7 +62,7 @@ class User < ActiveRecord::Base
       co_team.income_account.transactions.create! total: income,
                                                   comment: "Income transfer #{team.name}",
                                                   user_id: id
-      create_activity key: :add_bonus,
+      create_activity key: 'user.add_bonus',
                       parameters: { income: income, percentage: percentage },
                       owner: User.current_user
       status = true
