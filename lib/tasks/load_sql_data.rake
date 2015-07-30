@@ -8,11 +8,11 @@ namespace :sql_data do
       statements = sql.split(/;$/)
       statements.pop
 
-      ActiveRecord::Base.transaction do
-        statements.each do |statement|
-          connection.execute(statement)
-        end
-      end
+      # ActiveRecord::Base.transaction do
+      #   statements.each do |statement|
+      #     connection.execute(statement)
+      #   end
+      # end
     #end
   end
 end
