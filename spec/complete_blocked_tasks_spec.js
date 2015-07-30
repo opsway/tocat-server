@@ -177,6 +177,11 @@ frisby.create('Correct invoice')
                                                 .expectStatus(422)
                                                 .expectJSON({errors:['Completed order is used in budgets, can not update task']})
                                                 .toss();
+
+                                            frisby.create('Should be able to modify review requested flag')
+                                                .post(url + '/task/' + task1.id + '/review')
+                                                .expectStatus(200)
+                                                .toss();
                                         })
                                         .toss();
 

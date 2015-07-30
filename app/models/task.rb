@@ -79,6 +79,7 @@ class Task < ActiveRecord::Base
   private
 
   def check_if_order_completed
+    return if review_requested_changed?
     if orders.collect(&:completed).include?(true)
       errors[:base] << 'Completed order is used in budgets, can not update task'
     end
