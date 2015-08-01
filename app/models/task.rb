@@ -171,6 +171,10 @@ class Task < ActiveRecord::Base
   end
 
   def check_resolver_team
+    unless user.present?
+      errors[:user] << 'User must exists'
+      return false
+    end
     return true if orders.empty?
     team = orders.first.team
     orders.each do |order|
