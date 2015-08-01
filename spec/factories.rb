@@ -4,9 +4,9 @@ FactoryGirl.define do
   factory :order do
     sequence(:name) { |n| "Order #{n}" }
     team_id 1
-    invoiced_budget 10
-    free_budget 1
-    allocatable_budget 9
+    invoiced_budget 100
+    free_budget 10
+    allocatable_budget 90
     invoice_id 1
     association :team
     association :invoice
@@ -28,7 +28,7 @@ FactoryGirl.define do
 
   factory :task do
     sequence(:external_id) { |n| n }
-    association :user
+    #association :user
   end
 
   factory :account do

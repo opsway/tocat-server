@@ -33,8 +33,6 @@ class TaskOrders < ActiveRecord::Base
     if order.completed
       errors[:budget] << "Completed order is used in budgets, can not update task"
       false
-    else
-      true
     end
   end
 
