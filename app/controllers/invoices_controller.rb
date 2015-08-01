@@ -31,8 +31,6 @@ class InvoicesController < ApplicationController
     if @invoice.destroy
       PublicActivity::Activity.create! owner: @invoice, key: 'invoice.destroy'
       render json: {}, status: 200
-    else
-      render json: error_builder(@invoice), status: :unprocessable_entity
     end
   end
 
