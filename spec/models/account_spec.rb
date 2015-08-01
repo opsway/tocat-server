@@ -42,4 +42,10 @@ RSpec.describe Account, type: :model do
     expect(account_1.errors).to have_key(:accountable)
     expect(account_2.errors).to have_key(:accountable)
   end
+
+  it 'should return transactions total' do
+    team = create(:team)
+    create_list(:transaction, 10, total: 100, account: team.accounts.first)
+    expect(team.accounts.first.balance).to eq(Transaction.where(account: team.accounts.first).sum(:total))
+  end
 end
