@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150626165309) do
+ActiveRecord::Schema.define(version: 20150801105922) do
 
   create_table "accounts", force: :cascade do |t|
     t.string   "account_type",     limit: 255, null: false
@@ -50,7 +50,7 @@ ActiveRecord::Schema.define(version: 20150626165309) do
 
   create_table "invoices", force: :cascade do |t|
     t.string   "external_id", limit: 255
-    t.boolean  "paid",        limit: 1,   default: false
+    t.boolean  "paid",        limit: 1,   default: false, null: false
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -139,31 +139,26 @@ ActiveRecord::Schema.define(version: 20150626165309) do
   add_index "transactions", ["user_id"], name: "index_transactions_on_user_id", using: :btree
 
   create_table "users", force: :cascade do |t|
-    t.string   "name",       limit: 255,                         null: false
-    t.string   "login",      limit: 255,                         null: false
-    t.integer  "team_id",    limit: 4,                           null: false
-    t.decimal  "daily_rate",             precision: 5, scale: 2, null: false
+    t.string   "name",       limit: 255,                                         null: false
+    t.string   "login",      limit: 255,                                         null: false
+    t.integer  "team_id",    limit: 4,                                           null: false
+    t.decimal  "daily_rate",             precision: 5, scale: 2,                 null: false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "role_id",    limit: 4,                           null: false
+    t.integer  "role_id",    limit: 4,                                           null: false
+    t.string   "email",      limit: 255,                                         null: false
+    t.boolean  "active",     limit: 1,                           default: false, null: false
   end
 
   add_index "users", ["role_id"], name: "index_users_on_role_id", using: :btree
   add_index "users", ["team_id"], name: "index_users_on_team_id", using: :btree
 
   add_foreign_key "orders", "invoices"
-  add_foreign_key "orders", "invoices"
-  add_foreign_key "orders", "orders", column: "parent_id"
   add_foreign_key "orders", "orders", column: "parent_id"
   add_foreign_key "orders", "teams"
-  add_foreign_key "orders", "teams"
-  add_foreign_key "task_orders", "orders"
   add_foreign_key "task_orders", "orders"
   add_foreign_key "task_orders", "tasks"
-  add_foreign_key "task_orders", "tasks"
   add_foreign_key "tasks", "users"
-  add_foreign_key "tasks", "users"
-  add_foreign_key "transactions", "accounts"
   add_foreign_key "transactions", "accounts"
   add_foreign_key "transactions", "users"
   add_foreign_key "users", "roles"

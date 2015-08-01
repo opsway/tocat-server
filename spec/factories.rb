@@ -50,4 +50,9 @@ FactoryGirl.define do
     account_id 1
     user_id 1
   end
+
+  factory :invoice do
+    sequence(:external_id) { |n| "234#{n}" }
+    paid true
+  end
 end

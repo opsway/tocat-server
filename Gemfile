@@ -17,12 +17,11 @@ gem 'rest-client'
 gem 'hirb'
 gem 'public_activity'
 gem 'hashdiff'
-
+gem 'pry'
 
 group :development do
   gem 'traceroute'
   gem "rails_best_practices"
-  gem 'pry'
 end
 
 
