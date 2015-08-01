@@ -9,6 +9,7 @@ FactoryGirl.define do
     allocatable_budget 9
     invoice_id 1
     association :team
+    association :invoice
   end
 
   factory :role do
@@ -39,6 +40,7 @@ FactoryGirl.define do
   factory :user do
     sequence(:name) { |n| "User #{n}" }
     sequence(:login) { |n| "usr#{n}" }
+    sequence(:email) { |n| "test@test.com" }
     association :team
     daily_rate 50
     association :role
@@ -53,6 +55,6 @@ FactoryGirl.define do
 
   factory :invoice do
     sequence(:external_id) { |n| "234#{n}" }
-    paid true
+    paid false
   end
 end

@@ -24,14 +24,14 @@ class TaskOrders < ActiveRecord::Base
 
   def check_if_task_accepted_and_paid
     if task.accepted && task.paid
-      errors[:base] << 'Can not update budget for task that is Accepted and paid'
+      errors[:budget] << 'Can not update budget for task that is Accepted and paid'
       return false
     end
   end
 
   def check_if_order_completed
     if order.completed
-      errors[:base] << "Completed order is used in budgets, can not update task"
+      errors[:budget] << "Completed order is used in budgets, can not update task"
       false
     else
       true
@@ -39,22 +39,22 @@ class TaskOrders < ActiveRecord::Base
   end
 
   def resolver_presence
-    return true if task.team.nil?
+    return true if try(:task).try(:team).nil?
     unless task.team == order.team
-      errors[:base] << "Orders are created for different teams"
+      errors[:orders] << "Orders are created for different teams"
     end
   end
 
   def check_resolver_team_after_budget_creation
-    return true unless task.user.present?
+    return true unless try(:task).try(:user).present?
     if task.user.team != order.team
-      errors[:base] << "Task resolver is from different team than order"
+      errors[:resolver] << "Task resolver is from different team than order"
     end
   end
 
   def check_free_budget
     if self.budget > self.order.free_budget
-      errors[:base] << 'You can not assign more budget than is available on order'
+      errors[:budget] << 'You can not assign more budget than is available on order'
       false
     end
   end
