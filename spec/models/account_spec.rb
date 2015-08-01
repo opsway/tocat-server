@@ -35,10 +35,11 @@ RSpec.describe Account, type: :model do
 
   it 'should fails if accounts contain more than 2 record for User or Team' do
     team = create(:team)
-    team.accounts << create(:account, account_type: 'balance')
-    team.accounts << create(:account, account_type: 'payment')
-    third_account = team.accounts.new
-    third_account.account_type = 'payment'
-    third_account.valid?.should eq(false)
+    account_1 = build(:account, account_type: 'balance', accountable_type: 'Team', accountable_id: team.id)
+    account_2 = build(:account, account_type: 'payment', accountable_type: 'Team', accountable_id: team.id)
+    account_1.valid?
+    account_2.valid?
+    expect(account_1.errors).to have_key(:accountable)
+    expect(account_2.errors).to have_key(:accountable)
   end
 end

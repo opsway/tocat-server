@@ -36,6 +36,6 @@ class Account < ActiveRecord::Base
     amount = Account.where(accountable_id: accountable_id,
                            accountable_type: accountable.class.name)
                     .length
-    errors[:base] << '2 accounts for this parent already exists.' if (amount >= 2)
+    errors[:accountable] << '2 accounts for this parent already exists.' if (amount >= 2)
   end
 end
