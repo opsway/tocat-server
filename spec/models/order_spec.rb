@@ -3,12 +3,12 @@ require 'factory_girl_rails'
 
 RSpec.describe Order, type: :model do
   context 'validations' do
-    it { should validate_presence_of(:name) }
-    it { should validate_presence_of(:team_id) }
-    it { should validate_presence_of(:invoiced_budget) }
-    it { should validate_presence_of(:allocatable_budget) }
+    it { should validate_presence_of(:name).with_message('Order name can not be empty') }
+    it { should validate_presence_of(:team).with_message('Team does not exists') }
+    it { should validate_presence_of(:invoiced_budget).with_message('Invoiced budget is missing') }
+    it { should validate_presence_of(:allocatable_budget).with_message('Allocatable budget is missing') }
     it { should belong_to(:team) }
-    it { should have_many(:invoices) }
+    it { should belong_to(:invoice) }
     it { should have_many(:tasks).through(:task_orders) }
 
     it 'should test order has many orders relation' do
@@ -31,9 +31,9 @@ RSpec.describe Order, type: :model do
       order.errors.should have_key(:allocatable_budget)
     end
 
-    it 'should fail if allocatable budget equals zero ' do
+    it 'should fail if allocatable budget lower than zero ' do
       order = build(:order)
-      order.allocatable_budget = 0
+      order.allocatable_budget = -100
       order.valid?
       order.errors.should have_key(:allocatable_budget)
     end
@@ -50,7 +50,7 @@ RSpec.describe Order, type: :model do
       order = build(:order)
       order.team_id = 9999
       order.valid?
-      order.errors.should have_key(:team_id)
+      order.errors.should have_key(:team)
     end
   end
 end

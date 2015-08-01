@@ -91,19 +91,19 @@ class Order < ActiveRecord::Base
   end
 
   def existence_of_invoice
-    errors[:base] << 'Invoice does not exist' unless invoice.present?
+    errors[:invoice] << 'Invoice does not exist' unless invoice.present?
   end
 
   def check_if_parent_completed
     if parent.try(:completed)
-      errors[:base] << 'Can not delete suborder when parent order completed'
+      errors[:parent] << 'Can not delete suborder when parent order completed'
       false
     end
   end
 
   def check_if_parent_completed_on_suborder_creation
     if parent.completed?
-      errors[:base] << 'Can not create suborder from completed order'
+      errors[:completed] << 'Can not create suborder from completed order'
       false
     end
   end
@@ -115,7 +115,7 @@ class Order < ActiveRecord::Base
     tasks_array.flatten!
     ids = tasks_array.select { |o| !o.paid || !o.accepted }.collect(&:external_id)
     if ids.any?
-      errors[:base] << "Can not complete order: task(s) #{ids.join(',')} not Accepted&Paid"
+      errors[:completed] << "Can not complete order: task(s) #{ids.join(',')} not Accepted&Paid"
       false
     end
   end
@@ -123,9 +123,9 @@ class Order < ActiveRecord::Base
   def check_if_suborder_before_change_completed
     if parent_id.present?
       if completed
-        errors[:base] << 'Can not complete suborder'
+        errors[:completed] << 'Can not complete suborder'
       else
-        errors[:base] << 'Can not un-complete suborder'
+        errors[:completed] << 'Can not un-complete suborder'
       end
       false
     end
@@ -133,14 +133,14 @@ class Order < ActiveRecord::Base
 
   def check_for_paid_before_change_completed
     unless paid
-      errors[:base] << 'Can not complete unpaid order'
+      errors[:paid] << 'Can not complete unpaid order'
       false
     end
   end
 
   def check_for_completed
     if completed_was
-      errors[:base] << 'Can not modify completed order'
+      errors[:completed] << 'Can not modify completed order'
       false
     else
       true
@@ -167,7 +167,7 @@ class Order < ActiveRecord::Base
     used_budget = task_orders.sum(:budget)
     used_budget += sub_orders.sum(:allocatable_budget)
     if allocatable_budget < used_budget
-      errors[:base] << 'Allocatable bugdet is less than already used from order'
+      errors[:allocatable_budget] << 'Allocatable bugdet is less than already used from order'
       false
     end
   end
@@ -179,14 +179,14 @@ class Order < ActiveRecord::Base
 
   def check_if_suborder
     if parent.present?
-      errors[:base] << 'Suborder can not be invoiced'
+      errors[:invoice] << 'Suborder can not be invoiced'
       false
     end
   end
 
   def check_for_tasks_on_team_change
     if tasks.present?
-      errors[:base] << 'Can not change order team - order is used in tasks'
+      errors[:team] << 'Can not change order team - order is used in tasks'
       false
     end
   end
@@ -194,7 +194,7 @@ class Order < ActiveRecord::Base
   def check_if_invoice_already_paid
     if invoice.present?
       if invoice.paid
-        errors[:base] << 'Invoice is already paid, can not use it for new order'
+        errors[:paid] << 'Invoice is already paid, can not use it for new order'
         false
       end
     end
@@ -202,14 +202,14 @@ class Order < ActiveRecord::Base
 
   def check_if_paid_on_budget_update
     if paid && parent_id.nil?
-      errors[:base] << 'Order is already paid, can not update invoiced budget'
+      errors[:paid] << 'Order is already paid, can not update invoiced budget'
       return false
     end
   end
 
   def check_if_paid_before_destroy
     if paid
-      errors[:base] << 'Can not delete already paid invoice'
+      errors[:paid] << 'Can not delete already paid invoice'
       return false
     end
   end
@@ -217,9 +217,9 @@ class Order < ActiveRecord::Base
   def check_if_paid
     if paid
       if invoice_id.nil?
-        errors[:base] << 'Order is already paid, can not unlink it from invoice'
+        errors[:paid] << 'Order is already paid, can not unlink it from invoice'
       else
-        errors[:base] << 'Order is already paid, can not change invoice'
+        errors[:paid] << 'Order is already paid, can not change invoice'
       end
       false
     end
@@ -227,14 +227,14 @@ class Order < ActiveRecord::Base
 
   def check_for_suborder
     if sub_orders.present?
-      errors[:base] << 'You can not delete order when there is a suborder'
+      errors[:suborders] << 'You can not delete order when there is a suborder'
       false
     end
   end
 
   def check_if_order_has_tasks
     if tasks.present?
-      errors[:base] << 'You can not delete order that is used in task budgeting'
+      errors[:tasks] << 'You can not delete order that is used in task budgeting'
       false
     end
   end
@@ -243,7 +243,7 @@ class Order < ActiveRecord::Base
     if parent.present?
       if allocatable_budget_changed? || invoiced_budget_changed?
         if allocatable_budget > (parent.free_budget + allocatable_budget_was.to_i) || invoiced_budget > (parent.free_budget + invoiced_budget_was.to_i)
-          errors[:base] << 'Suborder can not be invoiced more than parent free budget'
+          errors[:invoice] << 'Suborder can not be invoiced more than parent free budget'
           return false
         end
       end
@@ -253,7 +253,7 @@ class Order < ActiveRecord::Base
   def sub_order_team
     if new_record? && parent.present?
       if team == parent.team
-        errors[:base] << 'Suborder can not be created for the same team as parent order'
+        errors[:team] << 'Suborder can not be created for the same team as parent order'
       end
     end
   end
@@ -261,7 +261,7 @@ class Order < ActiveRecord::Base
   def check_budgets_for_sub_order
     if new_record? && parent.present?
       if invoiced_budget > parent.free_budget
-        errors[:base] << 'Suborder can not be invoiced more than parent free budget'
+        errors[:invoice] << 'Suborder can not be invoiced more than parent free budget'
         return false
       end
     end
@@ -270,7 +270,7 @@ class Order < ActiveRecord::Base
   def check_inheritance
     if new_record? && parent.present?
       if self.parent.parent.present?
-        errors[:base] << 'Suborder can not be created from another suborder'
+        errors[:parent] << 'Suborder can not be created from another suborder'
       end
     end
   end
@@ -278,14 +278,14 @@ class Order < ActiveRecord::Base
   def check_budgets
     if allocatable_budget.present? && invoiced_budget.present?
       if allocatable_budget > invoiced_budget
-        errors[:base] << "Allocatable budget is greater than invoiced budget"
+        errors[:allocatable_budget] << "Allocatable budget is greater than invoiced budget"
       end
     end
   end
 
   def check_if_team_exists
     if team_id.present?
-      errors[:base] << 'Team does not exists' unless Team.exists?(id: team_id)
+      errors[:team] << 'Team does not exists' unless Team.exists?(id: team_id)
     end
   end
 
