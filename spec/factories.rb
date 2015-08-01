@@ -57,4 +57,8 @@ FactoryGirl.define do
     sequence(:external_id) { |n| "234#{n}" }
     paid false
   end
+
+  factory :db_error do
+    sequence(:alert) { |o| "Alert number #{n}" }
+  end
 end
