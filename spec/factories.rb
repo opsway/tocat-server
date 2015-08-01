@@ -32,7 +32,7 @@ FactoryGirl.define do
   end
 
   factory :account do
-    account_type 'pay'
+    account_type 'payment'
     accountable_id 1
     accountable_type 'Team'
   end
@@ -49,7 +49,7 @@ FactoryGirl.define do
   factory :transaction do
     total 999
     sequence(:comment) { |n| "Transaction #{n}" }
-    account_id 1
+    association :account
     association :user
   end
 
