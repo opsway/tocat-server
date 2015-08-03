@@ -3,7 +3,7 @@ require_relative 'zoho/api'
 
 class SelfCheck
   include Singleton
-
+#
   def start
     @transactions = []
     @alerts = []
