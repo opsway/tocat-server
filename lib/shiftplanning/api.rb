@@ -70,9 +70,9 @@ class ShiftplanningApi
 
   def token_handler(response = nil)
     if !response|| response[0][0]['status'].to_i == 3
-      key                         = '***REMOVED***'
-      login                       = '***REMOVED***'
-      password                    = '***REMOVED***'
+      key                         = Rails.application.secrets[:shiftplanning_key]
+      login                       = Rails.application.secrets[:shiftplanning_login]
+      password                    = Rails.application.secrets[:shiftplanning_password]
       @interface                  = SP::Interface.new(key, :verbose => false)
       @request                    = SP::Request.new
       @request.staff.login.params = { :username => login, :password => password }
