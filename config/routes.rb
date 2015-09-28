@@ -62,13 +62,13 @@ Rails.application.routes.draw do
             path: 'users',
             controller: 'users',
             defaults: { format: 'json' },
-            only: [:index]
+            only: [:index, :create]
 
   resources :user,
             path: 'user',
             controller: 'users',
             defaults: { format: 'json' },
-            only: [:show] do
+            only: [:show, :update] do
     post 'add_payment', to: 'users#add_payment', as: 'add_payment', format: 'json'
     post 'pay_bonus', to: 'users#pay_bonus', as: 'pay_bonus', format: 'json'
   end
