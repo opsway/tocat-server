@@ -42,6 +42,7 @@ class User < ActiveRecord::Base
   end
 
   def paid_bonus(income, percentage)
+    puts 'called2'
     unless role.name == 'Manager'
       errors[:base] = "User should be a manager"
       return false

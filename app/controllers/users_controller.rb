@@ -34,7 +34,7 @@ class UsersController < ApplicationController
                              owner: User.current_user
       render json: @user, serializer: UserShowSerializer, status: 201
     else
-      render json: error_builder(@user), status: :unprocessable_entity
+      render json: error_builder(@user), status: 406
     end
     end
 
@@ -51,17 +51,8 @@ class UsersController < ApplicationController
                              owner: User.current_user
       render json: @user, serializer: UserShowSerializer, status: 200
     else
-      render json: error_builder(@user), status: :unprocessable_entity
+      render json: error_builder(@user), status: 406
     end
-  end
-
-
-  def balance_account
-    render json: @user.balance_account
-  end
-
-  def income_account
-    render json: @user.income_account
   end
 
   private

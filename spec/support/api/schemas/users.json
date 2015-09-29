@@ -1,31 +1,83 @@
 {
-  "type": "object",
-  "required": [
-    "id",
-    "name",
-    "login",
-    "team",
-    "role",
-    "links"
-  ],
-  "properties" : {
-    "id" : { "type" : "integer" },
-    "name" : { "type" : "string"},
-    "login" : { "type" : "string"},
-    "team" : {
-      "type" : "object",
-      "properties" : {
-        "name" : { "type" : "string" },
-        "href" : { "type" : "string" }
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "/",
+  "type": "array",
+  "items": {
+    "id": "0",
+    "type": "object",
+    "properties": {
+      "id": {
+        "id": "id",
+        "type": "integer"
+      },
+      "name": {
+        "id": "name",
+        "type": "string"
+      },
+      "login": {
+        "id": "login",
+        "type": "string"
+      },
+      "team": {
+        "id": "team",
+        "type": "object",
+        "properties": {
+          "id": {
+            "id": "id",
+            "type": "integer"
+          },
+          "name": {
+            "id": "name",
+            "type": "string"
+          },
+          "href": {
+            "id": "href",
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "role": {
+        "id": "role",
+        "type": "string"
+      },
+      "links": {
+        "id": "links",
+        "type": "object",
+        "properties": {
+          "href": {
+            "id": "href",
+            "type": "string"
+          },
+          "rel": {
+            "id": "rel",
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "balance_account_state": {
+        "id": "balance_account_state",
+        "type": "integer"
+      },
+      "income_account_state": {
+        "id": "income_account_state",
+        "type": "integer"
       }
     },
-    "role" : { "type" : "string"},
-    "links" : {
-      "type" : "object",
-      "properties" : {
-        "href" : { "type" : "string" },
-        "rel" : { "type" : "string" }
-      }
-    }
-  }
+    "additionalProperties": false,
+    "required": [
+      "id",
+      "name",
+      "login",
+      "team",
+      "role",
+      "links",
+      "balance_account_state",
+      "income_account_state"
+    ]
+  },
+  "required": [
+    "0"
+  ]
 }
