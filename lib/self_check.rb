@@ -3,7 +3,7 @@ require_relative 'zoho/api'
 
 class SelfCheck
   include Singleton
-#
+
   def start
     @transactions = []
     @alerts = []
@@ -41,7 +41,7 @@ class SelfCheck
     DbError.where.not(id: @alerts.flatten.uniq).destroy_all
   end
 
-  #private
+  private
 
   def check_invoices
     RedmineTocatApi.get_invoices.each do |record|
@@ -56,6 +56,9 @@ class SelfCheck
           @alerts << DbError.store("Invoice #{invoice.external_id}(#{record[:invoice_number]} in zoho) has invalid paid status.") if invoice.paid != status
         else
           @alerts << DbError.store("Invoice #{invoice.external_id}(#{record[:invoice_number]} in zoho) has invalid total: It has #{invoice.total}, but it should be #{record[:total] * record[:exchange_rate]}.") if invoice.total != (record[:total] * record[:exchange_rate])
+        end
+        if record[:status] == 'draft'
+          @alerts << DbError.store("Invoice #{invoice.external_id}(#{record[:invoice_number]} in zoho) is in DRAFT status.")
         end
       end
     end
