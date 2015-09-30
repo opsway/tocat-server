@@ -1,0 +1,667 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "/",
+  "type": "object",
+  "properties": {
+    "id": {
+      "id": "id",
+      "type": "integer"
+    },
+    "total": {
+      "id": "total",
+      "type": "string"
+    },
+    "external_id": {
+      "id": "external_id",
+      "type": "string"
+    },
+    "paid": {
+      "id": "paid",
+      "type": "boolean"
+    },
+    "links": {
+      "id": "links",
+      "type": "object",
+      "properties": {
+        "href": {
+          "id": "href",
+          "type": "string"
+        },
+        "rel": {
+          "id": "rel",
+          "type": "string"
+        }
+      }
+    },
+    "orders": {
+      "id": "orders",
+      "type": "array",
+      "items": [
+        {
+          "id": "0",
+          "type": "object",
+          "properties": {
+            "id": {
+              "id": "id",
+              "type": "integer"
+            },
+            "name": {
+              "id": "name",
+              "type": "string"
+            },
+            "invoiced_budget": {
+              "id": "invoiced_budget",
+              "type": "string"
+            },
+            "allocatable_budget": {
+              "id": "allocatable_budget",
+              "type": "string"
+            },
+            "free_budget": {
+              "id": "free_budget",
+              "type": "string"
+            },
+            "suborder": {
+              "id": "suborder",
+              "type": "boolean"
+            },
+            "paid": {
+              "id": "paid",
+              "type": "boolean"
+            },
+            "completed": {
+              "id": "completed",
+              "type": "boolean"
+            },
+            "team": {
+              "id": "team",
+              "type": "object",
+              "properties": {
+                "id": {
+                  "id": "id",
+                  "type": "integer"
+                },
+                "name": {
+                  "id": "name",
+                  "type": "string"
+                },
+                "link": {
+                  "id": "link",
+                  "type": "string"
+                }
+              }
+            },
+            "invoice": {
+              "id": "invoice",
+              "type": "object",
+              "properties": {
+                "id": {
+                  "id": "id",
+                  "type": "integer"
+                },
+                "external_id": {
+                  "id": "external_id",
+                  "type": "string"
+                },
+                "link": {
+                  "id": "link",
+                  "type": "string"
+                }
+              }
+            },
+            "links": {
+              "id": "links",
+              "type": "object",
+              "properties": {
+                "url": {
+                  "id": "url",
+                  "type": "string"
+                },
+                "rel": {
+                  "id": "rel",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        {
+          "id": "1",
+          "type": "object",
+          "properties": {
+            "id": {
+              "id": "id",
+              "type": "integer"
+            },
+            "name": {
+              "id": "name",
+              "type": "string"
+            },
+            "invoiced_budget": {
+              "id": "invoiced_budget",
+              "type": "string"
+            },
+            "allocatable_budget": {
+              "id": "allocatable_budget",
+              "type": "string"
+            },
+            "free_budget": {
+              "id": "free_budget",
+              "type": "string"
+            },
+            "suborder": {
+              "id": "suborder",
+              "type": "boolean"
+            },
+            "paid": {
+              "id": "paid",
+              "type": "boolean"
+            },
+            "completed": {
+              "id": "completed",
+              "type": "boolean"
+            },
+            "team": {
+              "id": "team",
+              "type": "object",
+              "properties": {
+                "id": {
+                  "id": "id",
+                  "type": "integer"
+                },
+                "name": {
+                  "id": "name",
+                  "type": "string"
+                },
+                "link": {
+                  "id": "link",
+                  "type": "string"
+                }
+              }
+            },
+            "invoice": {
+              "id": "invoice",
+              "type": "object",
+              "properties": {
+                "id": {
+                  "id": "id",
+                  "type": "integer"
+                },
+                "external_id": {
+                  "id": "external_id",
+                  "type": "string"
+                },
+                "link": {
+                  "id": "link",
+                  "type": "string"
+                }
+              }
+            },
+            "links": {
+              "id": "links",
+              "type": "object",
+              "properties": {
+                "url": {
+                  "id": "url",
+                  "type": "string"
+                },
+                "rel": {
+                  "id": "rel",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        {
+          "id": "2",
+          "type": "object",
+          "properties": {
+            "id": {
+              "id": "id",
+              "type": "integer"
+            },
+            "name": {
+              "id": "name",
+              "type": "string"
+            },
+            "invoiced_budget": {
+              "id": "invoiced_budget",
+              "type": "string"
+            },
+            "allocatable_budget": {
+              "id": "allocatable_budget",
+              "type": "string"
+            },
+            "free_budget": {
+              "id": "free_budget",
+              "type": "string"
+            },
+            "suborder": {
+              "id": "suborder",
+              "type": "boolean"
+            },
+            "paid": {
+              "id": "paid",
+              "type": "boolean"
+            },
+            "completed": {
+              "id": "completed",
+              "type": "boolean"
+            },
+            "team": {
+              "id": "team",
+              "type": "object",
+              "properties": {
+                "id": {
+                  "id": "id",
+                  "type": "integer"
+                },
+                "name": {
+                  "id": "name",
+                  "type": "string"
+                },
+                "link": {
+                  "id": "link",
+                  "type": "string"
+                }
+              }
+            },
+            "invoice": {
+              "id": "invoice",
+              "type": "object",
+              "properties": {
+                "id": {
+                  "id": "id",
+                  "type": "integer"
+                },
+                "external_id": {
+                  "id": "external_id",
+                  "type": "string"
+                },
+                "link": {
+                  "id": "link",
+                  "type": "string"
+                }
+              }
+            },
+            "links": {
+              "id": "links",
+              "type": "object",
+              "properties": {
+                "url": {
+                  "id": "url",
+                  "type": "string"
+                },
+                "rel": {
+                  "id": "rel",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        {
+          "id": "3",
+          "type": "object",
+          "properties": {
+            "id": {
+              "id": "id",
+              "type": "integer"
+            },
+            "name": {
+              "id": "name",
+              "type": "string"
+            },
+            "invoiced_budget": {
+              "id": "invoiced_budget",
+              "type": "string"
+            },
+            "allocatable_budget": {
+              "id": "allocatable_budget",
+              "type": "string"
+            },
+            "free_budget": {
+              "id": "free_budget",
+              "type": "string"
+            },
+            "suborder": {
+              "id": "suborder",
+              "type": "boolean"
+            },
+            "paid": {
+              "id": "paid",
+              "type": "boolean"
+            },
+            "completed": {
+              "id": "completed",
+              "type": "boolean"
+            },
+            "team": {
+              "id": "team",
+              "type": "object",
+              "properties": {
+                "id": {
+                  "id": "id",
+                  "type": "integer"
+                },
+                "name": {
+                  "id": "name",
+                  "type": "string"
+                },
+                "link": {
+                  "id": "link",
+                  "type": "string"
+                }
+              }
+            },
+            "invoice": {
+              "id": "invoice",
+              "type": "object",
+              "properties": {
+                "id": {
+                  "id": "id",
+                  "type": "integer"
+                },
+                "external_id": {
+                  "id": "external_id",
+                  "type": "string"
+                },
+                "link": {
+                  "id": "link",
+                  "type": "string"
+                }
+              }
+            },
+            "links": {
+              "id": "links",
+              "type": "object",
+              "properties": {
+                "url": {
+                  "id": "url",
+                  "type": "string"
+                },
+                "rel": {
+                  "id": "rel",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        {
+          "id": "4",
+          "type": "object",
+          "properties": {
+            "id": {
+              "id": "id",
+              "type": "integer"
+            },
+            "name": {
+              "id": "name",
+              "type": "string"
+            },
+            "invoiced_budget": {
+              "id": "invoiced_budget",
+              "type": "string"
+            },
+            "allocatable_budget": {
+              "id": "allocatable_budget",
+              "type": "string"
+            },
+            "free_budget": {
+              "id": "free_budget",
+              "type": "string"
+            },
+            "suborder": {
+              "id": "suborder",
+              "type": "boolean"
+            },
+            "paid": {
+              "id": "paid",
+              "type": "boolean"
+            },
+            "completed": {
+              "id": "completed",
+              "type": "boolean"
+            },
+            "team": {
+              "id": "team",
+              "type": "object",
+              "properties": {
+                "id": {
+                  "id": "id",
+                  "type": "integer"
+                },
+                "name": {
+                  "id": "name",
+                  "type": "string"
+                },
+                "link": {
+                  "id": "link",
+                  "type": "string"
+                }
+              }
+            },
+            "invoice": {
+              "id": "invoice",
+              "type": "object",
+              "properties": {
+                "id": {
+                  "id": "id",
+                  "type": "integer"
+                },
+                "external_id": {
+                  "id": "external_id",
+                  "type": "string"
+                },
+                "link": {
+                  "id": "link",
+                  "type": "string"
+                }
+              }
+            },
+            "links": {
+              "id": "links",
+              "type": "object",
+              "properties": {
+                "url": {
+                  "id": "url",
+                  "type": "string"
+                },
+                "rel": {
+                  "id": "rel",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        {
+          "id": "5",
+          "type": "object",
+          "properties": {
+            "id": {
+              "id": "id",
+              "type": "integer"
+            },
+            "name": {
+              "id": "name",
+              "type": "string"
+            },
+            "invoiced_budget": {
+              "id": "invoiced_budget",
+              "type": "string"
+            },
+            "allocatable_budget": {
+              "id": "allocatable_budget",
+              "type": "string"
+            },
+            "free_budget": {
+              "id": "free_budget",
+              "type": "string"
+            },
+            "suborder": {
+              "id": "suborder",
+              "type": "boolean"
+            },
+            "paid": {
+              "id": "paid",
+              "type": "boolean"
+            },
+            "completed": {
+              "id": "completed",
+              "type": "boolean"
+            },
+            "team": {
+              "id": "team",
+              "type": "object",
+              "properties": {
+                "id": {
+                  "id": "id",
+                  "type": "integer"
+                },
+                "name": {
+                  "id": "name",
+                  "type": "string"
+                },
+                "link": {
+                  "id": "link",
+                  "type": "string"
+                }
+              }
+            },
+            "invoice": {
+              "id": "invoice",
+              "type": "object",
+              "properties": {
+                "id": {
+                  "id": "id",
+                  "type": "integer"
+                },
+                "external_id": {
+                  "id": "external_id",
+                  "type": "string"
+                },
+                "link": {
+                  "id": "link",
+                  "type": "string"
+                }
+              }
+            },
+            "links": {
+              "id": "links",
+              "type": "object",
+              "properties": {
+                "url": {
+                  "id": "url",
+                  "type": "string"
+                },
+                "rel": {
+                  "id": "rel",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        {
+          "id": "6",
+          "type": "object",
+          "properties": {
+            "id": {
+              "id": "id",
+              "type": "integer"
+            },
+            "name": {
+              "id": "name",
+              "type": "string"
+            },
+            "invoiced_budget": {
+              "id": "invoiced_budget",
+              "type": "string"
+            },
+            "allocatable_budget": {
+              "id": "allocatable_budget",
+              "type": "string"
+            },
+            "free_budget": {
+              "id": "free_budget",
+              "type": "string"
+            },
+            "suborder": {
+              "id": "suborder",
+              "type": "boolean"
+            },
+            "paid": {
+              "id": "paid",
+              "type": "boolean"
+            },
+            "completed": {
+              "id": "completed",
+              "type": "boolean"
+            },
+            "team": {
+              "id": "team",
+              "type": "object",
+              "properties": {
+                "id": {
+                  "id": "id",
+                  "type": "integer"
+                },
+                "name": {
+                  "id": "name",
+                  "type": "string"
+                },
+                "link": {
+                  "id": "link",
+                  "type": "string"
+                }
+              }
+            },
+            "invoice": {
+              "id": "invoice",
+              "type": "object",
+              "properties": {
+                "id": {
+                  "id": "id",
+                  "type": "integer"
+                },
+                "external_id": {
+                  "id": "external_id",
+                  "type": "string"
+                },
+                "link": {
+                  "id": "link",
+                  "type": "string"
+                }
+              }
+            },
+            "links": {
+              "id": "links",
+              "type": "object",
+              "properties": {
+                "url": {
+                  "id": "url",
+                  "type": "string"
+                },
+                "rel": {
+                  "id": "rel",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "required": [
+    "id",
+    "total",
+    "external_id",
+    "paid",
+    "links",
+    "orders"
+  ]
+}

@@ -15,6 +15,15 @@ FactoryGirl.define do
     sequence(:name) { |n| "Role #{n}" }
   end
 
+  factory :invoice do
+    sequence(:external_id)
+    factory :invoice_with_orders do
+      after(:create) do |invoice|
+        FactoryGirl.create(:order, invoice: invoice)
+      end
+    end
+  end
+
   factory :team do
     sequence(:name) { |n| "Team #{n}" }
   end
