@@ -1,5 +1,7 @@
 class UsersController < ApplicationController
+
   before_action :set_user, except: [:index]
+
 
   def index
     @articles = User.search_for(params[:search]).order(sort)
@@ -35,6 +37,10 @@ class UsersController < ApplicationController
   end
 
   private
+
+  def user_params
+    params.require(:user).permit(:role)
+  end
 
   def set_user
     begin

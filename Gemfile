@@ -17,6 +17,8 @@ gem 'rest-client'
 gem 'hirb'
 gem 'public_activity'
 gem 'hashdiff'
+gem 'jwt'
+gem 'cancancan'
 
 
 group :development do

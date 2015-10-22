@@ -2,6 +2,7 @@
 
 Rails.application.routes.draw do
   get 'activity/index'
+  post 'authenticate' => 'auth#authenticate'
 
   #orders
   resources :order,
@@ -117,4 +118,5 @@ Rails.application.routes.draw do
   match '/status/:id/checked', to: 'status#checked', via: [:put, :post, :delete]
 
   match '*path', to: 'application#no_method', via: :all
+
 end

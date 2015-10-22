@@ -45,6 +45,7 @@ GEM
     astrolabe (1.3.0)
       parser (>= 2.2.0.pre.3, < 3.0)
     builder (3.2.2)
+    cancancan (1.13.1)
     capybara (2.4.4)
       mime-types (>= 1.16)
       nokogiri (>= 1.3.3)
@@ -100,6 +101,7 @@ GEM
     json (1.8.2)
     json-schema (2.5.0)
       addressable (~> 2.3)
+    jwt (1.5.1)
     listen (2.8.5)
       celluloid (>= 0.15.2)
       rb-fsevent (>= 0.9.3)
@@ -260,6 +262,7 @@ PLATFORMS
 DEPENDENCIES
   active_model_serializers
   api-pagination
+  cancancan
   capybara
   database_cleaner (~> 1.4.0)
   factory_girl_rails
@@ -267,6 +270,7 @@ DEPENDENCIES
   hashdiff
   hirb
   json-schema
+  jwt
   mysql2
   pry
   public_activity
@@ -285,3 +289,6 @@ DEPENDENCIES
   traceroute
   turbolinks
   will_paginate (~> 3.0.6)
+
+BUNDLED WITH
+   1.10.6

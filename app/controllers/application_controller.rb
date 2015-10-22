@@ -1,3 +1,10 @@
+class AccessDeniedError < StandardError
+end
+class NotAuthenticatedError < StandardError
+end
+class AuthenticationTimeoutError < StandardError
+end
+
 class ApplicationController < ActionController::API
   rescue_from ActionController::RoutingError, with: :render_404_or_405
   rescue_from ActionController::UnknownHttpMethod, with: :render_404_or_405
@@ -5,22 +12,18 @@ class ApplicationController < ActionController::API
   #rescue_from Exception, with: :render_405
   #before_filter :check_format
   include ActionController::Serialization
+  include Authentication
+  include CanCan::ControllerAdditions
 
-  helper_method :current_user
-  hide_action :current_user
   hide_action :default_serializer_options
   hide_action :error_builder
 
-  around_filter :set_current_user
-
+  load_and_authorize_resource
 
   def default_serializer_options
     { root: false }
   end
 
-  def current_user
-    @current_user ||= User.find_by_name(params[:current_user]) if params[:current_user]
-  end
 
   def error_builder(object)
     case object.class.name
@@ -40,14 +43,6 @@ class ApplicationController < ActionController::API
   end
 
   private
-
-  def set_current_user
-    User.current_user = User.find_by_name(params[:current_user]) if params[:current_user]
-    yield
-  ensure
-    # to address the thread variable leak issues in Puma/Thin webserver
-    User.current_user = nil
-  end
 
   def sort
     if params[:sort].present?
@@ -73,6 +68,10 @@ class ApplicationController < ActionController::API
     else
       render json: {}, status: 404
     end
+  end
+
+  def forbidden_resource
+    render json: { errors: ['Not Authorized To Access Resource'] }, status: CanCan::AccessDenied
   end
 
 end

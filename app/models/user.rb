@@ -21,13 +21,7 @@ class User < ActiveRecord::Base
   scoped_search in: :team, on: :name, rename: :team, only_explicit: true
   scoped_search in: :role, on: :name, rename: :role, only_explicit: true
 
-  def self.current_user
-    Thread.current[:current_user]
-  end
 
-  def self.current_user=(usr)
-    Thread.current[:current_user] = usr
-  end
 
   def add_payment(comment, total)
     self.transaction do
