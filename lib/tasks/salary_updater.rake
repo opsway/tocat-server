@@ -74,7 +74,7 @@ namespace :shiftplanning do
                                 :start_timestamp => shift['start_timestamp'],
                                 :end_timestamp => shift['end_timestamp'],
                                 :in_day => shift['in_day']
-              end
+            end
           end
           salary_logger.info  "END processing user #{user.name} with #{user.login} login" if debug
           salary_logger.info  " " if debug
