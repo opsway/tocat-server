@@ -7,6 +7,13 @@ namespace :shiftplanning do
   end
 
   task :update_transactions => :environment do
+    #count errors 
+    errors = 0
+
+    time = Rails.cache.read('update_transactions').try(:gmtime).try(:strftime, "%d/%m/%Y - %H:%M GMT+0") || 'UNKNOWN'
+    dbid = DbError.where("alert like 'There may be salary processing errors. Last successful run%'").first.try(:id)
+    dbid = DbError.store "There may be salary processing errors. Last successful run - #{time}" unless dbid
+
     logger = Logger.new("#{Rails.root}/log/transactions.log", 7, 2048000)
         salary_logger = Logger.new("#{Rails.root}/log/salary.log", 7, 2048000)
         debug = true
@@ -15,8 +22,16 @@ namespace :shiftplanning do
         if users.empty?
           salary_logger.info  "No users with approved shifts found. Terminating."
           salary_logger.info  " " if debug
+
+          #clear errors if nothing to do
+          if errors == 0
+            Rails.cache.write('update_transactions', Time.now.gmtime)  # TODO - check rails cache
+            DbError.delete dbid  # Remove error if error count == 0 (and if we reached this line)
+          end
           return
         end
+
+
         salary_logger.info "Users:"
         users.each {|user| salary_logger.info "#{user['eid']}"}
         users.each do |u|
@@ -40,6 +55,7 @@ namespace :shiftplanning do
                                       account: user.team.income_account,
                                       user_id: user.id
                 rescue => e
+                  errors += 1
                   binding.pry
                   logger.error "#{Time.now} Transactions for #{user.name} was not created!"
                 end
@@ -63,6 +79,7 @@ namespace :shiftplanning do
                                       user_id: user.id
                 rescue => e
                   binding.pry
+                  errors += 1
                   logger.error "#{Time.now} Transactions for #{user.name} was not created!"
                 end
               end
@@ -75,11 +92,16 @@ namespace :shiftplanning do
                                 :end_timestamp => shift['end_timestamp'],
                                 :in_day => shift['in_day']
             end
+
           end
           salary_logger.info  "END processing user #{user.name} with #{user.login} login" if debug
           salary_logger.info  " " if debug
         end
         salary_logger.info  "Salary update complete."
+        if errors == 0
+          Rails.cache.write('update_transactions', Time.now.gmtime)  # TODO - check rails cache
+          DbError.delete dbid  # Remove error if error count == 0 (and if we reached this line)
+        end
   end
   task :check_transactions  => :environment do
     User.all.each do |user|
