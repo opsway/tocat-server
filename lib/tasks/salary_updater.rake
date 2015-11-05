@@ -20,7 +20,7 @@ namespace :shiftplanning do
         salary_logger.info "Users:"
         users.each {|user| salary_logger.info "#{user['eid']}"}
         users.each do |u|
-          next if u['eid'] == 'stmor'|| u['eid'] == 'ansam' || u['eid'] == ''
+          next if u['eid'] == 'semor'|| u['eid'] == 'ansam' 
           user = User.find_by_login(u['eid'])
           binding.pry if user.nil?
           salary_logger.info  "START processing user #{user.name} with #{user.login} login" if debug
