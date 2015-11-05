@@ -10,7 +10,7 @@ namespace :shiftplanning do
     #count errors 
     errors = 0
 
-    time = Rails.cache.read('update_transactions').try(:gmtime).try(:strftime, "%d/%m/%Y - %H:%M GMT+0") || 'UNKNOWN'
+    time = Time.now.gmtime.strftime("%d/%m/%Y - %H:%M GMT+0")
     dbid = DbError.where("alert like 'There may be salary processing errors. Last successful run%'").first.try(:id)
     dbid = DbError.store "There may be salary processing errors. Last successful run - #{time}" unless dbid
 
@@ -99,7 +99,6 @@ namespace :shiftplanning do
         end
         salary_logger.info  "Salary update complete."
         if errors == 0
-          Rails.cache.write('update_transactions', Time.now.gmtime)  # TODO - check rails cache
           DbError.delete dbid  # Remove error if error count == 0 (and if we reached this line)
         end
   end
