@@ -28,7 +28,7 @@ namespace :shiftplanning do
             Rails.cache.write('update_transactions', Time.now.gmtime)  # TODO - check rails cache
             DbError.delete dbid  # Remove error if error count == 0 (and if we reached this line)
           end
-          return
+          exit 
         end
 
 

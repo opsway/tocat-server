@@ -62,12 +62,18 @@ class RedmineTocatApi
 
   def self.get_invoices(page = 1)
     url, org_id, auth = generate_url('get_invoices')
+    p url
     params  = { :params => { "organization_id"    => org_id,
                              'authtoken'        => auth,
                              'accept'          => 'json',
                              'page'            => page
     } }
-    request = get(url, params)
+    request = begin
+       get(url, params)
+    rescue
+      sleep(5)
+      get(url, params)
+    end
     invoices = []
     if request && !request.empty? && request != "{}"
       request = JSON.parse(request)
