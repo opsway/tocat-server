@@ -67,12 +67,7 @@ class RedmineTocatApi
                              'accept'          => 'json',
                              'page'            => page
     } }
-    request = begin
-       get(url, params)
-    rescue
-      sleep(5)
-      get(url, params)
-    end
+    request = get(url, params)
     invoices = []
     if request && !request.empty? && request != "{}"
       request = JSON.parse(request)
@@ -88,6 +83,7 @@ class RedmineTocatApi
 
 
   def self.get(url, params)
+    params.merge!(timeout: 20)
     RestClient.get(url, params) { |response, request, result, &block|
       case response.code
         when 502
