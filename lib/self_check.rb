@@ -39,6 +39,7 @@ class SelfCheck
       @alerts << DbError.store("Unexpected transaction ##{transaction.id}: #{transaction.comment}")
     end
     DbError.where.not(id: @alerts.flatten.uniq).destroy_all
+    Rails.cache.write('last_success_self_start', Time.now)
   end
 
   private
