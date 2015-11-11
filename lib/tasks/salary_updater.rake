@@ -7,6 +7,29 @@ namespace :shiftplanning do
   end
 
   task :update_transactions => :environment do
+    #check lockfile 
+    lock_file = "/tmp/salary_update_lock"
+    if File.exists? lock_file
+      pid = File.read lock_file
+
+      # check if process really work (check pid from lockfile)
+      process_present =
+        begin 
+          Process.getpgid pid.to_i
+        rescue 
+          false
+        end
+      if process_present
+        p 'Lock file present, please wait'
+        exit 
+      end
+    end
+
+    #write pid to lock file
+    File.open(lock_file,'w') do |f|
+      f.write(Process.pid)
+    end
+
     #count errors 
     errors = 0
 
@@ -101,6 +124,7 @@ namespace :shiftplanning do
         if errors == 0
           DbError.delete dbid  # Remove error if error count == 0 (and if we reached this line)
         end
+        File.unlink lock_file # remove lock file after finish 
   end
   task :check_transactions  => :environment do
     User.all.each do |user|
