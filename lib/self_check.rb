@@ -49,6 +49,14 @@ class SelfCheck
       record.symbolize_keys!
       invoice = Invoice.where(external_id: record[:invoice_id]).first
       if invoice.present?
+        if record[:status] == 'draft'
+          @alerts << DbError.store("Invoice #{invoice.external_id}(#{record[:invoice_number]} in zoho) is in DRAFT status.")
+          next
+        end
+        if record[:status] == 'void'
+          @alerts << DbError.store("Invoice #{invoice.external_id}(#{record[:invoice_number]} in zoho) is in VOID status.")
+          next
+        end
         if record[:currency_code] == "USD"
           @alerts << DbError.store("Invoice #{invoice.external_id}(#{record[:invoice_number]} in zoho) has invalid total: It has #{invoice.total}, but it should be #{record[:total]}.") if invoice.total != record[:total]
           record[:status] == 'paid' ?
@@ -57,9 +65,6 @@ class SelfCheck
           @alerts << DbError.store("Invoice #{invoice.external_id}(#{record[:invoice_number]} in zoho) has invalid paid status.") if invoice.paid != status
         else
           @alerts << DbError.store("Invoice #{invoice.external_id}(#{record[:invoice_number]} in zoho) has invalid total: It has #{invoice.total}, but it should be #{record[:total] * record[:exchange_rate]}.") if invoice.total != (record[:total] * record[:exchange_rate])
-        end
-        if record[:status] == 'draft'
-          @alerts << DbError.store("Invoice #{invoice.external_id}(#{record[:invoice_number]} in zoho) is in DRAFT status.")
         end
       end
     end
@@ -294,7 +299,7 @@ class SelfCheck
       issues.each do |id|
         accepted_count = 0
         reopening_count = 0
-        user.balance_account.transactions.where("comment LIKE '%#{id}%'").each do |t_|
+        user.balance_account.transactions.where("comment LIKE '%#{id}%'").each do |t_| 
           @transactions << t_.id
           if /Accepted and paid issue.*/.match(t_.comment).present?
             accepted_count += 1
