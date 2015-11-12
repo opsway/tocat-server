@@ -25,6 +25,7 @@ class SelfCheck
     transactions
     complete_transactions
     check_invoices
+    zero_transactions
     Transaction.includes(account: :accountable).where.not(id: @transactions.flatten.uniq).where.not('comment LIKE "%Paid in cash/bank%"').each do |transaction|
       if /Salary for.*/.match(transaction.comment).present?
         next if transaction.account.accountable.try(:role).try(:name) == 'Manager'
@@ -434,6 +435,13 @@ class SelfCheck
         end
       rescue
       end
+    end
+  end
+
+  def zero_transactions
+    Transaction.where(total: 0).where("comment like '%issue%'").find_each do |transaction|
+      issue = transaction.comment.gsub(/\D/, '')
+      @alerts << DbError.store("Transaction id=#{transaction.id} for issue #{issue} has 0 total")
     end
   end
 
