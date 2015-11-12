@@ -66,45 +66,27 @@ namespace :shiftplanning do
             unless Timesheet.where("user_id = ? and in_day = ?", user.id, shift['in_day'].to_i).first
               salary_logger.info  "#{user.name} has new shift record!" if debug
               salary_logger.info  "Processing it..." if debug
-              if user.role.name == 'Manager'
-                salary_logger.info  "#{user.name} is manager!" if debug
-                begin
-                  Transaction.create! comment: "Salary for #{shift['start_timestamp'].to_time.strftime("%d/%m/%y")}", #increase user income
-                                      total: "#{user.daily_rate.to_s}",
-                                      account: user.income_account,
-                                      user_id: user.id
-                  Transaction.create! comment: "Salary #{user.name} #{shift['start_timestamp'].to_time.strftime("%d/%m/%y")}", #decrease team income
-                                      total: "-#{user.daily_rate.to_s}",
-                                      account: user.team.income_account,
-                                      user_id: user.id
-                rescue => e
-                  errors += 1
-                  binding.pry
-                  logger.error "#{Time.now} Transactions for #{user.name} was not created!"
-                end
-              else
-                begin
-                  Transaction.create! comment: "Salary for #{shift['start_timestamp'].to_time.strftime("%d/%m/%y")}", #decrease user balance
-                                      total: "-#{user.daily_rate.to_s}",
-                                      account: user.balance_account,
-                                      user_id: user.id
-                  Transaction.create! comment: "Salary for #{shift['start_timestamp'].to_time.strftime("%d/%m/%y")}", #increase user income
-                                      total: "#{user.daily_rate.to_s}",
-                                      account: user.income_account,
-                                      user_id: user.id
-                  Transaction.create! comment: "Salary #{user.name} #{shift['start_timestamp'].to_time.strftime("%d/%m/%y")}", #decrease team balance
-                                      total: "-#{user.daily_rate.to_s}",
-                                      account: user.team.balance_account,
-                                      user_id: user.id
-                  Transaction.create! comment: "Salary #{user.name} #{shift['start_timestamp'].to_time.strftime("%d/%m/%y")}", #decrease team income
-                                      total: "-#{user.daily_rate.to_s}",
-                                      account: user.team.income_account,
-                                      user_id: user.id
-                rescue => e
-                  binding.pry
-                  errors += 1
-                  logger.error "#{Time.now} Transactions for #{user.name} was not created!"
-                end
+              begin
+                Transaction.create! comment: "Salary for #{shift['start_timestamp'].to_time.strftime("%d/%m/%y")}", #decrease user balance
+                                    total: "-#{user.daily_rate.to_s}",
+                                    account: user.balance_account,
+                                    user_id: user.id
+                Transaction.create! comment: "Salary for #{shift['start_timestamp'].to_time.strftime("%d/%m/%y")}", #increase user income
+                                    total: "#{user.daily_rate.to_s}",
+                                    account: user.income_account,
+                                    user_id: user.id
+                Transaction.create! comment: "Salary #{user.name} #{shift['start_timestamp'].to_time.strftime("%d/%m/%y")}", #decrease team balance
+                                    total: "-#{user.daily_rate.to_s}",
+                                    account: user.team.balance_account,
+                                    user_id: user.id
+                Transaction.create! comment: "Salary #{user.name} #{shift['start_timestamp'].to_time.strftime("%d/%m/%y")}", #decrease team income
+                                    total: "-#{user.daily_rate.to_s}",
+                                    account: user.team.income_account,
+                                    user_id: user.id
+              rescue => e
+                binding.pry
+                errors += 1
+                logger.error "#{Time.now} Transactions for #{user.name} was not created!"
               end
               salary_logger.info  "Shift record has been proceed" if debug
             end
