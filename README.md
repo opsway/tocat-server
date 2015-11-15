@@ -14,6 +14,10 @@ http://www.slideshare.net/werdan/tocat-introduction-english
 
 http://www.slideshare.net/werdan/tocat-introduction
 
+API documentation
+===
+
+http://docs.tocat.apiary.io/
 
 Tests
 ===
