@@ -3,6 +3,9 @@ class Role < ActiveRecord::Base
 
   before_save :normalize_name
   has_many :users
+  has_many :teams, through: :users, source: :team
+  scope :managers, ->{where name: 'Manager'}
+  scope :developers, ->{where name: 'Developer'}
 
   private
 

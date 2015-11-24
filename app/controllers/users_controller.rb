@@ -2,10 +2,17 @@ class UsersController < ApplicationController
   before_action :set_user, except: [:index, :create]
 
   def index
-    @articles = User.search_for(params[:search]).order(sort)
-    #paginate json: @articles, per_page: params[:limit]
-    render json: @articles
-
+    if params[:anyuser].present?
+      @articles = User.search_for(params[:search]).order(:name)
+    else
+      @articles = User.search_for(params[:search]).order(:name).all_active
+    end
+    
+    if params[:limit].present? || params[:page].present? || params[:anyuser].present?
+      return paginate json: @articles, per_page: params[:limit] 
+    else
+      render json: @articles
+    end
   end
 
   def pay_bonus
@@ -41,8 +48,9 @@ class UsersController < ApplicationController
   end
   
   def destroy
+    params.permit!
     @user.create_activity :destroy,
-      parameters: user_params,
+      parameters: params,
       owner: User.current_user
     @user.update_column(:active,false)
     render json: @user, serializer: UserShowSerializer, status: 200
@@ -73,6 +81,9 @@ class UsersController < ApplicationController
         @user = User.find(params[:user_id])
       else
         @user = User.find(params[:id])
+      end
+      unless @user.active?
+        return render json: {errors: ['User is inactive']}, status: 422
       end
     rescue ActiveRecord::RecordNotFound
       return render json: {}, status: 404

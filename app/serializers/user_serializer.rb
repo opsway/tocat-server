@@ -29,10 +29,10 @@ class UserSerializer < ActiveModel::Serializer
   end
 
   def balance_account_state
-    object.balance_account.balance.to_f
+    object.balance_account.try(:balance).try(:to_f)
   end
 
   def income_account_state
-    object.income_account.balance.to_f
+    object.income_account.try(:balance).try(:to_f)
   end
 end

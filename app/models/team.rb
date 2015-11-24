@@ -4,4 +4,5 @@ class Team < ActiveRecord::Base
   validates :name, presence: true
   has_many :orders
   has_many :users
+  has_many :roles, :through => :users, source: :role
 end
