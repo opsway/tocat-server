@@ -3,7 +3,9 @@ class UsersController < ApplicationController
 
   def index
     @articles = User.search_for(params[:search]).order(sort)
-    paginate json: @articles, per_page: params[:limit]
+    #paginate json: @articles, per_page: params[:limit]
+    render json: @articles
+
   end
 
   def pay_bonus

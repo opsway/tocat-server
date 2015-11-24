@@ -83,6 +83,7 @@ class RedmineTocatApi
 
 
   def self.get(url, params)
+    params.merge!(timeout: 20)
     RestClient.get(url, params) { |response, request, result, &block|
       case response.code
         when 502

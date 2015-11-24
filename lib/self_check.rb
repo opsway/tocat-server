@@ -3,7 +3,7 @@ require_relative 'zoho/api'
 
 class SelfCheck
   include Singleton
-#
+
   def start
     @transactions = []
     @alerts = []
@@ -25,6 +25,7 @@ class SelfCheck
     transactions
     complete_transactions
     check_invoices
+    zero_transactions
     Transaction.includes(account: :accountable).where.not(id: @transactions.flatten.uniq).where.not('comment LIKE "%Paid in cash/bank%"').each do |transaction|
       if /Salary for.*/.match(transaction.comment).present?
         next if transaction.account.accountable.try(:role).try(:name) == 'Manager'
@@ -39,15 +40,24 @@ class SelfCheck
       @alerts << DbError.store("Unexpected transaction ##{transaction.id}: #{transaction.comment}")
     end
     DbError.where.not(id: @alerts.flatten.uniq).destroy_all
+    Rails.cache.write('last_success_self_start', Time.now)
   end
 
-  #private
+  private
 
   def check_invoices
     RedmineTocatApi.get_invoices.each do |record|
       record.symbolize_keys!
       invoice = Invoice.where(external_id: record[:invoice_id]).first
       if invoice.present?
+        if record[:status] == 'draft'
+          @alerts << DbError.store("Invoice #{invoice.external_id}(#{record[:invoice_number]} in zoho) is in DRAFT status.")
+          next
+        end
+        if record[:status] == 'void'
+          @alerts << DbError.store("Invoice #{invoice.external_id}(#{record[:invoice_number]} in zoho) is in VOID status.")
+          next
+        end
         if record[:currency_code] == "USD"
           @alerts << DbError.store("Invoice #{invoice.external_id}(#{record[:invoice_number]} in zoho) has invalid total: It has #{invoice.total}, but it should be #{record[:total]}.") if invoice.total != record[:total]
           record[:status] == 'paid' ?
@@ -290,7 +300,7 @@ class SelfCheck
       issues.each do |id|
         accepted_count = 0
         reopening_count = 0
-        user.balance_account.transactions.where("comment LIKE '%#{id}%'").each do |t_|
+        user.balance_account.transactions.where("comment LIKE '%#{id}%'").each do |t_| 
           @transactions << t_.id
           if /Accepted and paid issue.*/.match(t_.comment).present?
             accepted_count += 1
@@ -425,6 +435,13 @@ class SelfCheck
         end
       rescue
       end
+    end
+  end
+
+  def zero_transactions
+    Transaction.where(total: 0).where("comment like '%issue%'").find_each do |transaction|
+      issue = transaction.comment.gsub(/\D/, '')
+      @alerts << DbError.store("Transaction id=#{transaction.id} for issue #{issue} has 0 total")
     end
   end
 

@@ -7,6 +7,36 @@ namespace :shiftplanning do
   end
 
   task :update_transactions => :environment do
+    #check lockfile 
+    lock_file = "/tmp/salary_update_lock"
+    if File.exists? lock_file
+      pid = File.read lock_file
+
+      # check if process really work (check pid from lockfile)
+      process_present =
+        begin 
+          Process.getpgid pid.to_i
+        rescue 
+          false
+        end
+      if process_present
+        p 'Lock file present, please wait'
+        exit 
+      end
+    end
+
+    #write pid to lock file
+    File.open(lock_file,'w') do |f|
+      f.write(Process.pid)
+    end
+
+    #count errors 
+    errors = 0
+
+    time = Time.now.gmtime.strftime("%d/%m/%Y - %H:%M GMT+0")
+    dbid = DbError.where("alert like 'There may be salary processing errors. Last successful run%'").first.try(:id)
+    dbid = DbError.store "There may be salary processing errors. Last successful run - #{time}" unless dbid
+
     logger = Logger.new("#{Rails.root}/log/transactions.log", 7, 2048000)
         salary_logger = Logger.new("#{Rails.root}/log/salary.log", 7, 2048000)
         debug = true
@@ -15,12 +45,20 @@ namespace :shiftplanning do
         if users.empty?
           salary_logger.info  "No users with approved shifts found. Terminating."
           salary_logger.info  " " if debug
-          return
+
+          #clear errors if nothing to do
+          if errors == 0
+            Rails.cache.write('update_transactions', Time.now.gmtime)  # TODO - check rails cache
+            DbError.delete dbid  # Remove error if error count == 0 (and if we reached this line)
+          end
+          exit 
         end
+
+
         salary_logger.info "Users:"
         users.each {|user| salary_logger.info "#{user['eid']}"}
         users.each do |u|
-          next if u['eid'] == 'stmor'|| u['eid'] == 'ansam'
+          next if u['eid'] == 'semor'|| u['eid'] == 'ansam' 
           user = User.find_by_login(u['eid'])
           binding.pry if user.nil?
           salary_logger.info  "START processing user #{user.name} with #{user.login} login" if debug
@@ -28,43 +66,27 @@ namespace :shiftplanning do
             unless Timesheet.where("user_id = ? and in_day = ?", user.id, shift['in_day'].to_i).first
               salary_logger.info  "#{user.name} has new shift record!" if debug
               salary_logger.info  "Processing it..." if debug
-              if user.role.name == 'Manager'
-                salary_logger.info  "#{user.name} is manager!" if debug
-                begin
-                  Transaction.create! comment: "Salary for #{shift['start_timestamp'].to_time.strftime("%d/%m/%y")}", #increase user income
-                                      total: "#{user.daily_rate.to_s}",
-                                      account: user.income_account,
-                                      user_id: user.id
-                  Transaction.create! comment: "Salary #{user.name} #{shift['start_timestamp'].to_time.strftime("%d/%m/%y")}", #decrease team income
-                                      total: "-#{user.daily_rate.to_s}",
-                                      account: user.team.income_account,
-                                      user_id: user.id
-                rescue => e
-                  binding.pry
-                  logger.error "#{Time.now} Transactions for #{user.name} was not created!"
-                end
-              else
-                begin
-                  Transaction.create! comment: "Salary for #{shift['start_timestamp'].to_time.strftime("%d/%m/%y")}", #decrease user balance
-                                      total: "-#{user.daily_rate.to_s}",
-                                      account: user.balance_account,
-                                      user_id: user.id
-                  Transaction.create! comment: "Salary for #{shift['start_timestamp'].to_time.strftime("%d/%m/%y")}", #increase user income
-                                      total: "#{user.daily_rate.to_s}",
-                                      account: user.income_account,
-                                      user_id: user.id
-                  Transaction.create! comment: "Salary #{user.name} #{shift['start_timestamp'].to_time.strftime("%d/%m/%y")}", #decrease team balance
-                                      total: "-#{user.daily_rate.to_s}",
-                                      account: user.team.balance_account,
-                                      user_id: user.id
-                  Transaction.create! comment: "Salary #{user.name} #{shift['start_timestamp'].to_time.strftime("%d/%m/%y")}", #decrease team income
-                                      total: "-#{user.daily_rate.to_s}",
-                                      account: user.team.income_account,
-                                      user_id: user.id
-                rescue => e
-                  binding.pry
-                  logger.error "#{Time.now} Transactions for #{user.name} was not created!"
-                end
+              begin
+                Transaction.create! comment: "Salary for #{shift['start_timestamp'].to_time.strftime("%d/%m/%y")}", #decrease user balance
+                                    total: "-#{user.daily_rate.to_s}",
+                                    account: user.balance_account,
+                                    user_id: user.id
+                Transaction.create! comment: "Salary for #{shift['start_timestamp'].to_time.strftime("%d/%m/%y")}", #increase user income
+                                    total: "#{user.daily_rate.to_s}",
+                                    account: user.income_account,
+                                    user_id: user.id
+                Transaction.create! comment: "Salary #{user.name} #{shift['start_timestamp'].to_time.strftime("%d/%m/%y")}", #decrease team balance
+                                    total: "-#{user.daily_rate.to_s}",
+                                    account: user.team.balance_account,
+                                    user_id: user.id
+                Transaction.create! comment: "Salary #{user.name} #{shift['start_timestamp'].to_time.strftime("%d/%m/%y")}", #decrease team income
+                                    total: "-#{user.daily_rate.to_s}",
+                                    account: user.team.income_account,
+                                    user_id: user.id
+              rescue => e
+                binding.pry
+                errors += 1
+                logger.error "#{Time.now} Transactions for #{user.name} was not created!"
               end
               salary_logger.info  "Shift record has been proceed" if debug
             end
@@ -74,12 +96,17 @@ namespace :shiftplanning do
                                 :start_timestamp => shift['start_timestamp'],
                                 :end_timestamp => shift['end_timestamp'],
                                 :in_day => shift['in_day']
-              end
+            end
+
           end
           salary_logger.info  "END processing user #{user.name} with #{user.login} login" if debug
           salary_logger.info  " " if debug
         end
         salary_logger.info  "Salary update complete."
+        if errors == 0
+          DbError.delete dbid  # Remove error if error count == 0 (and if we reached this line)
+        end
+        File.unlink lock_file # remove lock file after finish 
   end
   task :check_transactions  => :environment do
     User.all.each do |user|

@@ -52,7 +52,7 @@ class ShiftplanningApi
     @api_unavailable = true
     time             = Time.now
     if @api_fallback_time != time
-      Duty.destroy_all
+      #Duty.destroy_all # Duty removed from repository redmine-support
       @api_fallback_time = time
     end
   end
