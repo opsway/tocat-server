@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150626165309) do
+ActiveRecord::Schema.define(version: 20151120114142) do
 
   create_table "accounts", force: :cascade do |t|
     t.string   "account_type",     limit: 255, null: false
@@ -139,13 +139,14 @@ ActiveRecord::Schema.define(version: 20150626165309) do
   add_index "transactions", ["user_id"], name: "index_transactions_on_user_id", using: :btree
 
   create_table "users", force: :cascade do |t|
-    t.string   "name",       limit: 255,                         null: false
-    t.string   "login",      limit: 255,                         null: false
-    t.integer  "team_id",    limit: 4,                           null: false
-    t.decimal  "daily_rate",             precision: 5, scale: 2, null: false
+    t.string   "name",       limit: 255,                                        null: false
+    t.string   "login",      limit: 255,                                        null: false
+    t.integer  "team_id",    limit: 4,                                          null: false
+    t.decimal  "daily_rate",             precision: 5, scale: 2,                null: false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "role_id",    limit: 4,                           null: false
+    t.integer  "role_id",    limit: 4,                                          null: false
+    t.boolean  "active",     limit: 1,                           default: true
   end
 
   add_index "users", ["role_id"], name: "index_users_on_role_id", using: :btree

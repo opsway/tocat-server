@@ -27,7 +27,10 @@ class UserShowSerializer < ActiveModel::Serializer
   end
 
   def role
-    object.role.name
+    data = {}
+    data[:id] = object.role.id
+    data[:name]= object.role.name
+    data
   end
 
   def links

@@ -10,6 +10,12 @@ Rails.application.routes.draw do
             defaults: { format: 'json' },
             only: [:index, :create]
 
+  resources :roles,
+            path: 'roles',
+            controller: 'roles',
+            defaults: { format: 'json' },
+            only: [:index]
+
   resources :order,
             path: 'order',
             controller: 'orders',
@@ -62,13 +68,13 @@ Rails.application.routes.draw do
             path: 'users',
             controller: 'users',
             defaults: { format: 'json' },
-            only: [:index, :create]
+            only: [:index, :create, :destroy]
 
   resources :user,
             path: 'user',
             controller: 'users',
             defaults: { format: 'json' },
-            only: [:show, :update] do
+            only: [:show, :update, :destroy] do
     post 'add_payment', to: 'users#add_payment', as: 'add_payment', format: 'json'
     post 'pay_bonus', to: 'users#pay_bonus', as: 'pay_bonus', format: 'json'
   end

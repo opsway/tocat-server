@@ -1,7 +1,7 @@
 class UserSerializer < ActiveModel::Serializer
   include Rails.application.routes.url_helpers
 
-  attributes :id, :name, :login, :team, :role, :links, :balance_account_state, :income_account_state
+  attributes :id, :name, :login, :team, :role, :links, :balance_account_state, :income_account_state, :active, :daily_rate
 
   private
 
@@ -15,7 +15,10 @@ class UserSerializer < ActiveModel::Serializer
   end
 
   def role
-    object.role.name
+    data = {}
+    data[:id] = object.role.id
+    data[:name]= object.role.name
+    data
   end
 
   def links

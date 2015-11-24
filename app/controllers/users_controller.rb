@@ -36,7 +36,15 @@ class UsersController < ApplicationController
     else
       render json: error_builder(@user), status: 406
     end
-    end
+  end
+  
+  def destroy
+    @user.create_activity :destroy,
+      parameters: user_params,
+      owner: User.current_user
+    @user.update_column(:active,false)
+    render json: @user, serializer: UserShowSerializer, status: 200
+  end
 
   def update
     user_attr = {}
@@ -70,16 +78,17 @@ class UsersController < ApplicationController
   end
 
   def user_params
-    output = params.permit(:name,
-                           :login,
-                           :team,
-                           :daily_rate,
-                           :role)
-    if params[:team].present?
-      output.merge!({ team_id: params.try(:[], 'team').try(:[], 'id') })
+    output = params.require(:user).permit(:name,
+                                          :login,
+                                          :daily_rate,
+                                          :team_id,
+                                          :role_id
+                                          )
+    if params[:user].try(:[],:team).present?
+      output.merge!({ team_id: params[:user]['team']})
     end
-    if params[:role].present?
-      output.merge!({ role_id: params.try(:[], 'role').try(:[], 'id') })
+    if params[:user].try(:[],:role).present?
+      output.merge!({ role_id: params[:user].try(:[], :role)})
     end
     output
   end
