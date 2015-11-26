@@ -1,5 +1,6 @@
 class UsersController < ApplicationController
   before_action :set_user, except: [:index, :create]
+  before_action :check_user, except: [:index, :create, :destroy, :show]
 
   def index
     if params[:anyuser].present?
@@ -52,7 +53,11 @@ class UsersController < ApplicationController
     @user.create_activity :destroy,
       parameters: params,
       owner: User.current_user
-    @user.update_column(:active,false)
+    if @user.active
+      @user.update_column(:active,false)
+    else
+      @user.update_column(:active,true)
+    end
     render json: @user, serializer: UserShowSerializer, status: 200
   end
 
@@ -82,11 +87,14 @@ class UsersController < ApplicationController
       else
         @user = User.find(params[:id])
       end
-      unless @user.active?
-        return render json: {errors: ['User is inactive']}, status: 422
-      end
     rescue ActiveRecord::RecordNotFound
       return render json: {}, status: 404
+    end
+  end
+
+  def check_user
+    unless @user.active? 
+      return render json: {errors: ['User is inactive']}, status: 422
     end
   end
 

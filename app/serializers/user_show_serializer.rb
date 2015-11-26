@@ -9,6 +9,7 @@ class UserShowSerializer < ActiveModel::Serializer
              :role,
              :links,
              :accounts,
+             :active,
              :balance_account_state,
              :income_account_state
 

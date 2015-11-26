@@ -22,6 +22,19 @@ frisby.create('Correct User')
               name: 'some another'
           .expectStatus(422)
           .expectJSON {errors: ['User is inactive']}
+          .afterJSON ->
+            frisby.create('Make user active back')
+              .delete url + '/user/' + user.id 
+              .expectStatus(200)
+              .afterJSON (user)->
+                expect(user.active).toBe true
+                frisby.create('List of active users')
+                  .get url + '/users'
+                  .expectStatus(200)
+                  .afterJSON (users)->
+                    expect(users.length).toBe 7
+                  .toss()
+              .toss()
           .toss()
       .toss()
   .toss()
@@ -94,3 +107,4 @@ frisby.create('List of active users')
   .afterJSON (users)->
     expect(users.length == 7).toBe true
   .toss()
+
