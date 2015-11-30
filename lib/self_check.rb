@@ -7,6 +7,7 @@ class SelfCheck
   def start
     @transactions = []
     @alerts = []
+    manager_status
     paid_status
     orders_relationship
     invoiced
@@ -44,6 +45,17 @@ class SelfCheck
   end
 
   private
+
+  def manager_status
+    User.joins(:role).where("roles.name='Manager'").find_each do |user|
+      user.transactions.where("comment like 'Reopening%'").find_each do |t|
+        @alerts << DbError.store("Wrong transaction ##{t.id} for user with Manager role")
+      end
+      user.transactions.where("comment like 'Accepted and paid%'").find_each do |t|
+        @alerts << DbError.store("Wrong transaction ##{t.id} for user with Manager role")
+      end
+    end
+  end
 
   def check_invoices
     RedmineTocatApi.get_invoices.each do |record|
