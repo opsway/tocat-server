@@ -6,12 +6,12 @@ class User < ActiveRecord::Base
   validates :daily_rate,
             numericality: { greather_than: 0 },
             presence: true
-  validate :team_can_have_only_one_manager
 
   belongs_to :team
   belongs_to :role
   validates :team_id, presence: true
   validates :role_id, presence: true
+  validate :team_can_have_only_one_manager
 
   has_many :transactions
   has_many :tasks
@@ -80,6 +80,6 @@ class User < ActiveRecord::Base
     self.name = self.name.titleize
   end
   def team_can_have_only_one_manager
-    errors.add 'Team', 'already have a manager' if self.team.roles.managers.any? && self.role.name == 'Manager' #TODO - fix 
+    errors.add 'Team', 'already have a manager' if self.role.try(:name) == 'Manager' && self.team.roles.managers.any? #TODO - fix 
   end
 end
