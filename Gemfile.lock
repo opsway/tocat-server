@@ -210,6 +210,7 @@ GEM
       powerpack (~> 0.0.6)
       rainbow (>= 1.99.1, < 3.0)
       ruby-progressbar (~> 1.4)
+    ruby-prof (0.15.9)
     ruby-progressbar (1.7.1)
     scoped_search (3.2.0)
       activerecord (>= 3.2.0)
@@ -277,6 +278,7 @@ DEPENDENCIES
   rest-client
   rspec-rails (~> 3.0.0)
   rubocop
+  ruby-prof
   scoped_search
   shiftplanning (~> 0.0.3)
   shoulda
@@ -285,3 +287,6 @@ DEPENDENCIES
   traceroute
   turbolinks
   will_paginate (~> 3.0.6)
+
+BUNDLED WITH
+   1.10.6

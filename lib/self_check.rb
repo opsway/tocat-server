@@ -1,12 +1,23 @@
 require 'singleton'
 require_relative 'zoho/api'
+require 'ruby-prof'
 
 class SelfCheck
   include Singleton
+  def start_with_prof
+    RubyProf.start
+    prefix_check
+    result = RubyProf.stop
+    printer = RubyProf::GraphHtmlPrinter.new(result)
+    File.open('fullprof.html','wb') do |f|
+      printer.print(f) 
+    end
+  end
 
   def start
     @transactions = []
     @alerts = []
+    prefix_check
     manager_status
     paid_status
     orders_relationship
@@ -45,6 +56,16 @@ class SelfCheck
   end
 
   private
+  
+  def prefix_check
+    Task.where('external_id not regexp ".*_[0-9]+$"').find_each do |task|
+        @alerts << DbError.store("Wrong task external_id ##{task.external_id}")
+    end
+    
+    Transaction.where("comment like '%issue%'").where('comment not regexp ".*_[0-9]+.*"').find_each do |t|
+        @alerts << DbError.store("Wrong transaction issue_id ##{t.id}")
+    end
+  end
 
   def manager_status
     User.joins(:role).where("roles.name='Manager'").find_each do |user|
@@ -192,7 +213,7 @@ class SelfCheck
     end
   end
 
-  def task_uniqness
+  def task_uniqness #FIXME!!! WTF? 
     tasks = []
     Task.find_each do |task|
       @alerts << DbError.store("Task #{task.external_id} has a double") if tasks.include? task.external_id
@@ -276,14 +297,22 @@ class SelfCheck
   end
 
   def salary
-    User.includes(accounts: :transactions).find_each do |user|
+   #team_transactions = {}
+
+   #Team.includes(accounts: :transactions).find_each do |team|
+   #  team_transactions[team.id] = {}
+   #  team_transactions[team.id][:balance] = team.balance_account.trransactions
+   #  team_transactions[team.id][:income] = team.income_account.transactions
+   #end
+
+    User.find_each do |user|
       user.balance_account.transactions.where('comment LIKE "Salary %"').each do |t|
         @transactions << t.id
         user_income_count = user.income_account.transactions.where("comment LIKE '#{t.comment}' AND total = #{t.total.abs}").count
         @transactions << user.income_account.transactions.where("comment LIKE '#{t.comment}' AND total = #{t.total.abs}").ids
         team_balance_count = 0
         team_payment_count = 0
-        Team.includes(accounts: :transactions).find_each do |team|
+        Team.find_each do |team|
           team_balance_count += team.balance_account.transactions.where("comment LIKE '#{t.comment.gsub('for', user.name)}'").count
           team_payment_count += team.income_account.transactions.where("comment LIKE '#{t.comment.gsub('for', user.name)}'").count
           @transactions << team.balance_account.transactions.where("comment LIKE '#{t.comment.gsub('for', user.name)}'").ids

@@ -24,6 +24,7 @@ gem 'pry'
 group :development do
   gem 'traceroute'
   gem "rails_best_practices"
+  gem 'ruby-prof'
 end
 
 
