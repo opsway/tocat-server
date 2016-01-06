@@ -159,10 +159,6 @@ class OrdersController < ApplicationController
       return render json: { errors: ['Can not complete already completed order'] }, status: :unprocessable_entity # FIXME
     end
 
-    if DbError.any_error?
-      return render json: { errors: ['TOCAT Self-check has errors, please check Status page'] }, status: :unprocessable_entity
-    end
-
     if @order.update_attributes(completed: true)
       @order.create_activity :completed_update,
                                parameters: {

@@ -36,6 +36,8 @@ class Order < ActiveRecord::Base
   validate :check_if_team_exists
   validate :sub_order_team
   validate :check_inheritance
+  validate :check_dberrors, if: :completed?
+
   before_save :check_budgets_for_sub_order
   before_save :check_sub_order_after_update
   before_save :set_paid_for_internal_order 
@@ -321,6 +323,11 @@ class Order < ActiveRecord::Base
     end
   end
 
+  def check_dberrors
+    if DbError.any_error?
+      errors[:base] << 'TOCAT Self-check has errors, please check Status page'
+    end
+  end
   def check_budgets
     if allocatable_budget.present? && invoiced_budget.present?
       if allocatable_budget > invoiced_budget
