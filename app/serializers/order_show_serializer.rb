@@ -9,10 +9,12 @@ class OrderShowSerializer < ActiveModel::Serializer
              :description,
              :paid,
              :completed,
+             :internal_order,
              :parent_order,
              :invoice,
              :links,
-             :team
+             :team,
+             :commission
 
   has_many :tasks
   has_many :sub_orders

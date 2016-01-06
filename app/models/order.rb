@@ -5,6 +5,8 @@ class Order < ActiveRecord::Base
   validates :allocatable_budget, presence: { message: "Allocatable budget is missing" }
   validates :invoiced_budget, presence: { message: "Invoiced budget is missing" }
   validate :existence_of_invoice, if: :invoice_id?
+  validate :non_existence_of_invoice_in_internal_orders
+  validate :non_complete_on_internal_remove, if: :internal_order_changed?
 
   validates_numericality_of :invoiced_budget,
                             greater_than: 0,
@@ -16,7 +18,15 @@ class Order < ActiveRecord::Base
                             greater_than_or_equal_to: 0,
                             message: "Allocatable should be positive number"
 
-  scoped_search on: [:name, :description, :invoiced_budget, :allocatable_budget, :free_budget, :paid, :completed]
+  validates_numericality_of :commission,
+                            greater_than: 1,
+                            less_than_or_equal_to: 100,
+                            message: "Commission should be positive number between 1-100",
+                            only_integer: true,
+                            allow_nil: true
+  validate :check_complete_change_commission, if: :commission_changed?
+
+  scoped_search on: [:name, :description, :invoiced_budget, :allocatable_budget, :free_budget, :paid, :completed, :internal_order]
   scoped_search in: :team, on: :name, rename: :team, only_explicit: true
   scoped_search on: :parent_id, only_explicit: true
   scoped_search on: :invoice_id, only_explicit: true
@@ -28,6 +38,7 @@ class Order < ActiveRecord::Base
   validate :check_inheritance
   before_save :check_budgets_for_sub_order
   before_save :check_sub_order_after_update
+  before_save :set_paid_for_internal_order 
 
   belongs_to :team
   belongs_to :invoice
@@ -44,7 +55,7 @@ class Order < ActiveRecord::Base
   before_save :check_if_paid, if: proc { |o| o.invoice_id_changed? }
   before_destroy :check_if_paid_before_destroy
   after_destroy :recalculate_parent_free_budget, if: proc { |o| o.parent_id.present? }
-  before_save :check_if_paid_on_budget_update, if: proc { |o| o.invoiced_budget_changed? }
+  before_save :check_if_paid_on_budget_update, if: proc { |o| o.invoiced_budget_changed? && !o.internal_order? }
   before_save :check_if_invoice_already_paid, if: proc { |o| o.invoice_id_changed? }
   before_save :check_for_tasks_on_team_change, if: proc { |o| o.team_id_changed? }
   before_save :check_if_suborder, if: proc { |o| o.invoice_id_changed? }
@@ -80,11 +91,40 @@ class Order < ActiveRecord::Base
       val = invoiced_budget - sub_orders.sum(:invoiced_budget) - task_orders.sum(:budget)
       team.income_account.transactions.create! total: completed ? val : -val,
                                                comment: "Order ##{id} was #{completed ? 'completed' : 'uncompleted'}"
+      additional_transactions
     end
   end
 
 
   private
+  
+  def additional_transactions
+      #make transactions (task #34212)
+      base_commission = commission.presence || 40 #TODO FIXME - default 40%
+
+      value = invoiced_budget * base_commission/100.0
+
+      central_office = Team.central_office
+
+      unless internal_order?
+        # a
+        team.manager.balance_account.transactions.create! total: -value,  comment: "Order ##{id} was completed: Central office fee"
+        # b
+        central_office.balance_account.transactions.create! total: value, comment: "Order ##{id} was completed: Central office fee"
+        # c
+        central_office.income_account.transactions.create! total: invoiced_budget, comment: "Order ##{id} was completed: Central office fee"
+      end
+      if team.income_account.balance > 0
+        # d
+        team.manager.balance_account.transactions.create! total: team.income_account.balance, comment: "Order ##{id} was completed" 
+        # e
+        team.income_account.transactions.create! total: -team.income_account.balance, comment: "Order ##{id} was completed" 
+      end
+      
+      tasks.with_expenses.find_each do |task|
+        central_office.income_account.transactions.create! total: -task.budget, comment: "Expense, Issue ##{task.external_id}"
+      end
+  end
 
   def set_invoiced
     self.invoiced_budget = allocatable_budget
@@ -104,6 +144,12 @@ class Order < ActiveRecord::Base
   def check_if_parent_completed_on_suborder_creation
     if parent.completed?
       errors[:base] << 'Can not create suborder from completed order'
+      false
+    end
+  end
+  def non_existence_of_invoice_in_internal_orders
+    if invoice_id.present? && internal_order
+      errors[:base] << "Internal order can't have invoice"
       false
     end
   end
@@ -303,6 +349,25 @@ class Order < ActiveRecord::Base
       end
     elsif allocatable_budget_changed?
       self.free_budget = allocatable_budget
+    end
+  end
+  def check_complete_change_commission 
+    if completed?
+      errors.add(:commission,  "can't change commission for completed orders")
+      false
+    end
+  end
+
+  def non_complete_on_internal_remove
+    if completed? && !internal_order
+      errors.add(:base,  "Can't remove internal_order flag for completed orders")
+      false
+    end
+  end
+  
+  def set_paid_for_internal_order
+    if internal_order?
+      self.paid = true
     end
   end
 end

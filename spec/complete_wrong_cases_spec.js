@@ -30,12 +30,6 @@ frisby.create('Correct invoice')
                 .expectStatus(200)
                 .toss();
 
-			  frisby.create('Can not un-complete order, that is not completed')
-               	.delete(url + '/order/' + order.id + '/complete/')
-               	.expectStatus(422)
-               	.expectJSON({errors:['Can not un-complete order, that is not completed']})
-               	.toss();
-
 			  frisby.create('Can not complete unpaid order')
                	.post(url + '/order/' + order.id + '/complete/')
                	.expectStatus(422)
@@ -158,34 +152,13 @@ frisby.create('Correct invoice')
                                         .expectJSON({errors:['You can not delete order that is used in task budgeting']})
                                         .toss();
 
-                                    frisby.create('Can not un-complete suborder')
-                                        .delete(url + '/order/' + subOrder.id + '/complete/')
-                                        .expectStatus(422)
-                                        .expectJSON({errors:['Can not un-complete suborder']})
-                                        .toss();
-
                                     frisby.create('Can not complete parent order twice')
                                         .post(url + '/order/' + order.id + '/complete/')
                                         .expectStatus(422)
                                         .expectJSON({errors:['Can not complete already completed order']})
                                         .toss();
 
-                                    frisby.create('Correctly uncomplete order')
-                                        .delete(url + '/order/' + order.id + '/complete/')
-                                        .expectStatus(200)
-                                        .toss();
 
-                                    frisby.create('Check that order is set un-completed')
-                                        .get(url + '/order/' + order.id)
-                                        .expectStatus(200)
-                                        .expectJSON({'completed' : false })
-                                        .toss();
-
-                                    frisby.create('Check that suborder is already set un-completed')
-                                        .get(url + '/order/' + subOrder.id)
-                                        .expectStatus(200)
-                                        .expectJSON({'completed' : false })
-                                        .toss();
                                 })
                                 .toss();
                             })

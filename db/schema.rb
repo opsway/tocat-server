@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151120114142) do
+ActiveRecord::Schema.define(version: 20151229131434) do
 
   create_table "accounts", force: :cascade do |t|
     t.string   "account_type",     limit: 255, null: false
@@ -70,6 +70,8 @@ ActiveRecord::Schema.define(version: 20151120114142) do
     t.integer  "parent_id",          limit: 4
     t.decimal  "free_budget",                      precision: 10, scale: 2,                 null: false
     t.boolean  "completed",          limit: 1,                              default: false
+    t.boolean  "internal_order",     limit: 1,                              default: false
+    t.integer  "commission",         limit: 4
   end
 
   add_index "orders", ["invoice_id"], name: "index_orders_on_invoice_id", using: :btree
@@ -80,6 +82,11 @@ ActiveRecord::Schema.define(version: 20151120114142) do
     t.string   "name",       limit: 255, null: false
     t.datetime "created_at"
     t.datetime "updated_at"
+  end
+
+  create_table "status_checks", force: :cascade do |t|
+    t.datetime "start_run"
+    t.datetime "finish_run"
   end
 
   create_table "task_orders", force: :cascade do |t|
@@ -102,6 +109,7 @@ ActiveRecord::Schema.define(version: 20151120114142) do
     t.datetime "updated_at"
     t.decimal  "budget",                       precision: 8, scale: 2, default: 0.0
     t.boolean  "review_requested", limit: 1,                           default: false, null: false
+    t.boolean  "expenses",         limit: 1,                           default: false
   end
 
   add_index "tasks", ["external_id"], name: "index_tasks_on_external_id", unique: true, using: :btree

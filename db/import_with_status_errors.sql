@@ -7,12 +7,14 @@ truncate transactions;
 truncate users;
 truncate teams;
 truncate roles;
-truncate transactions;
 truncate db_errors;
 truncate status_checks;
 set FOREIGN_KEY_CHECKS=1;
 
+insert into db_errors values (1, "Test Alerts", false, now(), now(), now());
+insert into db_errors values (2, "Test Alerts 2", false, now(), now(), now());
 insert into status_checks values (1, now(), now());
+
 insert into roles values (1, "Manager", now(), now());
 insert into roles values (2, "Developer", now(), now());
 insert into teams values (1, "OpsWay1", now(), now());
@@ -38,8 +40,6 @@ insert into accounts values(3, 'balance', now(), now(), 3, 'Team');
 insert into accounts values(4, 'payment', now(), now(), 1, 'Team');
 insert into accounts values(5, 'payment', now(), now(), 2, 'Team');
 insert into accounts values(6, 'payment', now(), now(), 3, 'Team');
-insert into accounts values(19, 'balance', now(), now(), 4, 'Team');
-insert into accounts values(20, 'payment', now(), now(), 4, 'Team');
 
 insert into accounts values(7, 'balance', now(), now(), 1, 'User');
 insert into accounts values(8, 'balance', now(), now(), 2, 'User');
@@ -55,16 +55,16 @@ insert into accounts values(14, 'payment', now(), now(), 4, 'User');
 insert into accounts values(16, 'payment', now(), now(), 5, 'User');
 insert into accounts values(18, 'payment', now(), now(), 7, 'User');
 
-insert into accounts values(21, 'payment', now(), now(), 8, 'User');
-insert into accounts values(22, 'payment', now(), now(), 9, 'User');
-insert into accounts values(23, 'payment', now(), now(), 10, 'User');
-insert into accounts values(24, 'payment', now(), now(), 11, 'User');
+insert into accounts values(19, 'payment', now(), now(), 8, 'User');
+insert into accounts values(20, 'payment', now(), now(), 9, 'User');
+insert into accounts values(21, 'payment', now(), now(), 10, 'User');
+insert into accounts values(22, 'payment', now(), now(), 11, 'User');
 
-insert into accounts values(25, 'balance', now(), now(), 8, 'User');
-insert into accounts values(26, 'balance', now(), now(), 9, 'User');
-insert into accounts values(27, 'balance', now(), now(), 10, 'User');
-insert into accounts values(28, 'balance', now(), now(), 11, 'User');
+insert into accounts values(23, 'balance', now(), now(), 8, 'User');
+insert into accounts values(24, 'balance', now(), now(), 9, 'User');
+insert into accounts values(25, 'balance', now(), now(), 10, 'User');
+insert into accounts values(26, 'balance', now(), now(), 11, 'User');
 
-insert into orders values(1, 'Test', 'Order for team2', 0, 2, null, 100, 50, now(), now(), null, 20, 0, false,40);
-insert into tasks values(1, 'WRONGORDER-TEST', 1, 0, 0, now(), now(), 30, 0, false);
+insert into orders values(1, 'Test', 'Order for team2', 0, 2, null, 100, 50, now(), now(), null, 20, 0,false,40);
+insert into tasks values(1, 'WRONGORDER-TEST', 1, 0, 0, now(), now(), 30, 0,false);
 insert into task_orders values(null, 1, 1, 30, now(), now());

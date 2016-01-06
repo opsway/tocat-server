@@ -24,6 +24,7 @@ namespace :test do
   end
   task :internal => :environment do
     Rake::Task["test:coffee"].invoke
+    Rake::Task["test:coffee_new_sql"].invoke
     files = Dir.glob('spec/*_spec.js')
     messages = []
     files.each do |file|
@@ -44,6 +45,7 @@ namespace :test do
     files = Dir.glob('spec/*_spec.coffee')
     messages = []
     files.each do |file|
+      next if file.match /new_sql/
       begin
         Rake::Task["sql_data:load"].execute
         sh("jasmine-node --coffee --junitreport #{file}")
@@ -55,5 +57,26 @@ namespace :test do
       puts "Files with errors:"
       messages.each { |m| puts m }
     end
+  end
+
+  task :coffee_new_sql => :environment do
+    files = Dir.glob('spec/*new_sql*_spec.coffee')
+    messages = []
+    files.each do |file|
+      begin
+        Rake::Task["sql_data:load2"].execute
+        sh("jasmine-node --coffee --junitreport #{file}")
+      rescue => e
+        messages << file
+      end
+    end
+    if messages.any?
+      puts "Files with errors:"
+      messages.each { |m| puts m }
+    end
+  end
+  task :cf => :environment do
+    Rake::Task["sql_data:load"].execute
+    sh("jasmine-node --coffee --verbose --junitreport spec/complete_order_commission_spec.coffee")
   end
 end

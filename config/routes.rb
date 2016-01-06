@@ -22,13 +22,14 @@ Rails.application.routes.draw do
             defaults: { format: 'json' },
             only: [:show, :edit, :update, :destroy] do
 
-
+    post 'internal', to: 'orders#set_internal', as: 'set_internal', format: 'json'
+    delete 'internal', to: 'orders#remove_internal', as: 'remove_internal', format: 'json'
+    post 'commission', to: 'orders#commission', as: 'commission', format: 'json'
     post 'invoice', to: 'orders#set_invoice', as: 'set_invoice', format: 'json'
     delete 'invoice', to: 'orders#delete_invoice', as: 'delete_invoice', format: 'json'
     get 'suborder', to: 'orders#suborders', as: 'suborders', format: 'json'
     post 'suborder', to: 'orders#create_suborder', as: 'new_suborder', format: 'json'
     post 'complete', to: 'orders#set_completed', as: 'set_completed', format: 'json'
-    delete 'complete', to: 'orders#remove_completed', as: 'remove_completed', format: 'json'
     get 'budget', to: 'orders#budgets', format: 'json'
 
   end
@@ -76,7 +77,6 @@ Rails.application.routes.draw do
             defaults: { format: 'json' },
             only: [:show, :update, :destroy] do
     post 'add_payment', to: 'users#add_payment', as: 'add_payment', format: 'json'
-    post 'pay_bonus', to: 'users#pay_bonus', as: 'pay_bonus', format: 'json'
   end
 
   #tasks
@@ -92,6 +92,8 @@ Rails.application.routes.draw do
             defaults: { format: 'json' },
             only: [:show] do
 
+    post 'expenses', to: 'tasks#set_expenses', as: 'set_expenses', format: 'json'
+    delete 'expenses', to: 'tasks#delete_expenses', as: 'delete_expenses', format: 'json'
     post 'accept', to: 'tasks#set_accepted', as: 'set_accepted', format: 'json'
     delete 'accept', to: 'tasks#delete_accepted', as: 'remove_accepted', format: 'json'
     post 'resolver', to: 'tasks#set_resolver', as: 'set_resolver', format: 'json'

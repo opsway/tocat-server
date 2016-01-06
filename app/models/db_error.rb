@@ -1,5 +1,11 @@
 class DbError < ActiveRecord::Base
   validates :alert, uniqueness: true
+  
+  def self.any_error?
+    return true if DbError.where(checked: false).any?
+    return true if StatusCheck.last.finish_run < 24.hours.ago
+    false
+  end
 
   scoped_search on: :checked, only_explicit: true, ext_method: :boolean_find
 

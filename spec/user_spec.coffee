@@ -32,7 +32,7 @@ frisby.create('Correct User')
                   .get url + '/users'
                   .expectStatus(200)
                   .afterJSON (users)->
-                    expect(users.length).toBe 7
+                    expect(users.length).toBe 11
                   .toss()
               .toss()
           .toss()
@@ -52,6 +52,18 @@ frisby.create('Can update name')
       .toss()
   .toss()
 
+frisby.create('Can set role developer')
+  .patch url + '/user/8',
+    user:
+      role: 2
+  .expectStatus 200
+  .afterJSON (user)->
+    frisby.create 'User have new role'
+      .get url + '/user/8'
+      .afterJSON (user)->
+        expect(user.role.id == 2).toBe(true)
+      .toss()
+  .toss()
 frisby.create('Can update role')
   .patch url + '/user/1',
     user:
@@ -78,6 +90,12 @@ frisby.create('Can change team')
       .toss()
   .toss()
 
+frisby.create("Can remove manager from team")
+  .patch url + '/user/9',
+    user:
+      role: 2
+  .expectStatus(200)
+  .toss()
 frisby.create("Can't become manager in team with manager")
   .patch url + '/user/2',
     user:
@@ -98,13 +116,13 @@ frisby.create('List of all users')
   .get url + '/users?anyuser=true'
   .expectStatus(200)
   .afterJSON (users)->
-    expect(users.length == 8).toBe true
+    expect(users.length).toBe 12
   .toss()
 
 frisby.create('List of active users')
   .get url + '/users'
   .expectStatus(200)
   .afterJSON (users)->
-    expect(users.length == 7).toBe true
+    expect(users.length == 11).toBe true
   .toss()
 

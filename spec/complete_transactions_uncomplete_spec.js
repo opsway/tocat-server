@@ -116,12 +116,6 @@ frisby.create('Correct invoice')
                                                         .expectStatus(200)
                                                         .afterJSON(function(transactionsBefore){
 
-
-                                                            frisby.create('Correctly uncomplete order')
-                                                                .delete(url + '/order/' + order.id + '/complete/')
-                                                                .expectStatus(200)
-                                                                .toss();
-
                                                             frisby.create('Get current Transactions')
                                                                 .get(url + '/transactions?limit=9999999')
                                                                 .expectStatus(200)
@@ -139,9 +133,9 @@ frisby.create('Correct invoice')
                                                                                 .afterJSON(function(team2){
                                                                                     //income_team_2 = team2.income_account_state;
 
-                                                                                    expect(team1.income_account_state).toBe(income_team_1 - 100);
-                                                                                    expect(team2.income_account_state).toBe(income_team_2 - 10);
-                                                                                    expect(transactionsAfter.length - transactionsBefore.length).toBe(2);
+                                                                                    expect(team1.income_account_state).toBe(income_team_1);
+                                                                                    expect(team2.income_account_state).toBe(income_team_2);
+                                                                                    expect(transactionsAfter.length - transactionsBefore.length).toBe(0);
 
                                                                                 })
                                                                                 .toss();

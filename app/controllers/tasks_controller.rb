@@ -35,6 +35,33 @@ class TasksController < ApplicationController
     end
   end
 
+  def set_expenses
+    if @task.update_attributes(expenses: true)
+      @task.create_activity :expenses_update,
+        parameters: {
+                     old: !@task.expenses,
+                     new: @task.expenses,
+                    },
+        owner: User.current_user
+      render json: {}, status: 200
+    else
+      render json: error_builder(@task), status: :unprocessable_entity
+    end
+  end
+  def delete_expenses
+    if @task.update_attributes(expenses: false)
+      @task.create_activity :accepted_update,
+                               parameters: {
+                                 old: !@task.expenses,
+                                 new: @task.expenses,
+                               },
+                               owner: User.current_user
+      render json: {}, status: 200
+    else
+      render json: error_builder(@task), status: :unprocessable_entity
+    end
+  end
+
   def set_accepted
     if @task.update_attributes(accepted: true)
       @task.create_activity :accepted_update,

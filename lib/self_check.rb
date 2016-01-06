@@ -15,6 +15,7 @@ class SelfCheck
   end
 
   def start
+    status = StatusCheck.create(start_run: Time.now)
     @transactions = []
     @alerts = []
     prefix_check
@@ -53,6 +54,8 @@ class SelfCheck
     end
     DbError.where.not(id: @alerts.flatten.uniq).destroy_all
     Rails.cache.write('last_success_self_start', Time.now)
+    status.finish_run = Time.noow
+    status.save
   end
 
   private

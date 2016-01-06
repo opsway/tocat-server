@@ -43,36 +43,6 @@ class User < ActiveRecord::Base
     end
   end
 
-  def paid_bonus(income, percentage)
-    puts 'called2'
-    unless role.name == 'Manager'
-      errors[:base] = "User should be a manager"
-      return false
-    end
-    status = false
-    self.transaction do
-      total = (income / 100) * percentage
-      co_team = Team.find_by_name!('Central Office')
-      income_account.transactions.create! total: total,
-                                          comment: "Bonus Calculation #{percentage}%",
-                                          user_id: id
-      team.income_account.transactions.create! total: -income,
-                                               comment: "Income transfer #{team.name}",
-                                               user_id: id
-      co_team.income_account.transactions.create! total: -total,
-                                                  comment: "Bonus Calculation #{percentage}% #{name}",
-                                                  user_id: id
-      co_team.income_account.transactions.create! total: income,
-                                                  comment: "Income transfer #{team.name}",
-                                                  user_id: id
-      create_activity key: 'user.add_bonus',
-                      parameters: { income: income, percentage: percentage },
-                      owner: User.current_user
-      status = true
-    end
-    status
-  end
-
   private
 
   def normalize_data

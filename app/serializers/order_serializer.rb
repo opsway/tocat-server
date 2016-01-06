@@ -9,6 +9,7 @@ class OrderSerializer < ActiveModel::Serializer
              :suborder,
              :paid,
              :completed,
+             :internal_order,
              :team,
              :invoice,
              :links

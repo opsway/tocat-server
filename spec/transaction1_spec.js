@@ -4,7 +4,7 @@
 var config = require('./config');
 var url = config.url;
 
-var task_id = Math.floor(Math.random() * (99999 - 1)) + 30;
+var task_id = 'Opsway_' + Math.floor(Math.random() * (99999 - 1)) + 30;
 
 frisby.create('Correct invoice creation')
     .post(url + '/invoices',

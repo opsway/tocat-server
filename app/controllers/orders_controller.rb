@@ -12,6 +12,42 @@ class OrdersController < ApplicationController
     @order = Order.includes(:invoice).find(params[:id])
     render json: @order, serializer: OrderShowSerializer
   end
+  
+  def commission
+    old_commision = @order.commission
+    if @order.update_attributes(commission: params[:commission])
+      @order.create_activity :commission_update,
+                              parameters: {changes: "#{old_commision} -> #{@order.commission}"},
+                              owner: User.current_user
+      render json: {}, status: 200
+    else
+      render json: error_builder(@order), status: :unprocessable_entity
+    end
+  end
+  
+  def set_internal
+    old_value = @order.internal_order
+    if @order.update_attributes(internal_order: true, paid: true)
+      @order.create_activity :set_internal_order,
+                              parameters: {changes: "#{old_value} -> #{@order.internal_order}"},
+                              owner: User.current_user
+      render json: {}, status: 200
+    else
+      render json: error_builder(@order), status: :unprocessable_entity
+    end
+  end
+
+  def remove_internal
+    old_value = @order.internal_order
+    if @order.update_attributes(internal_order: false, paid: false)
+      @order.create_activity :remove_internal_order,
+                              parameters: {changes: "#{old_value} -> #{@order.internal_order}"},
+                              owner: User.current_user
+      render json: {}, status: 200
+    else
+      render json: error_builder(@order), status: :unprocessable_entity
+    end
+  end
 
   def budgets
     if @order.task_orders.present?
@@ -122,24 +158,12 @@ class OrdersController < ApplicationController
     if @order.completed == true
       return render json: { errors: ['Can not complete already completed order'] }, status: :unprocessable_entity # FIXME
     end
-    if @order.update_attributes(completed: true)
-      @order.create_activity :completed_update,
-                               parameters: {
-                                 new: @order.completed,
-                                 old: !@order.completed
-                               },
-                               owner: User.current_user
-      render json: @order, serializer: AfterCreationSerializer, status: 200
-    else
-      render json: error_builder(@order), status: :unprocessable_entity
-    end
-  end
 
-  def remove_completed
-    if @order.completed == false
-      return render json: { errors: ['Can not un-complete order, that is not completed'] }, status: :unprocessable_entity # FIXME
+    if DbError.any_error?
+      return render json: { errors: ['TOCAT Self-check has errors, please check Status page'] }, status: :unprocessable_entity
     end
-    if @order.update_attributes(completed: false)
+
+    if @order.update_attributes(completed: true)
       @order.create_activity :completed_update,
                                parameters: {
                                  new: @order.completed,
@@ -169,6 +193,7 @@ class OrdersController < ApplicationController
                            :invoiced_budget,
                            :allocatable_budget,
                            :invoice_id,
+                           :internal_order,
                            :parent_id)
     if params[:team].present?
       output.merge!({ team_id: params.try(:[], 'team').try(:[], 'id') })

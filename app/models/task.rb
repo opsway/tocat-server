@@ -27,6 +27,8 @@ class Task < ActiveRecord::Base
   scoped_search on: [:accepted, :paid, :review_requested], only_explicit: true, ext_method: :boolean_find
   scoped_search in: :user, on: :id, rename: :resolver, only_explicit: true
   scoped_search in: :orders, on: :id, rename: :order, only_explicit: true
+  
+  scope :with_expenses, ->{where expenses: true}
 
   def self.boolean_find(key, operator, value)
     { conditions: sanitize_sql_for_conditions(["tasks.#{key} #{operator} ?", value.to_s.to_bool]) }

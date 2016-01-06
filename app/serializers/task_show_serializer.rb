@@ -7,7 +7,8 @@ class TaskShowSerializer < ActiveModel::Serializer
              :review_requested,
              :accepted,
              :resolver,
-             :links
+             :links,
+             :expenses
 
   has_many :orders
 
