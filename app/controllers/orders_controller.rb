@@ -39,7 +39,7 @@ class OrdersController < ApplicationController
 
   def remove_internal
     old_value = @order.internal_order
-    if @order.update_attributes(internal_order: false, paid: false)
+    if @order.handle_uninternal 
       @order.create_activity :remove_internal_order,
                               parameters: {changes: "#{old_value} -> #{@order.internal_order}"},
                               owner: User.current_user

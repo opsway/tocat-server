@@ -36,6 +36,7 @@ class Order < ActiveRecord::Base
   validate :check_if_team_exists
   validate :sub_order_team
   validate :check_inheritance
+  validate :disallow_internal_for_suborders, if: :internal_order_changed?
   validate :check_dberrors, if: :completed?
 
   before_save :check_budgets_for_sub_order
@@ -98,6 +99,19 @@ class Order < ActiveRecord::Base
   end
 
 
+  def handle_uninternal
+    self.update_attributes(internal_order: false, paid: false)
+    self.tasks.each do |task|
+        task.handle_paid(false)
+        task.create_activity :paid_update,
+                               parameters: {
+                                   internal: false,
+                                   old: !task.paid,
+                                   new: false
+                                 },
+                                 owner: User.current_user
+    end
+  end
   private
   
   def additional_transactions
@@ -375,6 +389,23 @@ class Order < ActiveRecord::Base
   def set_paid_for_internal_order
     if internal_order?
       self.paid = true
+      self.tasks.each do |task|
+        task.handle_paid(true)
+        task.create_activity :paid_update,
+                               parameters: {
+                                   internal_order: true,
+                                   old: !task.paid,
+                                   new: true 
+                                 },
+                                 owner: User.current_user
+      end
+    end
+  end
+
+  def disallow_internal_for_suborders
+    if internal_order? and parent_id.present?
+      errors.add(:base, "Can't set internal_order flag to suborder")
+      false
     end
   end
 end
