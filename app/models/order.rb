@@ -102,6 +102,7 @@ class Order < ActiveRecord::Base
   def handle_uninternal
     self.update_attributes(internal_order: false, paid: false)
     self.tasks.each do |task|
+        task.accepted = false
         task.handle_paid(false)
         task.create_activity :paid_update,
                                parameters: {
