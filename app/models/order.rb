@@ -40,7 +40,7 @@ class Order < ActiveRecord::Base
 
   before_save :check_budgets_for_sub_order
   before_save :check_sub_order_after_update
-  before_save :set_paid_for_internal_order 
+  after_save :set_paid_for_internal_order 
 
   belongs_to :team
   belongs_to :invoice
@@ -102,7 +102,6 @@ class Order < ActiveRecord::Base
   def handle_uninternal
     self.update_attributes(internal_order: false, paid: false)
     self.tasks.each do |task|
-        task.accepted = false
         task.handle_paid(false)
         task.create_activity :paid_update,
                                parameters: {
@@ -389,11 +388,11 @@ class Order < ActiveRecord::Base
   end
   
   def set_paid_for_internal_order
-    if internal_order?
+    if self.internal_order
       self.paid = true
       self.tasks.each do |task|
-        task.accepted = true
         task.handle_paid(true)
+        p "##{task.id} - #{task.paid}"
         task.create_activity :paid_update,
                                parameters: {
                                    internal_order: true,

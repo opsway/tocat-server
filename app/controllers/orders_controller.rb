@@ -27,7 +27,9 @@ class OrdersController < ApplicationController
   
   def set_internal
     old_value = @order.internal_order
-    if @order.update_attributes(internal_order: true, paid: true)
+    @order.internal_order = true
+    @order.paid = true
+    if @order.save
       @order.create_activity :set_internal_order,
                               parameters: {changes: "#{old_value} -> #{@order.internal_order}"},
                               owner: User.current_user
