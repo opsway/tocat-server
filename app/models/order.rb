@@ -21,7 +21,7 @@ class Order < ActiveRecord::Base
   validates_numericality_of :commission,
                             greater_than: 1,
                             less_than_or_equal_to: 100,
-                            message: "Commission should be positive number between 1-100",
+                            message: "should be positive number between 1-100",
                             only_integer: true,
                             allow_nil: true
   validate :check_complete_change_commission, if: :commission_changed?
@@ -37,7 +37,6 @@ class Order < ActiveRecord::Base
   validate :sub_order_team
   validate :check_inheritance
   validate :disallow_internal_for_suborders, if: :internal_order_changed?
-  validate :check_dberrors, if: :completed?
 
   before_save :check_budgets_for_sub_order
   before_save :check_sub_order_after_update
@@ -74,6 +73,7 @@ class Order < ActiveRecord::Base
   before_save :check_if_parent_completed_on_suborder_creation, if: proc { |o| o.new_record? && o.parent_id.present? }
   before_save :handle_completed, if: proc { |o| o.completed_changed? && o.parent_id.nil? }
   before_destroy :check_if_parent_completed, if: proc { |o| o.parent_id.present? }
+  before_save :check_dberrors, if: :completed?
 
   def handle_paid(paid)
     self.update_attributes!(paid: paid)
@@ -341,6 +341,7 @@ class Order < ActiveRecord::Base
     if DbError.any_error?
       errors[:base] << 'TOCAT Self-check has errors, please check Status page'
     end
+    false
   end
   def check_budgets
     if allocatable_budget.present? && invoiced_budget.present?
