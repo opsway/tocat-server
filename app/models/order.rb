@@ -391,6 +391,7 @@ class Order < ActiveRecord::Base
     if internal_order?
       self.paid = true
       self.tasks.each do |task|
+        task.accepted = true
         task.handle_paid(true)
         task.create_activity :paid_update,
                                parameters: {
