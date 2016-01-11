@@ -75,18 +75,20 @@ namespace :shiftplanning do
                                     total: "#{user.daily_rate.to_s}",
                                     account: user.income_account,
                                     user_id: user.id
-                Transaction.create! comment: "Salary #{user.name} #{shift['start_timestamp'].to_time.strftime("%d/%m/%y")}", #decrease team balance
-                                    total: "-#{user.daily_rate.to_s}",
-                                    account: user.team.balance_account,
-                                    user_id: user.id
-                Transaction.create! comment: "Salary #{user.name} #{shift['start_timestamp'].to_time.strftime("%d/%m/%y")}", #decrease team income
-                                    total: "-#{user.daily_rate.to_s}",
-                                    account: user.team.income_account,
-                                    user_id: user.id
+                unless user.role.try(:name) == 'Manager'
+                    Transaction.create! comment: "Salary #{user.name} #{shift['start_timestamp'].to_time.strftime("%d/%m/%y")}", #decrease team balance
+                                        total: "-#{user.daily_rate.to_s}",
+                                        account: user.team.balance_account,
+                                        user_id: user.id
+                    Transaction.create! comment: "Salary #{user.name} #{shift['start_timestamp'].to_time.strftime("%d/%m/%y")}", #decrease team income
+                                        total: "-#{user.daily_rate.to_s}",
+                                        account: user.team.income_account,
+                                        user_id: user.id
+                end
               rescue => e
                 binding.pry
                 errors += 1
-                logger.error "#{Time.now} Transactions for #{user.name} was not created!"
+                logger.error "#{Time.now} Transactions for #{user.name} was not created! - #{e.message}"
               end
               salary_logger.info  "Shift record has been proceed" if debug
             end
