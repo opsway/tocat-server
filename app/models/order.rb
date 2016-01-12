@@ -40,7 +40,7 @@ class Order < ActiveRecord::Base
 
   before_save :check_budgets_for_sub_order
   before_save :check_sub_order_after_update
-  after_save :set_paid_for_internal_order 
+  after_save :set_paid_for_internal_order, if: :internal_order_changed?
 
   belongs_to :team
   belongs_to :invoice
