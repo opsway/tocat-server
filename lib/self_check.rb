@@ -108,6 +108,7 @@ class SelfCheck
   end
 
   def transactions
+    date_of_start = Date.parse('1/10/2015') # From this date we don't count manager transactions in Team payment and Team balance accounts - issue 34546
     User.find_each do |user|
       user.balance_account.transactions.each do |t|
         if /Salary.*/.match(t.comment).present?
@@ -124,7 +125,9 @@ class SelfCheck
           team_balance_records.flatten!
           @alerts << DbError.store("Wrong nubmer of salary transactions for #{user.name} team (#{user.team.name}) balance account. Check: #{t.id}: #{t.comment}") if team_balance_records.count > 1
           if team_balance_records.count < 1
-            @alerts << DbError.store("Missing salary transaction for #{user.name} team (#{user.team.name}) balance account. Check: #{t.comment.gsub('for', user.name)}")
+            if user.role.name != 'Manager' || Date.strptime(t.comment.split.last,'%d/%m/%y') < date_of_start # issue 34546
+              @alerts << DbError.store("Missing salary transaction for #{user.name} team (#{user.team.name}) balance account. Check: #{t.comment.gsub('for', user.name)}")
+            end
           else
             @alerts << DbError.store("Invalid total for salary transaction for #{user.name} team (#{user.team.name}) balance account. Check: ##{records.first.id}") if team_balance_records.first.try(:total).try(:abs) != t.total.abs
           end
@@ -134,7 +137,9 @@ class SelfCheck
           team_payment_records.flatten!
           @alerts << DbError.store("Wrong nubmer of salary transactions for #{user.name} team (#{user.team.name}) payment account. Check: #{t.id}: #{t.comment}") if team_payment_records.count > 1
           if team_payment_records.count < 1
-            @alerts << DbError.store("Missing salary transaction for #{user.name} team (#{user.team.name}) payment account. Check: #{t.comment.gsub('for', user.name)}")
+            if user.role.name != 'Manager' || Date.strptime(t.comment.split.last,'%d/%m/%y') < date_of_start # issue 34546
+              @alerts << DbError.store("Missing salary transaction for #{user.name} team (#{user.team.name}) payment account. Check: #{t.comment.gsub('for', user.name)}")
+            end
           else
             @alerts << DbError.store("Invalid total for salary transaction for #{user.name} team (#{user.team.name}) payment account. Check: ##{records.first.id}") if team_payment_records.first.try(:total).try(:abs) != t.total.abs
           end
@@ -145,7 +150,9 @@ class SelfCheck
           records = user.balance_account.transactions.where("comment LIKE '#{t.comment}'")
           @alerts << DbError.store("Wrong nubmer of salary transactions for #{user.name} balance account. Check: #{t.id}: #{t.comment}") if records.count > 1
           if records.count < 1
-            @alerts << DbError.store("Missing salary transaction for #{user.name} balance account. Check: #{t.comment}") unless user.role.name == 'Manager'
+            if user.role.name != 'Manager' || Date.strptime(t.comment.split.last,'%d/%m/%y') < date_of_start # issue 34546
+              @alerts << DbError.store("Missing salary transaction for #{user.name} balance account. Check: #{t.comment}") unless user.role.name == 'Manager'
+            end
           else
             @alerts << DbError.store("Invalid total for salary transaction for #{user.name} balance account. Check: ##{records.first.id}") if records.first.try(:total).try(:abs) != t.total.abs
           end
@@ -155,7 +162,9 @@ class SelfCheck
           team_balance_records.flatten!
           @alerts << DbError.store("Wrong nubmer of salary transactions for #{user.name} team (#{user.team.name}) balance account. Check: #{t.id}: #{t.comment}") if team_balance_records.count > 1
           if team_balance_records.count < 1
-            @alerts << DbError.store("Missing salary transaction for #{user.name} team (#{user.team.name}) balance account. Check: #{t.comment.gsub('for', user.name)}") unless user.role.name == 'Manager'
+            if user.role.name != 'Manager' || Date.strptime(t.comment.split.last,'%d/%m/%y') < date_of_start # issue 34546
+              @alerts << DbError.store("Missing salary transaction for #{user.name} team (#{user.team.name}) balance account. Check: #{t.comment.gsub('for', user.name)}") unless user.role.name == 'Manager'
+            end
           else
             @alerts << DbError.store("Invalid total for salary transaction for #{user.name} team (#{user.team.name}) balance account. Check: ##{records.first.id}") if team_balance_records.first.try(:total).try(:abs) != t.total.abs
           end
@@ -165,7 +174,9 @@ class SelfCheck
           team_payment_records.flatten!
           @alerts << DbError.store("Wrong nubmer of salary transactions for #{user.name} team (#{user.team.name}) payment account. Check: #{t.id}: #{t.comment}") if team_payment_records.count > 1
           if team_payment_records.count < 1
-            @alerts << DbError.store("Missing salary transaction for #{user.name} team (#{user.team.name}) payment account. Check: #{t.comment.gsub('for', user.name)}")
+            if user.role.name != 'Manager' || Date.strptime(t.comment.split.last,'%d/%m/%y') < date_of_start # issue 34546
+              @alerts << DbError.store("Missing salary transaction for #{user.name} team (#{user.team.name}) payment account. Check: #{t.comment.gsub('for', user.name)}")
+            end
           else
             @alerts << DbError.store("Invalid total for salary transaction for #{user.name} team (#{user.team.name}) payment account. Check: ##{records.first.id}") if team_payment_records.first.try(:total).try(:abs) != t.total.abs
           end
