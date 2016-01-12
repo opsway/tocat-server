@@ -340,8 +340,8 @@ class Order < ActiveRecord::Base
   def check_dberrors
     if DbError.any_error?
       errors[:base] << 'TOCAT Self-check has errors, please check Status page'
+      false
     end
-    false
   end
   def check_budgets
     if allocatable_budget.present? && invoiced_budget.present?
