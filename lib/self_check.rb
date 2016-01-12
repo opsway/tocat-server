@@ -54,7 +54,7 @@ class SelfCheck
     end
     DbError.where.not(id: @alerts.flatten.uniq).destroy_all
     Rails.cache.write('last_success_self_start', Time.now)
-    status.finish_run = Time.noow
+    status.finish_run = Time.now
     status.save
   end
 
@@ -307,7 +307,7 @@ class SelfCheck
    #  team_transactions[team.id][:balance] = team.balance_account.trransactions
    #  team_transactions[team.id][:income] = team.income_account.transactions
    #end
-
+    date_of_start = Date.parse('1/10/2015') # From this date we don't count manager transactions in Team payment and Team balance accounts - issue 34546
     User.find_each do |user|
       user.balance_account.transactions.where('comment LIKE "Salary %"').each do |t|
         @transactions << t.id
@@ -324,11 +324,20 @@ class SelfCheck
         if user_income_count != 1
           @alerts << DbError.store("Wrong salary transaction for #{user.name}'s income account. Details: #{t.comment}")
         end
-        if team_balance_count != 1
-          @alerts << DbError.store("Wrong salary transaction for #{user.name}'s team(#{user.team.name}) balance account. Check: #{t.comment.gsub('for', user.name)}")
-        end
-        if team_payment_count != 1
-          @alerts << DbError.store("Wrong salary transaction for #{user.name}'s team(#{user.team.name}) income account. Check: #{t.comment.gsub('for', user.name)}")
+        if user.role.name != 'Manager' || Date.strptime(t.comment.split.last,'%d/%m/%y') < date_of_start # issue 34546
+          if team_balance_count != 1
+            @alerts << DbError.store("Wrong salary transaction for #{user.name}'s team(#{user.team.name}) balance account. Check: #{t.comment.gsub('for', user.name)}")
+          end
+          if team_payment_count != 1
+            @alerts << DbError.store("Wrong salary transaction for #{user.name}'s team(#{user.team.name}) income account. Check: #{t.comment.gsub('for', user.name)}")
+          end
+        else
+          if team_balance_count != 0
+            @alerts << DbError.store("Wrong salary transaction for #{user.name}'s team(#{user.team.name}) balance account. Check: #{t.comment.gsub('for', user.name)}")
+          end
+          if team_payment_count != 0
+            @alerts << DbError.store("Wrong salary transaction for #{user.name}'s team(#{user.team.name}) income account. Check: #{t.comment.gsub('for', user.name)}")
+          end
         end
       end
     end
