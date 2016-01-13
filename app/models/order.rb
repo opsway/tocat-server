@@ -123,10 +123,12 @@ class Order < ActiveRecord::Base
       central_office = Team.central_office
 
       unless internal_order? 
-        # a TODO - change Central office to Team.central_office.name 
-        team.manager.balance_account.transactions.create! total: -value,  comment: "Order ##{id} was completed: Central office fee" if value != 0
-        # b
-        central_office.balance_account.transactions.create! total: value, comment: "Order ##{id} was completed: Central office fee" if value != 0
+        if team.id != central_office.id # don't create transactions for central office 
+          # a TODO - change Central office to Team.central_office.name 
+          team.manager.balance_account.transactions.create! total: -value,  comment: "Order ##{id} was completed: Central office fee" if value != 0
+          # b
+          central_office.balance_account.transactions.create! total: value, comment: "Order ##{id} was completed: Central office fee" if value != 0
+        end
         # c
         central_office.income_account.transactions.create! total: invoiced_budget, comment: "Order ##{id} was completed" if invoiced_budget != 0
       end
