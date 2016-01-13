@@ -122,19 +122,21 @@ class Order < ActiveRecord::Base
 
       central_office = Team.central_office
 
-      unless internal_order?
-        # a
-        team.manager.balance_account.transactions.create! total: -value,  comment: "Order ##{id} was completed: Central office fee"
+      unless internal_order? 
+        # a TODO - change Central office to Team.central_office.name 
+        team.manager.balance_account.transactions.create! total: -value,  comment: "Order ##{id} was completed: Central office fee" if value != 0
         # b
-        central_office.balance_account.transactions.create! total: value, comment: "Order ##{id} was completed: Central office fee"
+        central_office.balance_account.transactions.create! total: value, comment: "Order ##{id} was completed: Central office fee" if value != 0
         # c
-        central_office.income_account.transactions.create! total: invoiced_budget, comment: "Order ##{id} was completed: Central office fee"
+        central_office.income_account.transactions.create! total: invoiced_budget, comment: "Order ##{id} was completed: Central office fee" if invoiced_budget != 0
       end
       if team.income_account.balance > 0
-        # d
-        team.manager.balance_account.transactions.create! total: team.income_account.balance, comment: "Order ##{id} was completed" 
-        # e
-        team.income_account.transactions.create! total: -team.income_account.balance, comment: "Order ##{id} was completed" 
+        if team.id != central_office.id # don't create transactions for central office 
+          # d
+          team.manager.balance_account.transactions.create! total: team.income_account.balance, comment: "Order ##{id} was completed" 
+          # e
+          team.income_account.transactions.create! total: -team.income_account.balance, comment: "Order ##{id} was completed" 
+        end
       end
       
       tasks.with_expenses.find_each do |task|
