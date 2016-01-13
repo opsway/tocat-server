@@ -128,7 +128,7 @@ class Order < ActiveRecord::Base
         # b
         central_office.balance_account.transactions.create! total: value, comment: "Order ##{id} was completed: Central office fee" if value != 0
         # c
-        central_office.income_account.transactions.create! total: invoiced_budget, comment: "Order ##{id} was completed: Central office fee" if invoiced_budget != 0
+        central_office.income_account.transactions.create! total: invoiced_budget, comment: "Order ##{id} was completed" if invoiced_budget != 0
       end
       if team.income_account.balance > 0
         if team.id != central_office.id # don't create transactions for central office 
