@@ -326,7 +326,7 @@ class SelfCheck
           end
         end
         next if reopening_count == 0
-        if (accepted_count - reopening_count).abs > e
+        if (accepted_count - reopening_count).abs > 1
           if accepted_count > reopening_count
             @alerts << DbError.store("Wrong team transaction count: Expecting issue ##{id} to be accepted&paid. Team: #{user.team.name}")
           elsif accepted_count < reopening_count
