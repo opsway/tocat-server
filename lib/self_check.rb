@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -8
 require 'singleton'
 require_relative 'zoho/api'
 require 'ruby-prof'
@@ -49,6 +50,11 @@ class SelfCheck
           user = User.where(name: "#{comment[1]} #{comment[2]}").first
           next if user.present? && (user.try(:role).try(:name) == 'Manager')
         end
+      end
+      if transaction.comment.match(/^Expense, Issue/)
+        task_external_id = transaction.comment.split.last.gsub(/#/,'')
+        task = Task.find_by_external_id task_external_id
+        next if task.expenses
       end
       @alerts << DbError.store("Unexpected transaction ##{transaction.id}: #{transaction.comment}")
     end
@@ -202,6 +208,7 @@ class SelfCheck
   end
 
   def complete_transactions
+    central_office_id = Team.central_office.id
     Order.find_each do |order|
       completed_count = 0
       uncompleted_count = 0
@@ -221,8 +228,28 @@ class SelfCheck
         @alerts << DbError.store("Order #{order.id} contains multiple uncompleted transactions.")
         next
       end
-      if (completed_count - uncompleted_count).abs > 1
-        @alerts << DbError.store("Order #{order.id} completed transactions wrong, please check it.")
+      if order.updated_at > Date.parse('1/10/2015')
+        if order.completed
+          # 1 + 2 c сentral office + 1 - на сentral_office_income account + 2(возможно) - на team.manager and team.income_account
+          correct_count = 1
+          if !order.internal_order? && order.team_id != central_office_id
+            base_commission = order.commission.presence || 400
+            value = value = order.invoiced_budget * base_commission/100.0
+            correct_count += 2 if value != 0 
+          end
+          if order.team_id != central_office_id
+            income_balance = order.team.income_account.transactions.where('created_at >= ?', order.updated_at).sum(:total)
+            correct_count += 2 if income_balance > 0
+          end
+          correct_count += 1 unless order.internal_order?
+          if correct_count != (completed_count - uncompleted_count).abs 
+            @alerts << DbError.store("Order #{order.id} completed transactions wrong, please check it.")
+          end
+        end
+      else
+        if (completed_count - uncompleted_count).abs > 1
+          @alerts << DbError.store("Order #{order.id} completed transactions wrong, please check it.")
+        end
       end
     end
   end
@@ -299,7 +326,7 @@ class SelfCheck
           end
         end
         next if reopening_count == 0
-        if (accepted_count - reopening_count).abs > 1
+        if (accepted_count - reopening_count).abs > e
           if accepted_count > reopening_count
             @alerts << DbError.store("Wrong team transaction count: Expecting issue ##{id} to be accepted&paid. Team: #{user.team.name}")
           elsif accepted_count < reopening_count

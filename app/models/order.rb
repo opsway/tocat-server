@@ -19,7 +19,7 @@ class Order < ActiveRecord::Base
                             message: "Allocatable should be positive number"
 
   validates_numericality_of :commission,
-                            greater_than: 1,
+                            greater_than_or_equal_to: 0,
                             less_than_or_equal_to: 100,
                             message: "should be positive number between 1-100",
                             only_integer: true,
