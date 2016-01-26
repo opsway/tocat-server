@@ -94,7 +94,7 @@ class Order < ActiveRecord::Base
       val = invoiced_budget - sub_orders.sum(:invoiced_budget) - task_orders.sum(:budget)
       team.income_account.transactions.create! total: completed ? val : -val,
                                                comment: "Order ##{id} was #{completed ? 'completed' : 'uncompleted'}"
-      additional_transactions
+      #additional_transactions
     end
   end
 
