@@ -56,7 +56,7 @@ class SelfCheck
         task = Task.find_by_external_id task_external_id
         next if task.expenses
       end
-      @alerts << DbError.store("Unexpected transaction ##{transaction.id}: #{transaction.comment}")
+      @alerts << DbError.store(59,"Unexpected transaction ##{transaction.id}: #{transaction.comment}")
     end
     DbError.where.not(id: @alerts.flatten.uniq).destroy_all
     Rails.cache.write('last_success_self_start', Time.now)
@@ -68,21 +68,21 @@ class SelfCheck
   
   def prefix_check
     Task.where('external_id not regexp ".*_[0-9]+$"').find_each do |task|
-        @alerts << DbError.store("Wrong task external_id ##{task.external_id}")
+        @alerts << DbError.store(71,"Wrong task external_id ##{task.external_id}")
     end
     
     Transaction.where("comment like '%issue%'").where('comment not regexp ".*_[0-9]+.*"').find_each do |t|
-        @alerts << DbError.store("Wrong transaction issue_id ##{t.id}")
+        @alerts << DbError.store(75,"Wrong transaction issue_id ##{t.id}")
     end
   end
 
   def manager_status
     User.joins(:role).where("roles.name='Manager'").find_each do |user|
       user.transactions.where("comment like 'Reopening%'").find_each do |t|
-        @alerts << DbError.store("Wrong transaction ##{t.id} for user with Manager role")
+        @alerts << DbError.store(82,"Wrong transaction ##{t.id} for user with Manager role")
       end
       user.transactions.where("comment like 'Accepted and paid%'").find_each do |t|
-        @alerts << DbError.store("Wrong transaction ##{t.id} for user with Manager role")
+        @alerts << DbError.store(85,"Wrong transaction ##{t.id} for user with Manager role")
       end
     end
   end
@@ -93,21 +93,21 @@ class SelfCheck
       invoice = Invoice.where(external_id: record[:invoice_id]).first
       if invoice.present?
         if record[:status] == 'draft'
-          @alerts << DbError.store("Invoice #{invoice.external_id}(#{record[:invoice_number]} in zoho) is in DRAFT status.")
+          @alerts << DbError.store(96,"Invoice #{invoice.external_id}(#{record[:invoice_number]} in zoho) is in DRAFT status.")
           next
         end
         if record[:status] == 'void'
-          @alerts << DbError.store("Invoice #{invoice.external_id}(#{record[:invoice_number]} in zoho) is in VOID status.")
+          @alerts << DbError.store(100,"Invoice #{invoice.external_id}(#{record[:invoice_number]} in zoho) is in VOID status.")
           next
         end
         if record[:currency_code] == "USD"
-          @alerts << DbError.store("Invoice #{invoice.external_id}(#{record[:invoice_number]} in zoho) has invalid total: It has #{invoice.total}, but it should be #{record[:total]}.") if invoice.total != record[:total]
+          @alerts << DbError.store(104,"Invoice #{invoice.external_id}(#{record[:invoice_number]} in zoho) has invalid total: It has #{invoice.total}, but it should be #{record[:total]}.") if invoice.total != record[:total]
           record[:status] == 'paid' ?
             status = true :
             status = false
-          @alerts << DbError.store("Invoice #{invoice.external_id}(#{record[:invoice_number]} in zoho) has invalid paid status.") if invoice.paid != status
+          @alerts << DbError.store(108,"Invoice #{invoice.external_id}(#{record[:invoice_number]} in zoho) has invalid paid status.") if invoice.paid != status
         else
-          @alerts << DbError.store("Invoice #{invoice.external_id}(#{record[:invoice_number]} in zoho) has invalid total: It has #{invoice.total}, but it should be #{record[:total] * record[:exchange_rate]}.") if invoice.total != (record[:total] * record[:exchange_rate])
+          @alerts << DbError.store(110,"Invoice #{invoice.external_id}(#{record[:invoice_number]} in zoho) has invalid total: It has #{invoice.total}, but it should be #{record[:total] * record[:exchange_rate]}.") if invoice.total != (record[:total] * record[:exchange_rate])
         end
       end
     end
@@ -119,72 +119,72 @@ class SelfCheck
       user.balance_account.transactions.each do |t|
         if /Salary.*/.match(t.comment).present?
           records = user.income_account.transactions.where("comment LIKE '#{t.comment}'")
-          @alerts << DbError.store("Wrong nubmer of salary transactions for #{user.name} payment account. Check: #{t.id}: #{t.comment}") if records.count > 1
+          @alerts << DbError.store(122,"Wrong nubmer of salary transactions for #{user.name} payment account. Check: #{t.id}: #{t.comment}") if records.count > 1
           if records.count < 1
-            @alerts << DbError.store("Missing salary transaction for #{user.name} payment account. Check: #{t.comment}")
+            @alerts << DbError.store(124,"Missing salary transaction for #{user.name} payment account. Check: #{t.comment}")
           else
-            @alerts << DbError.store("Invalid total for salary transaction for #{user.name} payment account. Check: ##{records.first.id}") if records.first.try(:total).try(:abs) != t.total.abs
+            @alerts << DbError.store(126,"Invalid total for salary transaction for #{user.name} payment account. Check: ##{records.first.id}") if records.first.try(:total).try(:abs) != t.total.abs
           end
 
           team_balance_records = []
           Team.find_each { |team| team_balance_records << team.balance_account.transactions.where("comment LIKE '#{t.comment.gsub('for', user.name)}'")}
           team_balance_records.flatten!
-          @alerts << DbError.store("Wrong nubmer of salary transactions for #{user.name} team (#{user.team.name}) balance account. Check: #{t.id}: #{t.comment}") if team_balance_records.count > 1
+          @alerts << DbError.store(132,"Wrong nubmer of salary transactions for #{user.name} team (#{user.team.name}) balance account. Check: #{t.id}: #{t.comment}") if team_balance_records.count > 1
           if team_balance_records.count < 1
             if user.role.name != 'Manager' || Date.strptime(t.comment.split.last,'%d/%m/%y') < date_of_start # issue 34546
-              @alerts << DbError.store("Missing salary transaction for #{user.name} team (#{user.team.name}) balance account. Check: #{t.comment.gsub('for', user.name)}")
+              @alerts << DbError.store(135,"Missing salary transaction for #{user.name} team (#{user.team.name}) balance account. Check: #{t.comment.gsub('for', user.name)}")
             end
           else
-            @alerts << DbError.store("Invalid total for salary transaction for #{user.name} team (#{user.team.name}) balance account. Check: ##{records.first.id}") if team_balance_records.first.try(:total).try(:abs) != t.total.abs
+            @alerts << DbError.store(138,"Invalid total for salary transaction for #{user.name} team (#{user.team.name}) balance account. Check: ##{records.first.id}") if team_balance_records.first.try(:total).try(:abs) != t.total.abs
           end
 
           team_payment_records = []
           Team.find_each { |team| team_payment_records << team.income_account.transactions.where("comment LIKE '#{t.comment.gsub('for', user.name)}'")}
           team_payment_records.flatten!
-          @alerts << DbError.store("Wrong nubmer of salary transactions for #{user.name} team (#{user.team.name}) payment account. Check: #{t.id}: #{t.comment}") if team_payment_records.count > 1
+          @alerts << DbError.store(144,"Wrong nubmer of salary transactions for #{user.name} team (#{user.team.name}) payment account. Check: #{t.id}: #{t.comment}") if team_payment_records.count > 1
           if team_payment_records.count < 1
             if user.role.name != 'Manager' || Date.strptime(t.comment.split.last,'%d/%m/%y') < date_of_start # issue 34546
-              @alerts << DbError.store("Missing salary transaction for #{user.name} team (#{user.team.name}) payment account. Check: #{t.comment.gsub('for', user.name)}")
+              @alerts << DbError.store(147,"Missing salary transaction for #{user.name} team (#{user.team.name}) payment account. Check: #{t.comment.gsub('for', user.name)}")
             end
           else
-            @alerts << DbError.store("Invalid total for salary transaction for #{user.name} team (#{user.team.name}) payment account. Check: ##{records.first.id}") if team_payment_records.first.try(:total).try(:abs) != t.total.abs
+            @alerts << DbError.store(150,"Invalid total for salary transaction for #{user.name} team (#{user.team.name}) payment account. Check: ##{records.first.id}") if team_payment_records.first.try(:total).try(:abs) != t.total.abs
           end
         end
       end
       user.income_account.transactions.each do |t|
         if /Salary.*/.match(t.comment).present?
           records = user.balance_account.transactions.where("comment LIKE '#{t.comment}'")
-          @alerts << DbError.store("Wrong nubmer of salary transactions for #{user.name} balance account. Check: #{t.id}: #{t.comment}") if records.count > 1
+          @alerts << DbError.store(158,"Wrong nubmer of salary transactions for #{user.name} balance account. Check: #{t.id}: #{t.comment}") if records.count > 1
           if records.count < 1
             if user.role.name != 'Manager' || Date.strptime(t.comment.split.last,'%d/%m/%y') < date_of_start # issue 34546
-              @alerts << DbError.store("Missing salary transaction for #{user.name} balance account. Check: #{t.comment}") unless user.role.name == 'Manager'
+              @alerts << DbError.store(160,"Missing salary transaction for #{user.name} balance account. Check: #{t.comment}") unless user.role.name == 'Manager'
             end
           else
-            @alerts << DbError.store("Invalid total for salary transaction for #{user.name} balance account. Check: ##{records.first.id}") if records.first.try(:total).try(:abs) != t.total.abs
+            @alerts << DbError.store(163,"Invalid total for salary transaction for #{user.name} balance account. Check: ##{records.first.id}") if records.first.try(:total).try(:abs) != t.total.abs
           end
 
           team_balance_records = []
           Team.find_each { |team| team_balance_records << team.balance_account.transactions.where("comment LIKE '#{t.comment.gsub('for', user.name)}'")}
           team_balance_records.flatten!
-          @alerts << DbError.store("Wrong nubmer of salary transactions for #{user.name} team (#{user.team.name}) balance account. Check: #{t.id}: #{t.comment}") if team_balance_records.count > 1
+          @alerts << DbError.store(169,"Wrong nubmer of salary transactions for #{user.name} team (#{user.team.name}) balance account. Check: #{t.id}: #{t.comment}") if team_balance_records.count > 1
           if team_balance_records.count < 1
             if user.role.name != 'Manager' || Date.strptime(t.comment.split.last,'%d/%m/%y') < date_of_start # issue 34546
-              @alerts << DbError.store("Missing salary transaction for #{user.name} team (#{user.team.name}) balance account. Check: #{t.comment.gsub('for', user.name)}") unless user.role.name == 'Manager'
+              @alerts << DbError.store(172,"Missing salary transaction for #{user.name} team (#{user.team.name}) balance account. Check: #{t.comment.gsub('for', user.name)}") unless user.role.name == 'Manager'
             end
           else
-            @alerts << DbError.store("Invalid total for salary transaction for #{user.name} team (#{user.team.name}) balance account. Check: ##{records.first.id}") if team_balance_records.first.try(:total).try(:abs) != t.total.abs
+            @alerts << DbError.store(175,"Invalid total for salary transaction for #{user.name} team (#{user.team.name}) balance account. Check: ##{records.first.id}") if team_balance_records.first.try(:total).try(:abs) != t.total.abs
           end
 
           team_payment_records = []
           Team.find_each { |team| team_payment_records << team.income_account.transactions.where("comment LIKE '#{t.comment.gsub('for', user.name)}'")}
           team_payment_records.flatten!
-          @alerts << DbError.store("Wrong nubmer of salary transactions for #{user.name} team (#{user.team.name}) payment account. Check: #{t.id}: #{t.comment}") if team_payment_records.count > 1
+          @alerts << DbError.store(181,"Wrong nubmer of salary transactions for #{user.name} team (#{user.team.name}) payment account. Check: #{t.id}: #{t.comment}") if team_payment_records.count > 1
           if team_payment_records.count < 1
             if user.role.name != 'Manager' || Date.strptime(t.comment.split.last,'%d/%m/%y') < date_of_start # issue 34546
-              @alerts << DbError.store("Missing salary transaction for #{user.name} team (#{user.team.name}) payment account. Check: #{t.comment.gsub('for', user.name)}")
+              @alerts << DbError.store(184,"Missing salary transaction for #{user.name} team (#{user.team.name}) payment account. Check: #{t.comment.gsub('for', user.name)}")
             end
           else
-            @alerts << DbError.store("Invalid total for salary transaction for #{user.name} team (#{user.team.name}) payment account. Check: ##{records.first.id}") if team_payment_records.first.try(:total).try(:abs) != t.total.abs
+            @alerts << DbError.store(187,"Invalid total for salary transaction for #{user.name} team (#{user.team.name}) payment account. Check: ##{records.first.id}") if team_payment_records.first.try(:total).try(:abs) != t.total.abs
           end
         end
       end
@@ -203,7 +203,7 @@ class SelfCheck
       order.tasks.each do |task|
         valid = false unless task.accepted && task.paid
       end
-      @alerts << DbError.store("Wrong completed flag for #{order.name}. Check suborders and tasks.") unless valid
+      @alerts << DbError.store(206,"Wrong completed flag for #{order.name}. Check suborders and tasks.") unless valid
     end
   end
 
@@ -221,11 +221,11 @@ class SelfCheck
         end
       end
       if completed_count == 0 && order.completed
-        @alerts << DbError.store("Order #{order.id} completed, but theres no transaction for it.")
+        @alerts << DbError.store(224,"Order #{order.id} completed, but theres no transaction for it.")
         next
       end
       if uncompleted_count > completed_count
-        @alerts << DbError.store("Order #{order.id} contains multiple uncompleted transactions.")
+        @alerts << DbError.store(228,"Order #{order.id} contains multiple uncompleted transactions.")
         next
       end
       if order.updated_at > Date.parse('1/10/2015')
@@ -233,22 +233,22 @@ class SelfCheck
           # 1 + 2 c сentral office + 1 - на сentral_office_income account + 2(возможно) - на team.manager and team.income_account
           correct_count = 1
           if !order.internal_order? && order.team_id != central_office_id
-            base_commission = order.commission.presence || 400
-            value = value = order.invoiced_budget * base_commission/100.0
+            base_commission = order.commission.presence || 40
+            value = order.invoiced_budget * base_commission/100.0
             correct_count += 2 if value != 0 
           end
           if order.team_id != central_office_id
-            income_balance = order.team.income_account.transactions.where('created_at >= ?', order.updated_at).sum(:total)
+            income_balance = order.team.income_account.transactions.where('created_at <= ?', order.updated_at).sum(:total)
             correct_count += 2 if income_balance > 0
           end
           correct_count += 1 unless order.internal_order?
           if correct_count != (completed_count - uncompleted_count).abs 
-            @alerts << DbError.store("Order #{order.id} completed transactions wrong, please check it.")
+            @alerts << DbError.store(246,"Order #{order.id} completed transactions wrong, please check it.")
           end
         end
       else
         if (completed_count - uncompleted_count).abs > 1
-          @alerts << DbError.store("Order #{order.id} completed transactions wrong, please check it.")
+          @alerts << DbError.store(251,"Order #{order.id} completed transactions wrong, please check it.")
         end
       end
     end
@@ -257,7 +257,7 @@ class SelfCheck
   def task_uniqness #FIXME!!! WTF? 
     tasks = []
     Task.find_each do |task|
-      @alerts << DbError.store("Task #{task.external_id} has a double") if tasks.include? task.external_id
+      @alerts << DbError.store(260,"Task #{task.external_id} has a double") if tasks.include? task.external_id
       tasks << task.external_id
     end
   end
@@ -270,17 +270,17 @@ class SelfCheck
       val = 0
       Transaction.where("comment LIKE '%issue #{task.external_id}%'").each { |r| val += r.total; @transactions << r.id }
       if (task.budget * 3) != val
-        @alerts << DbError.store("Wrong payment & balance transactions for issue #{task.external_id}")
+        @alerts << DbError.store(273,"Wrong payment & balance transactions for issue #{task.external_id}")
       end
     end
   end
 
   def task_state
-    Team.includes(accounts: :transactions).find_each do |team|
-      team.balance_account.transactions.where.not('comment LIKE "Salary%"').where.not('comment LIKE "Setup new team"').each do |t|
+    Team.find_each do |team|
+      team.balance_account.transactions.where.not('comment LIKE "Salary%"').where.not('comment LIKE "Setup new team"').where.not('comment LIKE "Order%was completed%"').each do |t|
         @transactions << t.id
         if team.income_account.transactions.where("comment LIKE '#{t.comment}'").empty?
-          @alerts << DbError.store("Wrong payment & balance transactions for issue #{t.comment.gsub(/\D/, '')}")
+          @alerts << DbError.store(283,"Wrong payment & balance transactions for issue #{t.comment.gsub(/\D/, '')}")
         end
       end
     end
@@ -296,25 +296,26 @@ class SelfCheck
         accepted.each { |r| val += r.total }
         reopening.each { |r| val += r.total }
         if (task.budget * 3) != val
-          @alerts << DbError.store("Issue #{task.external_id} has incorrect number of transactions")
+          @alerts << DbError.store(299,"Issue #{task.external_id} has incorrect number of transactions")
         end
       elsif reopening.last.nil?
         val = 0
         accepted.each { |r| val += r.total }
         if (task.budget * 3) != val
-          @alerts << DbError.store("Issue #{task.external_id} has incorrect number of transactions")
+          @alerts << DbError.store(305,"Issue #{task.external_id} has incorrect number of transactions")
         end
       end
     end
   end
 
   def accepted_and_paid_for_teams
-    User.includes(accounts: :transactions).find_each do |user|
+    User.includes(:accounts).find_each do |user|
       issues = []
       user.balance_account.transactions.where.not('comment LIKE "Salary%"').each do |t|
-        issues << t.comment.gsub(/\D/, '')
+        issues << t.comment.match(/\s([a-zA-Z]+_[\d]+)/).try(:captures).try(:[],0)
         @transactions << t.id
       end
+      issues.compact!
       issues.each do |id|
         accepted_count = 0
         reopening_count = 0
@@ -328,9 +329,9 @@ class SelfCheck
         next if reopening_count == 0
         if (accepted_count - reopening_count).abs > 1
           if accepted_count > reopening_count
-            @alerts << DbError.store("Wrong team transaction count: Expecting issue ##{id} to be accepted&paid. Team: #{user.team.name}")
+            @alerts << DbError.store(331,"Wrong team transaction count: Expecting issue ##{id} to be accepted&paid. Team: #{user.team.name}")
           elsif accepted_count < reopening_count
-            @alerts << DbError.store("Wrong team transaction count: Expecting issue ##{id} NOT to be accepted&paid. Team: #{user.team.name}")
+            @alerts << DbError.store(333,"Wrong team transaction count: Expecting issue ##{id} NOT to be accepted&paid. Team: #{user.team.name}")
           end
         end
       end
@@ -360,21 +361,21 @@ class SelfCheck
           @transactions << team.income_account.transactions.where("comment LIKE '#{t.comment.gsub('for', user.name)}'").ids
         end
         if user_income_count != 1
-          @alerts << DbError.store("Wrong salary transaction for #{user.name}'s income account. Details: #{t.comment}")
+          @alerts << DbError.store(363,"Wrong salary transaction for #{user.name}'s income account. Details: #{t.comment}")
         end
         if user.role.name != 'Manager' || Date.strptime(t.comment.split.last,'%d/%m/%y') < date_of_start # issue 34546
           if team_balance_count != 1
-            @alerts << DbError.store("Wrong salary transaction for #{user.name}'s team(#{user.team.name}) balance account. Check: #{t.comment.gsub('for', user.name)}")
+            @alerts << DbError.store(367,"Wrong salary transaction for #{user.name}'s team(#{user.team.name}) balance account. Check: #{t.comment.gsub('for', user.name)}")
           end
           if team_payment_count != 1
-            @alerts << DbError.store("Wrong salary transaction for #{user.name}'s team(#{user.team.name}) income account. Check: #{t.comment.gsub('for', user.name)}")
+            @alerts << DbError.store(370,"Wrong salary transaction for #{user.name}'s team(#{user.team.name}) income account. Check: #{t.comment.gsub('for', user.name)}")
           end
         else
           if team_balance_count != 0
-            @alerts << DbError.store("Wrong salary transaction for #{user.name}'s team(#{user.team.name}) balance account. Check: #{t.comment.gsub('for', user.name)}")
+            @alerts << DbError.store(374,"Wrong salary transaction for #{user.name}'s team(#{user.team.name}) balance account. Check: #{t.comment.gsub('for', user.name)}")
           end
           if team_payment_count != 0
-            @alerts << DbError.store("Wrong salary transaction for #{user.name}'s team(#{user.team.name}) income account. Check: #{t.comment.gsub('for', user.name)}")
+            @alerts << DbError.store(377,"Wrong salary transaction for #{user.name}'s team(#{user.team.name}) income account. Check: #{t.comment.gsub('for', user.name)}")
           end
         end
       end
@@ -382,7 +383,7 @@ class SelfCheck
   end
 
   def accepted_and_paid
-    User.includes(accounts: :transactions).find_each do |user|
+    User.includes(:accounts).find_each do |user|
       issues = []
       user.balance_account.transactions.where.not('comment LIKE "Salary%"').each do |t|
         issues << t.comment.gsub(/\D/, '')
@@ -402,9 +403,9 @@ class SelfCheck
         next if reopening_count == 0
         if (accepted_count - reopening_count).abs > 1
           if accepted_count > reopening_count
-            @alerts << DbError.store("Wrong transaction count: Expecting issue ##{id} to be accepted&paid.")
+            @alerts << DbError.store(405,"Wrong transaction count: Expecting issue ##{id} to be accepted&paid.")
           elsif accepted_count < reopening_count
-            @alerts << DbError.store("Wrong transaction count: Expecting issue ##{id} NOT to be accepted&paid.")
+            @alerts << DbError.store(407,"Wrong transaction count: Expecting issue ##{id} NOT to be accepted&paid.")
           end
         end
       end
@@ -421,9 +422,9 @@ class SelfCheck
         next
       end
       if statuses.length > 1
-        @alerts << DbError.store("Task ##{task.external_id} has wrong paid status.")
+        @alerts << DbError.store(424,"Task ##{task.external_id} has wrong paid status.")
       elsif statuses.first != task.paid
-        @alerts << DbError.store("Task ##{task.external_id} has wrong paid status.")
+        @alerts << DbError.store(426,"Task ##{task.external_id} has wrong paid status.")
       end
     end
   end
@@ -433,7 +434,7 @@ class SelfCheck
     Order.includes(:parent).where.not(parent_id: nil).each do |order|
       begin
         if order.parent.paid !=  order.paid
-          @alerts << DbError.store("Expecting order #{order.id} (#{order.name}) to be #{order.parent.paid ? 'paid' : 'unpaid'}")
+          @alerts << DbError.store(436,"Expecting order #{order.id} (#{order.name}) to be #{order.parent.paid ? 'paid' : 'unpaid'}")
         end
       rescue
       end
@@ -446,10 +447,10 @@ class SelfCheck
     Order.includes(:parent).where.not(parent_id: nil).each do |order|
       begin
         unless order.parent.present?
-          @alerts << DbError.store("SubOrder #{order.id} (#{order.name}) belongs to defunct parent ")
+          @alerts << DbError.store(449,"SubOrder #{order.id} (#{order.name}) belongs to defunct parent ")
         end
       rescue
-        @alerts << DbError.store("SubOrder #{order.id} (#{order.name}) belongs to defunct parent ")
+        @alerts << DbError.store(452,"SubOrder #{order.id} (#{order.name}) belongs to defunct parent ")
       end
     end
 
@@ -457,7 +458,7 @@ class SelfCheck
     Order.includes(:parent).where.not(parent_id: nil).each do |order|
       begin
         unless order.sub_orders.empty?
-          @alerts << DbError.store("SubOrder #{order.id} (#{order.name}) has another suborders")
+          @alerts << DbError.store(460,"SubOrder #{order.id} (#{order.name}) has another suborders")
         end
       rescue
       end
@@ -469,7 +470,7 @@ class SelfCheck
     Order.includes(:invoice).find_each do |order|
       begin
         if order.invoice.present? && order.parent_id.present?
-          @alerts << DbError.store("SubOrder #{order.id} (#{order.name}) has relationship with invoice")
+          @alerts << DbError.store(472,"SubOrder #{order.id} (#{order.name}) has relationship with invoice")
         end
       rescue
       end
@@ -486,7 +487,7 @@ class SelfCheck
           order.sub_orders.each { |r| val += r.invoiced_budget }
           calculated_budget = order.allocatable_budget - val
           if order.free_budget != calculated_budget
-            @alerts << DbError.store("Expecting order #{order.id} (#{order.name}) free budget to be #{calculated_budget}, but it #{order.free_budget}")
+            @alerts << DbError.store(489,"Expecting order #{order.id} (#{order.name}) free budget to be #{calculated_budget}, but it #{order.free_budget}")
           end
         end
       rescue
@@ -504,10 +505,10 @@ class SelfCheck
           order.sub_orders.each { |r| val += r.invoiced_budget }
           calculated_budget = order.allocatable_budget - val
           if calculated_budget < 0
-            @alerts << DbError.store("Expecting order #{order.id} (#{order.name}) free budget to be greater than zero")
+            @alerts << DbError.store(507,"Expecting order #{order.id} (#{order.name}) free budget to be greater than zero")
           end
           if val =! (order.free_budget + order.allocatable_budget)
-            @alerts << DbError.store("Order #{order.id} (#{order.name}) has invalid free budget!")
+            @alerts << DbError.store(510,"Order #{order.id} (#{order.name}) has invalid free budget!")
           end
         end
       rescue
@@ -522,7 +523,7 @@ class SelfCheck
         teams = []
         task.orders.each { |r| teams << r.team}
         if teams.uniq.length > 1
-          @alerts << DbError.store("Expecting task #{task.external_id} budgets to be from same team")
+          @alerts << DbError.store(525,"Expecting task #{task.external_id} budgets to be from same team")
         end
       rescue
       end
@@ -532,14 +533,14 @@ class SelfCheck
   def zero_transactions
     Transaction.where(total: 0).where("comment like '%issue%'").find_each do |transaction|
       issue = transaction.comment.gsub(/\D/, '')
-      @alerts << DbError.store("Transaction id=#{transaction.id} for issue #{issue} has 0 total")
+      @alerts << DbError.store(535,"Transaction id=#{transaction.id} for issue #{issue} has 0 total")
     end
   end
 
   def duplicate_budgets
     Task.includes(:task_orders, :orders).find_each do |task|
       if task.orders.length > task.task_orders.length
-        @alerts << DbError.store("Task #{task.external_id} has multiple budgets from one order")
+        @alerts << DbError.store(542,"Task #{task.external_id} has multiple budgets from one order")
       end
     end
   end

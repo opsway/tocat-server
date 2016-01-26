@@ -14,10 +14,10 @@ class DbError < ActiveRecord::Base
     { conditions: sanitize_sql_for_conditions(["db_errors.#{key} #{operator} ?", value.to_s.to_bool]) }
   end
 
-  def self.store(message)
+  def self.store(line, message)
     record = DbError.where(alert: message).first
     unless record
-      record = DbError.create!(alert: message)
+      record = DbError.create!(alert: message, line_number: line)
       Rails.cache.write(:selfcheck_last_run, Time.now)
     end
     record.id
