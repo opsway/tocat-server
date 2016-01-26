@@ -238,7 +238,7 @@ class SelfCheck
             correct_count += 2 if value != 0 
           end
           if order.team_id != central_office_id
-            income_balance = order.team.income_account.transactions.where('created_at <= ?', order.updated_at).sum(:total)
+            income_balance = order.team.income_account.transactions.where('created_at < ?', order.updated_at - (0.5).second).sum(:total)
             correct_count += 2 if income_balance > 0
           end
           correct_count += 1 unless order.internal_order?
