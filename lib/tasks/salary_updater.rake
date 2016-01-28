@@ -35,7 +35,7 @@ namespace :shiftplanning do
 
     time = Time.now.gmtime.strftime("%d/%m/%Y - %H:%M GMT+0")
     dbid = DbError.where("alert like 'There may be salary processing errors. Last successful run%'").first.try(:id)
-    dbid = DbError.store "There may be salary processing errors. Last successful run - #{time}" unless dbid
+    dbid = DbError.store 38, "There may be salary processing errors. Last successful run - #{time}" unless dbid
 
     logger = Logger.new("#{Rails.root}/log/transactions.log", 7, 2048000)
         salary_logger = Logger.new("#{Rails.root}/log/salary.log", 7, 2048000)
