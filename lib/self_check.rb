@@ -228,7 +228,8 @@ class SelfCheck
         @alerts << DbError.store(228,"Order #{order.id} contains multiple uncompleted transactions.")
         next
       end
-      if order.updated_at > Date.parse('1/10/2015')
+      start_date = order.order_transactions.maximum('created_at')
+      if order.completed && start_date > Date.parse('1/10/2015')
         if order.completed
           # 1 + 2 c сentral office + 1 - на сentral_office_income account + 2(возможно) - на team.manager and team.income_account
           correct_count = 1
@@ -238,7 +239,18 @@ class SelfCheck
             correct_count += 2 if value != 0 
           end
           if order.team_id != central_office_id
-            income_balance = order.team.income_account.transactions.where('created_at < ?', order.updated_at - (0.5).second).sum(:total)
+            income_balance = order.team.income_account.transactions.where('created_at <= ?', start_date).sum(:total)
+            income_balance -= order.team.income_account.transactions.where("comment  like 'Order ##{order.id} was%' and total <= 0").last.try(:total).to_i
+            if order.parent_id.present?
+              p '!'
+              p '!'
+              p '!'
+              p "Income: #{income_balance}"
+              p "Income: #{income_balance}"
+              p '!'
+              p '!'
+              p '!'
+            end
             correct_count += 2 if income_balance > 0
           end
           correct_count += 1 unless order.internal_order?

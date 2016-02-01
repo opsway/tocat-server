@@ -73,8 +73,11 @@ class Order < ActiveRecord::Base
   before_save :check_if_parent_completed_on_suborder_creation, if: proc { |o| o.new_record? && o.parent_id.present? }
   before_save :handle_completed, if: proc { |o| o.completed_changed? && o.parent_id.nil? }
   before_destroy :check_if_parent_completed, if: proc { |o| o.parent_id.present? }
-  before_save :check_dberrors, if: :completed?
+  #before_save :check_dberrors, if: :completed?
 
+  def order_transactions
+    Transaction.where("comment like 'Order ##{id} was%'")
+  end
   def handle_paid(paid)
     self.update_attributes!(paid: paid)
   end
@@ -89,12 +92,13 @@ class Order < ActiveRecord::Base
         val = suborder.invoiced_budget - suborder.task_orders.sum(:budget)
         suborder.team.income_account.transactions.create! total: completed ? val : -val,
                                                           comment: "Order ##{suborder.id} was #{ completed ? 'completed' : 'uncompleted'}"
-        suborder.update_columns(completed: completed)
+        suborder.send :additional_transactions
+        suborder.update_columns(completed: true)
       end
       val = invoiced_budget - sub_orders.sum(:invoiced_budget) - task_orders.sum(:budget)
       team.income_account.transactions.create! total: completed ? val : -val,
                                                comment: "Order ##{id} was #{completed ? 'completed' : 'uncompleted'}"
-      #additional_transactions
+      additional_transactions
     end
   end
 
