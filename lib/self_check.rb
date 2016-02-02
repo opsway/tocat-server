@@ -239,18 +239,11 @@ class SelfCheck
             correct_count += 2 if value != 0 
           end
           if order.team_id != central_office_id
-            income_balance = order.team.income_account.transactions.where('created_at <= ?', start_date).sum(:total)
-            income_balance -= order.team.income_account.transactions.where("comment  like 'Order ##{order.id} was%' and total <= 0").last.try(:total).to_i
-            if order.parent_id.present?
-              p '!'
-              p '!'
-              p '!'
-              p "Income: #{income_balance}"
-              p "Income: #{income_balance}"
-              p '!'
-              p '!'
-              p '!'
-            end
+            income_balance = order.team.income_account.transactions.where('created_at <= ?', start_date).sum(:total).to_f # TODO
+            income_balance -= order.team.income_account.transactions.where("comment  like 'Order ##{order.id} was%' and total <= 0").last.try(:total).to_f # TODO
+           #if order.parent_id.present?
+           #  income_balance += order.team.income_account.transactions.where("comment  like 'Order ##{order.parent_id} was%' and total <= 0").last.try(:total).to_f
+           #end
             correct_count += 2 if income_balance > 0
           end
           correct_count += 1 unless order.internal_order?
