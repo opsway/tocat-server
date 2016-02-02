@@ -105,6 +105,7 @@ class Order < ActiveRecord::Base
 
   def handle_uninternal
     self.update_attributes(internal_order: false, paid: false)
+    self.sub_orders.update_all(internal_order: false, paid: false)
     self.tasks.each do |task|
         task.handle_paid(false)
         task.create_activity :paid_update,
@@ -397,6 +398,11 @@ class Order < ActiveRecord::Base
   
   def set_paid_for_internal_order
     if self.internal_order
+      self.sub_orders.find_each do |suborder|
+        suborder.internal_order = true
+        suborder.paid = true
+        suborder.save
+      end
       self.paid = true
       self.tasks.each do |task|
         task.handle_paid(true)
@@ -413,7 +419,7 @@ class Order < ActiveRecord::Base
   end
 
   def disallow_internal_for_suborders
-    if internal_order? and parent_id.present?
+    if internal_order? and parent_id.present? and !parent.internal_order?
       errors.add(:base, "Can't set internal_order flag to suborder")
       false
     end
