@@ -73,7 +73,7 @@ class Order < ActiveRecord::Base
   before_save :check_if_parent_completed_on_suborder_creation, if: proc { |o| o.new_record? && o.parent_id.present? }
   before_save :handle_completed, if: proc { |o| o.completed_changed? && o.parent_id.nil? }
   before_destroy :check_if_parent_completed, if: proc { |o| o.parent_id.present? }
-  #before_save :check_dberrors, if: :completed?
+  before_save :check_dberrors, if: :completed?
 
   def order_transactions
     Transaction.where("comment like 'Order ##{id} was%'")
