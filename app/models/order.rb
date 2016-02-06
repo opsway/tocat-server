@@ -92,13 +92,13 @@ class Order < ActiveRecord::Base
         val = suborder.invoiced_budget - suborder.task_orders.sum(:budget)
         suborder.team.income_account.transactions.create! total: completed ? val : -val,
                                                           comment: "Order ##{suborder.id} was #{ completed ? 'completed' : 'uncompleted'}"
-        suborder.send :additional_transactions
+        #suborder.send :additional_transactions
         suborder.update_columns(completed: true)
       end
       val = invoiced_budget - sub_orders.sum(:invoiced_budget) - task_orders.sum(:budget)
       team.income_account.transactions.create! total: completed ? val : -val,
                                                comment: "Order ##{id} was #{completed ? 'completed' : 'uncompleted'}"
-      additional_transactions
+      #additional_transactions
     end
   end
 
