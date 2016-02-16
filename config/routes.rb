@@ -71,6 +71,19 @@ Rails.application.routes.draw do
             defaults: { format: 'json' },
             only: [:index, :create, :destroy]
 
+  resources :tocat_user,
+            path: 'tocat_users',
+            controller: 'users',
+            defaults: { format: 'json' },
+            only: [:index, :create, :destroy]
+  resources :user,
+            path: 'tocat_user',
+            controller: 'users',
+            defaults: { format: 'json' },
+            only: [:show, :update, :destroy] do
+            post 'add_payment', to: 'users#add_payment', as: 'add_payment_tocat', format: 'json'
+          end
+
   resources :user,
             path: 'user',
             controller: 'users',
