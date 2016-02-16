@@ -4,9 +4,9 @@ class UserShowSerializer < ActiveModel::Serializer
   attributes :id,
              :name,
              :login,
-             :team,
+             :tocat_team,
              :daily_rate,
-             :role,
+             :tocat_server_role,
              :links,
              :accounts,
              :active,
@@ -19,7 +19,7 @@ class UserShowSerializer < ActiveModel::Serializer
     object.daily_rate.to_f
   end
 
-  def team
+  def tocat_team
     data = {}
     data[:name] = object.team.name
     data[:href] = team_path(object.team)
@@ -27,7 +27,7 @@ class UserShowSerializer < ActiveModel::Serializer
     data
   end
 
-  def role
+  def tocat_server_role
     data = {}
     data[:id] = object.role.id
     data[:name]= object.role.name
