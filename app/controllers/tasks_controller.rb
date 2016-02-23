@@ -128,6 +128,9 @@ class TasksController < ApplicationController
     budget_was = @task.task_orders.each(&:serializable_hash)
     TaskOrders.transaction do
       messages = []
+      if @task.expenses?
+        messages << 'You can not update budget for Expense. Please contact administrator to remove Expense flag first'
+      end
       begin
         @task.task_orders.destroy_all
         @task.update(budgets)
