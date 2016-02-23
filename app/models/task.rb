@@ -4,6 +4,7 @@ class Task < ActiveRecord::Base
   validates :external_id,  presence: { message: "Missing external task ID" }, uniqueness: { message: "External ID is already used" }
   validate :check_resolver_team, if: proc { |o| o.user_id_changed? && !o.user_id.nil? }
   validate :check_if_order_completed, if: proc { |o| o.task_orders.any? }
+  validate :expense_should_not_have_resolver
 
   has_many :task_orders,
            class_name: 'TaskOrders',
@@ -84,6 +85,16 @@ class Task < ActiveRecord::Base
     return if review_requested_changed?
     if orders.collect(&:completed).include?(true)
       errors[:base] << 'Completed order is used in budgets, can not update task'
+    end
+  end
+
+  def expense_should_not_have_resolver
+    if  expenses && resolver.present?
+      if expenses_changed?
+        errors[:expenses] << 'Please remove Resolver first to setup Expense flag.'
+      else
+        errors[:resolver] << 'You can not setup Resolver for issue that is Expense'
+        end
     end
   end
 
