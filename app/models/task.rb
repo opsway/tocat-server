@@ -5,6 +5,7 @@ class Task < ActiveRecord::Base
   validate :check_resolver_team, if: proc { |o| o.user_id_changed? && !o.user_id.nil? }
   validate :check_if_order_completed, if: proc { |o| o.task_orders.any? }
   validate :expense_should_not_have_resolver
+  validate :manager_can_not_be_resolver, if: proc { |t| t.resolver.present? }
 
   has_many :task_orders,
            class_name: 'TaskOrders',
@@ -89,12 +90,18 @@ class Task < ActiveRecord::Base
   end
 
   def expense_should_not_have_resolver
-    if  expenses && resolver.present?
+    if expenses && resolver.present?
       if expenses_changed?
         errors[:expenses] << 'Please remove Resolver first to setup Expense flag.'
       else
         errors[:resolver] << 'You can not setup Resolver for issue that is Expense'
       end
+    end
+  end
+
+  def manager_can_not_be_resolver
+    if resolver.manager?
+      errors[:resolver] << 'Manager can not be set as a resolver'
     end
   end
 
