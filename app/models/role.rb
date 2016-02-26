@@ -7,6 +7,10 @@ class Role < ActiveRecord::Base
   scope :managers, ->{where name: 'Manager'}
   scope :developers, ->{where name: 'Developer'}
 
+  def manager?
+    name =~ /manager/i
+  end
+
   private
 
   def normalize_name

@@ -23,6 +23,8 @@ class User < ActiveRecord::Base
   scoped_search in: :team, on: :name, rename: :team, only_explicit: true
   scoped_search in: :role, on: :name, rename: :role, only_explicit: true
 
+  delegate :manager?, to: :role
+
   def self.current_user
     Thread.current[:current_user]
   end
