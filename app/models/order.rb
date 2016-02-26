@@ -37,6 +37,7 @@ class Order < ActiveRecord::Base
   validate :sub_order_team
   validate :check_inheritance
   validate :disallow_internal_for_suborders, if: :internal_order_changed?
+  validate :cant_complete_internal_order_with_free_budget_left, if: :completed_changed?
 
   before_save :check_budgets_for_sub_order
   before_save :check_sub_order_after_update
@@ -422,6 +423,12 @@ class Order < ActiveRecord::Base
     if internal_order? and parent_id.present? and !parent.internal_order?
       errors.add(:base, "Can't set internal_order flag to suborder")
       false
+    end
+  end
+
+  def cant_complete_internal_order_with_free_budget_left
+    if internal_order? && free_budget > 0
+      errors[:completed] << 'Internal order can not have free budget. Please correct invoiced and allocatable budget accordingly'
     end
   end
 end
