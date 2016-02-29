@@ -6,7 +6,7 @@ class Team < ActiveRecord::Base
   has_many :users
   has_many :roles, :through => :users, source: :role
   def manager
-    users.joins(:role).where('roles.name = ?', 'Manager').first
+    users.joins(:role).where('roles.name = ?', 'Manager').where(active: true).first
   end
   def self.central_office
     Team.where(name: 'Central Office').first
