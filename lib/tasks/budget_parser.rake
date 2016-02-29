@@ -6,10 +6,8 @@ namespace :budget do
     time_elapsed = Benchmark.measure do
       CSV_NAME = 'delta_budget.csv'
 
-      unless File.exist?(CSV_NAME)
-        CSV.open(CSV_NAME, 'wb') do |csv|
-          csv << %w(external_id team_id budget date type)
-        end
+      CSV.open("/tmp/#{CSV_NAME}", 'wb') do |csv|
+        csv << %w(external_id team_id budget date type)
       end
 
       database_config = 'config/database.yml'
@@ -87,7 +85,7 @@ namespace :budget do
         end
       end
 
-      CSV.open(CSV_NAME, 'a+') do |csv|
+      CSV.open("/tmp/#{CSV_NAME}", 'a+') do |csv|
         events.each do |event|
           task = @client.query("SELECT * FROM tasks t WHERE t.id='#{event['trackable_id']}'").first
           if task
