@@ -22,9 +22,13 @@ namespace :budget do
                           FROM activities a
                           WHERE a.key='task.budget_update' OR a.key='task.accepted_update'")
       missing_tasks = []
-      def get_team(task, property)
-        order_id = @client.query("SELECT order_id FROM task_orders t WHERE t.task_id='#{task['id']}'").to_a.last
-        team_id = @client.query("SELECT team_id FROM orders o WHERE o.id='#{order_id['order_id']}'").first if order_id
+
+      def get_order(task)
+        @client.query("SELECT order_id FROM task_orders t WHERE t.task_id='#{task['id']}'").to_a.last
+      end
+
+      def get_team(order_id, property)
+        team_id = @client.query("SELECT team_id FROM orders o WHERE o.id='#{order_id}'").first
         @client.query("SELECT * FROM teams t WHERE t.id='#{team_id['team_id']}'").first[property] if team_id
       end
 
@@ -44,6 +48,16 @@ namespace :budget do
           else
             0
           end
+        end
+      end
+
+      def get_multiplier(order_id, event)
+        order = @client.query("SELECT * FROM orders o WHERE o.id='#{order_id}'").first
+        if order
+          multiplier = order['invoiced_budget'] / order['allocatable_budget']
+          multiplier.to_f
+        else
+          1
         end
       end
 
@@ -89,9 +103,12 @@ namespace :budget do
         events.each do |event|
           task = @client.query("SELECT * FROM tasks t WHERE t.id='#{event['trackable_id']}'").first
           if task
+            order = get_order(task)
+            order_id = order['order_id'] if order
+            multiplier = get_multiplier(order_id, event)
             external_id = task['external_id']
-            team_id = get_team(task, 'id')
-            budget = set_budget(event)
+            team_id = get_team(order_id, 'id') if order_id
+            budget = (set_budget(event) * multiplier).round(2)
             date = event['created_at'].to_date
             type = event['key']
             csv << [external_id, team_id, budget, date, type] unless budget == 0
