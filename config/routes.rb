@@ -8,7 +8,7 @@ Rails.application.routes.draw do
             path: 'orders',
             controller: 'orders',
             defaults: { format: 'json' },
-            only: [:index, :create]
+            only: [:index, :new, :create]
 
   resources :roles,
             path: 'roles',
