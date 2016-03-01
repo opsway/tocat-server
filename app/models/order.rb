@@ -75,6 +75,7 @@ class Order < ActiveRecord::Base
   before_save :handle_completed, if: proc { |o| o.completed_changed? && o.parent_id.nil? }
   before_destroy :check_if_parent_completed, if: proc { |o| o.parent_id.present? }
   before_save :check_dberrors, if: :completed?
+  before_validation :set_paid_flag
 
   def order_transactions
     Transaction.where("comment like 'Order ##{id} was%'")
@@ -429,6 +430,12 @@ class Order < ActiveRecord::Base
   def cant_complete_internal_order_with_free_budget_left
     if internal_order? && free_budget > 0
       errors[:completed] << 'Internal order can not have free budget. Please correct invoiced and allocatable budget accordingly'
+    end
+  end
+
+  def set_paid_flag
+    if internal_order? || (parent.present? && parent.paid?)
+      self.paid = true
     end
   end
 end
