@@ -41,6 +41,7 @@ class SelfCheck
     check_invoices
     zero_transactions
     internal_order_always_paid
+    only_one_active_manager_per_team
     Transaction.includes(account: :accountable).where.not(id: @transactions.flatten.uniq).where.not('comment LIKE "%Paid in cash/bank%"').each do |transaction|
       if /Salary for.*/.match(transaction.comment).present?
         next if transaction.account.accountable.try(:role).try(:name) == 'Manager'
@@ -558,6 +559,20 @@ class SelfCheck
           @alerts << DbError.store(__LINE__, "Expecting internal order #{order.id} (#{order.name}) to be 'paid'")
         end
       rescue
+      end
+    end
+  end
+
+  def only_one_active_manager_per_team
+    # Checks that only one active user with role manager there is per team
+    Team.includes(users: [:role]).find_each do |team|
+      team_managers = team.users.select(&:manager?)
+      if team_managers.size > 1
+        managers_names = team_managers.map(&:name).join(', ')
+        @alerts << DbError.store(
+          __LINE__,
+          "Team '#{team.name}' has multiple active users set as managers: #{managers_names}. Team should have only one active manager"
+        )
       end
     end
   end
