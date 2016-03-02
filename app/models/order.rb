@@ -77,6 +77,8 @@ class Order < ActiveRecord::Base
   before_save :check_dberrors, if: :completed?
   before_validation :set_paid_flag
 
+  before_validation :set_internal_from_parent
+
   def order_transactions
     Transaction.where("comment like 'Order ##{id} was%'")
   end
@@ -436,6 +438,12 @@ class Order < ActiveRecord::Base
   def set_paid_flag
     if internal_order? || (parent.present? && parent.paid?)
       self.paid = true
+    end
+  end
+
+  def set_internal_from_parent
+    if parent.present? && parent.internal_order?
+      self.internal_order = true
     end
   end
 end
