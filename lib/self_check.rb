@@ -235,8 +235,7 @@ class SelfCheck
           # 1 + 2 c сentral office + 1 - на сentral_office_income account + 2(возможно) - на team.manager and team.income_account
           correct_count = 1
           if !order.internal_order? && order.team_id != central_office_id
-            base_commission = order.commission.presence || 40
-            value = order.invoiced_budget * base_commission/100.0
+            value = order.invoiced_budget * order.commission_coefficient
             correct_count += 2 if value != 0 
           end
           if order.team_id != central_office_id

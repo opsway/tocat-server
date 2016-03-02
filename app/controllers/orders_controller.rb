@@ -153,7 +153,7 @@ class OrdersController < ApplicationController
 
   def new
     @order = Order.new
-    render json: @order, serializer: OrderShowSerializer
+    render json: @order, serializer: OrderNewSerializer
   end
 
   def set_completed
