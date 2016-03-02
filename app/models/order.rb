@@ -1,5 +1,8 @@
 class Order < ActiveRecord::Base
   include PublicActivity::Common
+
+  DEFAULT_COMMISSION = 40
+
   validates :name, presence: { message: "Order name can not be empty" }
   validates :team, presence: { message: "Team does not exists" }
   validates :allocatable_budget, presence: { message: "Allocatable budget is missing" }
@@ -23,7 +26,7 @@ class Order < ActiveRecord::Base
                             less_than_or_equal_to: 100,
                             message: "should be positive number between 1-100",
                             only_integer: true,
-                            allow_nil: true
+                            allow_nil: false
   validate :check_complete_change_commission, if: :commission_changed?
 
   scoped_search on: [:name, :description, :invoiced_budget, :allocatable_budget, :free_budget, :paid, :completed, :internal_order]
@@ -76,6 +79,8 @@ class Order < ActiveRecord::Base
   before_destroy :check_if_parent_completed, if: proc { |o| o.parent_id.present? }
   before_save :check_dberrors, if: :completed?
   before_validation :set_paid_flag
+  before_validation :set_default_commission, if: proc { |o| o.commission.nil? }
+  after_initialize :default_values
 
   before_validation :set_internal_from_parent
 
@@ -121,13 +126,20 @@ class Order < ActiveRecord::Base
                                  owner: User.current_user
     end
   end
+
+  def commission_coefficient
+    commission / 100.0
+  end
+
   private
+
+  def default_values
+    self.commission ||= DEFAULT_COMMISSION
+  end
   
   def additional_transactions
       #make transactions (task #34212)
-      base_commission = commission.presence || 40 #TODO FIXME - default 40%
-
-      value = invoiced_budget * base_commission/100.0
+      value = invoiced_budget * commission_coefficient
 
       central_office = Team.central_office
 
@@ -386,6 +398,7 @@ class Order < ActiveRecord::Base
       self.free_budget = allocatable_budget
     end
   end
+
   def check_complete_change_commission 
     if completed?
       errors.add(:commission,  "can't change commission for completed orders")
@@ -433,6 +446,10 @@ class Order < ActiveRecord::Base
     if internal_order? && free_budget > 0
       errors[:completed] << 'Internal order can not have free budget. Please correct invoiced and allocatable budget accordingly'
     end
+  end
+
+  def set_default_commission
+    self.commission = DEFAULT_COMMISSION
   end
 
   def set_paid_flag
