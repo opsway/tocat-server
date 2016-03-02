@@ -40,6 +40,7 @@ class SelfCheck
     complete_transactions
     check_invoices
     zero_transactions
+    internal_order_always_paid
     Transaction.includes(account: :accountable).where.not(id: @transactions.flatten.uniq).where.not('comment LIKE "%Paid in cash/bank%"').each do |transaction|
       if /Salary for.*/.match(transaction.comment).present?
         next if transaction.account.accountable.try(:role).try(:name) == 'Manager'
@@ -546,6 +547,18 @@ class SelfCheck
     Task.includes(:task_orders, :orders).find_each do |task|
       if task.orders.length > task.task_orders.length
         @alerts << DbError.store(542,"Task #{task.external_id} has multiple budgets from one order")
+      end
+    end
+  end
+
+  def internal_order_always_paid
+    # Checks that internal orders are always paid
+    Order.where(internal_order: true).find_each do |order|
+      begin
+        unless order.paid?
+          @alerts << DbError.store(559, "Expecting internal order #{order.id} (#{order.name}) to be 'paid'")
+        end
+      rescue
       end
     end
   end
