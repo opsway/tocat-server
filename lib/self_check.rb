@@ -567,13 +567,10 @@ class SelfCheck
   def only_one_active_manager_per_team
     # Checks that only one active user with role manager there is per team
     Team.includes(users: [:role]).find_each do |team|
-      team_managers = team.users.select(&:manager?)
+      team_managers = team.users.select { |u| u.manager? && u.active? }
       if team_managers.size > 1
         managers_names = team_managers.map(&:name).join(', ')
-        @alerts << DbError.store(
-          __LINE__,
-          "Team '#{team.name}' has multiple active users set as managers: #{managers_names}. Team should have only one active manager"
-        )
+        @alerts << DbError.store(__LINE__, "Team '#{team.name}' has multiple active users set as managers: #{managers_names}. Team should have only one active manager")
       end
     end
   end
