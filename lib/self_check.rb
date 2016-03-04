@@ -576,4 +576,10 @@ class SelfCheck
       end
     end
   end
+
+  def non_internal_orders_must_have_commission
+    Order.where("internal_order = 'f' AND (commission = 0 OR commission IS NULL)").find_each do |order|
+      @alerts << DbError.store(__LINE__, "Non-internal order #{order.id} (#{order.name}) must have commission not null and > 0")
+    end
+  end
 end

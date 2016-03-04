@@ -2,6 +2,7 @@ class Order < ActiveRecord::Base
   include PublicActivity::Common
 
   DEFAULT_COMMISSION = 40
+  INTERNAL_ORDER_COMMISSION = 0
 
   validates :name, presence: { message: "Order name can not be empty" }
   validates :team, presence: { message: "Team does not exists" }
@@ -80,6 +81,7 @@ class Order < ActiveRecord::Base
   before_save :check_dberrors, if: :completed?
   before_validation :set_paid_flag
   before_validation :set_default_commission, if: proc { |o| o.commission.nil? }
+  before_validation :set_internal_order_commission, if: proc { |o| o.internal_order? }
   after_initialize :default_values
 
   before_validation :set_internal_from_parent
@@ -462,5 +464,9 @@ class Order < ActiveRecord::Base
 
   def set_default_commission
     self.commission = DEFAULT_COMMISSION
+  end
+
+  def set_internal_order_commission
+    self.commission = INTERNAL_ORDER_COMMISSION if internal_order?
   end
 end
