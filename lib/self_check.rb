@@ -42,6 +42,7 @@ class SelfCheck
     zero_transactions
     internal_order_always_paid
     only_one_active_manager_per_team
+    non_internal_orders_must_have_commission
     Transaction.includes(account: :accountable).where.not(id: @transactions.flatten.uniq).where.not('comment LIKE "%Paid in cash/bank%"').each do |transaction|
       if /Salary for.*/.match(transaction.comment).present?
         next if transaction.account.accountable.try(:role).try(:name) == 'Manager'
