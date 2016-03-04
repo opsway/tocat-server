@@ -110,13 +110,12 @@ Rails.application.routes.draw do
             path: 'invoices',
             controller: 'invoices',
             defaults: { format: 'json' },
-            only: [:index, :create]
+            only: [:index, :create, :update]
   resources :invoice,
             path: 'invoice',
             controller: 'invoices',
             defaults: { format: 'json' },
-            only: [:show, :destroy] do
-
+            only: [:show, :edit, :update, :destroy] do
     post 'paid', to: 'invoices#set_paid', as: 'invoice_set_paid', format: 'json'
     delete 'paid', to: 'invoices#delete_paid', as: 'invoice_remove_paid', format: 'json'
   end

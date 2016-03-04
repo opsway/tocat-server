@@ -60,6 +60,14 @@ class InvoicesController < ApplicationController
     end
   end
 
+  def update
+    if @invoice.update(invoice_params)
+      render json: @invoice, serializer: AfterCreationSerializer, status: 200
+    else
+      render json: error_builder(@invoice), status: :unprocessable_entity
+    end
+  end
+
   private
 
   def set_invoice
