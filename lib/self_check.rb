@@ -42,6 +42,7 @@ class SelfCheck
     zero_transactions
     internal_order_always_paid
     only_one_active_manager_per_team
+    non_internal_orders_must_have_commission
     Transaction.includes(account: :accountable).where.not(id: @transactions.flatten.uniq).where.not('comment LIKE "%Paid in cash/bank%"').each do |transaction|
       if /Salary for.*/.match(transaction.comment).present?
         next if transaction.account.accountable.try(:role).try(:name) == 'Manager'
@@ -574,6 +575,12 @@ class SelfCheck
           "Team '#{team.name}' has multiple active users set as managers: #{managers_names}. Team should have only one active manager"
         )
       end
+    end
+  end
+
+  def non_internal_orders_must_have_commission
+    Order.where("internal_order = 'f' AND (commission = 0 OR commission IS NULL)").find_each do |order|
+      @alerts << DbError.store(__LINE__, "Non-internal order #{order.id} (#{order.name}) must have commission not null and > 0")
     end
   end
 end
