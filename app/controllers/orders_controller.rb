@@ -1,5 +1,5 @@
 class OrdersController < ApplicationController
-  before_action :set_order, except: [:index, :create, :create_suborder, :new]
+  before_action :set_order, except: [:index, :create, :create_suborder, :new, :auto_complete]
   helper_method :sort
 
 
@@ -172,6 +172,11 @@ class OrdersController < ApplicationController
     else
       render json: error_builder(@order), status: :unprocessable_entity
     end
+  end
+
+  def auto_complete
+    @orders = Order.where('id LIKE ? OR name LIKE ?', "%#{params[:term]}%", "%#{params[:term]}%").limit(10)
+    render json: @orders
   end
 
   private
