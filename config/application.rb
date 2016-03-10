@@ -12,6 +12,7 @@ module TocatServer
       g.test_framework :rspec
     end
     config.autoload_paths += Dir[Rails.root.join('lib')]
+    config.autoload_paths << Rails.root.join('app')
 
     ApiPagination.configure do |config|
       # If you have both gems included, you can choose a paginator.

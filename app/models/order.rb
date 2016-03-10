@@ -29,6 +29,8 @@ class Order < ActiveRecord::Base
                             only_integer: true,
                             allow_nil: false
   validate :check_complete_change_commission, if: :commission_changed?
+  validate :parent_has_no_parent, if: 'parent.present?'
+  validate :parent_has_enough_free_budget, if: 'parent.present?'
 
   scoped_search on: [:name, :description, :invoiced_budget, :allocatable_budget, :free_budget, :paid, :completed, :internal_order]
   scoped_search in: :team, on: :name, rename: :team, only_explicit: true
@@ -468,5 +470,17 @@ class Order < ActiveRecord::Base
 
   def set_internal_order_commission
     self.commission = INTERNAL_ORDER_COMMISSION if internal_order?
+  end
+
+  def parent_has_no_parent
+    if parent && parent.parent.present?
+      errors[:parent] << 'Parent must not have parent'
+    end
+  end
+
+  def parent_has_enough_free_budget
+    if parent && parent.free_budget < invoiced_budget
+      errors[:parent] << 'Suborder can not be invoiced more than parent free budget'
+    end
   end
 end

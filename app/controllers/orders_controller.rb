@@ -75,21 +75,11 @@ class OrdersController < ApplicationController
   end
 
   def update
-    order_attr = {}
-    order_attr['name'] = @order.name
-    order_attr['description'] = @order.description
-    order_attr['invoiced_budget'] = @order.invoiced_budget.to_s
-    order_attr['allocatable_budget'] = @order.allocatable_budget.to_s
-    order_attr['team_id'] = @order.team_id.to_s
-    if @order.update(order_params)
-      @order.create_activity :update,
-                              parameters: {
-                                changes: HashDiff.diff(order_attr, order_params)
-                              },
-                              owner: User.current_user
-      render json: @order, serializer: AfterCreationSerializer, status: 200
+    action = Actions::Orders::Update.new(@order).call(order_params: order_params)
+    if action.success?
+      render json: action.order, serializer: AfterCreationSerializer, status: 200
     else
-      render json: error_builder(@order), status: :unprocessable_entity
+      render json: { errors: action.errors }, status: :unprocessable_entity
     end
   end
 
