@@ -36,13 +36,17 @@ module Actions
 
       def create_activity(prev_parent, new_parent)
         changes = HashDiff.diff(
-          { parent_id: prev_parent.try(:id) },
-          { parent_id: new_parent.try(:id) })
+          { parent_id: parent_to_s(prev_parent) },
+          { parent_id: parent_to_s(new_parent) })
         order.create_activity(
           :update,
           parameters: { changes: changes },
           owner: User.current_user
         )
+      end
+
+      def parent_to_s(parent)
+        parent ? parent.id.to_s : 'nil'
       end
 
       def recalculate_budget(parent)
