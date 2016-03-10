@@ -52,6 +52,6 @@ class User < ActiveRecord::Base
     self.name = self.name.titleize
   end
   def team_can_have_only_one_manager
-    errors.add 'Team', 'already have a manager' if self.role.try(:name) == 'Manager' && self.team.roles.managers.any? #TODO - fix 
+    errors.add 'Team', 'already have a manager' if self.role.try(:name) == 'Manager' && self.team.users.where.not(id: self.id).where(active: true, role_id: Role.managers.select(:id)).any? #TODO - fix 
   end
 end
