@@ -1,5 +1,5 @@
 class OrdersController < ApplicationController
-  before_action :set_order, except: [:index, :create, :create_suborder, :new, :auto_complete]
+  before_action :set_order, except: [:index, :create, :create_suborder, :new, :parent_auto_complete]
   helper_method :sort
 
 
@@ -164,9 +164,12 @@ class OrdersController < ApplicationController
     end
   end
 
-  def auto_complete
-    @orders = Order.where('id LIKE ? OR name LIKE ?', "%#{params[:term]}%", "%#{params[:term]}%").limit(10)
-    render json: @orders
+  def parent_auto_complete
+    orders = Queries::Orders::ParentAutoComplete.call(
+      child_id: params[:child_id],
+      term: params[:term]
+    )
+    render json: orders
   end
 
   private
