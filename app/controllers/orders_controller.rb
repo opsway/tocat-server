@@ -12,7 +12,7 @@ class OrdersController < ApplicationController
     @order = Order.includes(:invoice).find(params[:id])
     render json: @order, serializer: OrderShowSerializer
   end
-  
+
   def commission
     old_commision = @order.commission
     if @order.update_attributes(commission: params[:commission])
@@ -24,7 +24,7 @@ class OrdersController < ApplicationController
       render json: error_builder(@order), status: :unprocessable_entity
     end
   end
-  
+
   def set_internal
     old_value = @order.internal_order
     @order.internal_order = true
@@ -41,7 +41,7 @@ class OrdersController < ApplicationController
 
   def remove_internal
     old_value = @order.internal_order
-    if @order.handle_uninternal 
+    if @order.handle_uninternal
       @order.create_activity :remove_internal_order,
                               parameters: {changes: "#{old_value} -> #{@order.internal_order}"},
                               owner: User.current_user
@@ -82,6 +82,7 @@ class OrdersController < ApplicationController
     order_attr['allocatable_budget'] = @order.allocatable_budget.to_s
     order_attr['team_id'] = @order.team_id.to_s
     if @order.update(order_params)
+      @order.update_order_commission if (order_attr['team_id'] != order_params[:team_id]) && order_params[:commission].nil?
       @order.create_activity :update,
                               parameters: {
                                 changes: HashDiff.diff(order_attr, order_params)

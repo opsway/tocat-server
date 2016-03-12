@@ -79,6 +79,13 @@ Rails.application.routes.draw do
     post 'add_payment', to: 'users#add_payment', as: 'add_payment', format: 'json'
   end
 
+  #teams
+  resources :team,
+            path: 'teams',
+            controller: 'teams',
+            defaults: { format: 'json' },
+            only: [:index, :create, :show, :update]
+
   #tasks
   resources :task,
             path: 'tasks',

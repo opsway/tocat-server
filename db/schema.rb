@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160126101016) do
+ActiveRecord::Schema.define(version: 20160310215705) do
 
   create_table "accounts", force: :cascade do |t|
     t.string   "account_type",     limit: 255, null: false
@@ -117,9 +117,10 @@ ActiveRecord::Schema.define(version: 20160126101016) do
   add_index "tasks", ["user_id"], name: "index_tasks_on_user_id", using: :btree
 
   create_table "teams", force: :cascade do |t|
-    t.string   "name",       limit: 255, null: false
+    t.string   "name",               limit: 255, null: false
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "default_commission", limit: 4
   end
 
   create_table "timesheets", force: :cascade do |t|
@@ -162,18 +163,11 @@ ActiveRecord::Schema.define(version: 20160126101016) do
   add_index "users", ["team_id"], name: "index_users_on_team_id", using: :btree
 
   add_foreign_key "orders", "invoices"
-  add_foreign_key "orders", "invoices"
-  add_foreign_key "orders", "orders", column: "parent_id"
   add_foreign_key "orders", "orders", column: "parent_id"
   add_foreign_key "orders", "teams"
-  add_foreign_key "orders", "teams"
-  add_foreign_key "task_orders", "orders"
   add_foreign_key "task_orders", "orders"
   add_foreign_key "task_orders", "tasks"
-  add_foreign_key "task_orders", "tasks"
   add_foreign_key "tasks", "users"
-  add_foreign_key "tasks", "users"
-  add_foreign_key "transactions", "accounts"
   add_foreign_key "transactions", "accounts"
   add_foreign_key "transactions", "users"
   add_foreign_key "users", "roles"

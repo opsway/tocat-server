@@ -1,7 +1,6 @@
 class Order < ActiveRecord::Base
   include PublicActivity::Common
 
-  DEFAULT_COMMISSION = 40
   INTERNAL_ORDER_COMMISSION = 0
 
   validates :name, presence: { message: "Order name can not be empty" }
@@ -80,9 +79,8 @@ class Order < ActiveRecord::Base
   before_destroy :check_if_parent_completed, if: proc { |o| o.parent_id.present? }
   before_save :check_dberrors, if: :completed?
   before_validation :set_paid_flag
-  before_validation :set_default_commission, if: proc { |o| o.commission.nil? }
+  before_validation :set_teams_default_commission, if: proc { |o| o.commission.nil? }
   before_validation :set_internal_order_commission, if: proc { |o| o.internal_order? }
-  after_initialize :default_values
 
   before_validation :set_internal_from_parent
 
@@ -133,21 +131,25 @@ class Order < ActiveRecord::Base
     commission / 100.0
   end
 
+  def update_order_commission
+    update(commission: team.default_commission)
+  end
+
   private
 
   def default_values
     self.commission ||= DEFAULT_COMMISSION
   end
-  
+
   def additional_transactions
       #make transactions (task #34212)
       value = invoiced_budget * commission_coefficient
 
       central_office = Team.central_office
 
-      unless internal_order? 
-        if team.id != central_office.id # don't create transactions for central office 
-          # a TODO - change Central office to Team.central_office.name 
+      unless internal_order?
+        if team.id != central_office.id # don't create transactions for central office
+          # a TODO - change Central office to Team.central_office.name
           team.manager.balance_account.transactions.create! total: -value,  comment: "Order ##{id} was completed: Central office fee" if value != 0
           # b
           central_office.balance_account.transactions.create! total: value, comment: "Order ##{id} was completed: Central office fee" if value != 0
@@ -156,14 +158,14 @@ class Order < ActiveRecord::Base
         central_office.income_account.transactions.create! total: invoiced_budget, comment: "Order ##{id} was completed" if invoiced_budget != 0
       end
       if team.income_account.balance > 0
-        if team.id != central_office.id # don't create transactions for central office 
+        if team.id != central_office.id # don't create transactions for central office
           # d
-          team.manager.balance_account.transactions.create! total: team.income_account.balance, comment: "Order ##{id} was completed" 
+          team.manager.balance_account.transactions.create! total: team.income_account.balance, comment: "Order ##{id} was completed"
           # e
-          team.income_account.transactions.create! total: -team.income_account.balance, comment: "Order ##{id} was completed" 
+          team.income_account.transactions.create! total: -team.income_account.balance, comment: "Order ##{id} was completed"
         end
       end
-      
+
       tasks.with_expenses.find_each do |task|
         central_office.income_account.transactions.create! total: -task.budget, comment: "Expense, Issue ##{task.external_id}"
       end
@@ -401,7 +403,7 @@ class Order < ActiveRecord::Base
     end
   end
 
-  def check_complete_change_commission 
+  def check_complete_change_commission
     if completed?
       errors.add(:commission,  "can't change commission for completed orders")
       false
@@ -414,7 +416,7 @@ class Order < ActiveRecord::Base
       false
     end
   end
-  
+
   def set_paid_for_internal_order
     if self.internal_order
       self.sub_orders.find_each do |suborder|
@@ -430,7 +432,7 @@ class Order < ActiveRecord::Base
                                parameters: {
                                    internal_order: true,
                                    old: !task.paid,
-                                   new: true 
+                                   new: true
                                  },
                                  owner: User.current_user
       end
@@ -464,6 +466,10 @@ class Order < ActiveRecord::Base
     if parent.present? && parent.internal_order?
       self.internal_order = true
     end
+  end
+
+  def set_teams_default_commission
+    self.commission = team.default_commission
   end
 
   def set_internal_order_commission
