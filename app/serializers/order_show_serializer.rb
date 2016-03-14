@@ -11,6 +11,7 @@ class OrderShowSerializer < ActiveModel::Serializer
              :completed,
              :internal_order,
              :parent_order,
+             :parent_id,
              :invoice,
              :links,
              :team,
