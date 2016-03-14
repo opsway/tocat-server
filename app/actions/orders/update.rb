@@ -13,6 +13,7 @@ module Actions
 
         push_operation(-> { update_order(order_params) })
         push_operation(-> { set_parent(parent_id) })
+        push_operation(-> { save_order })
         push_operation(-> { create_activity })
 
         execute_operations
@@ -25,7 +26,11 @@ module Actions
 
       def update_order(order_params)
         remember_changes(order_params)
-        order.update(order_params)
+        order.assign_attributes(order_params)
+      end
+
+      def save_order
+        self.order.save
         push_errors(order_errors)
       end
 
