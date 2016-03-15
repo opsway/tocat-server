@@ -8,7 +8,9 @@ Rails.application.routes.draw do
             path: 'orders',
             controller: 'orders',
             defaults: { format: 'json' },
-            only: [:index, :new, :create]
+            only: [:index, :new, :create] do
+    get 'parent_auto_complete', on: :collection
+  end
 
   resources :roles,
             path: 'roles',

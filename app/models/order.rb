@@ -28,6 +28,8 @@ class Order < ActiveRecord::Base
                             only_integer: true,
                             allow_nil: false
   validate :check_complete_change_commission, if: :commission_changed?
+  validate :parent_has_no_parent, if: 'parent.present?'
+  validate :parent_has_enough_free_budget, if: 'parent.present?'
 
   scoped_search on: [:name, :description, :invoiced_budget, :allocatable_budget, :free_budget, :paid, :completed, :internal_order]
   scoped_search in: :team, on: :name, rename: :team, only_explicit: true
@@ -43,7 +45,6 @@ class Order < ActiveRecord::Base
   validate :cant_complete_internal_order_with_free_budget_left, if: :completed_changed?
 
   before_save :check_budgets_for_sub_order
-  before_save :check_sub_order_after_update
   after_save :set_paid_for_internal_order, if: :internal_order_changed?
 
   belongs_to :team
@@ -131,8 +132,11 @@ class Order < ActiveRecord::Base
     commission / 100.0
   end
 
-  def update_order_commission
-    update(commission: team.default_commission)
+  def free_budget_except_order(child_order)
+    sub_orders_budget = sub_orders.where.not(id: child_order.id)
+      .sum(:invoiced_budget)
+    tasks_budget = task_orders.sum(:budget)
+    allocatable_budget - (sub_orders_budget + tasks_budget)
   end
 
   private
@@ -330,17 +334,6 @@ class Order < ActiveRecord::Base
     end
   end
 
-  def check_sub_order_after_update
-    if parent.present?
-      if allocatable_budget_changed? || invoiced_budget_changed?
-        if allocatable_budget > (parent.free_budget + allocatable_budget_was.to_i) || invoiced_budget > (parent.free_budget + invoiced_budget_was.to_i)
-          errors[:base] << 'Suborder can not be invoiced more than parent free budget'
-          return false
-        end
-      end
-    end
-  end
-
   def sub_order_team
     if new_record? && parent.present?
       if team == parent.team
@@ -474,5 +467,17 @@ class Order < ActiveRecord::Base
 
   def set_internal_order_commission
     self.commission = INTERNAL_ORDER_COMMISSION if internal_order?
+  end
+
+  def parent_has_no_parent
+    if parent && parent.parent.present?
+      errors[:parent] << 'Parent must not have parent'
+    end
+  end
+
+  def parent_has_enough_free_budget
+    if parent && parent.free_budget_except_order(self) < invoiced_budget
+      errors[:parent] << 'Suborder can not be invoiced more than parent free budget'
+    end
   end
 end
