@@ -12,6 +12,7 @@ module Actions
         parent_id = order_params.delete(:parent_id)
 
         push_operation(-> { update_order(order_params) })
+        push_operation(-> { update_order_commission(order_params) })
         push_operation(-> { set_parent(parent_id) })
         push_operation(-> { save_order })
         push_operation(-> { create_activity })
@@ -27,6 +28,10 @@ module Actions
       def update_order(order_params)
         remember_changes(order_params)
         order.assign_attributes(order_params)
+      end
+
+      def update_order_commission(order_params)
+        order.assign_attributes(commission: order.team.default_commission) if order_params[:commission].nil?
       end
 
       def save_order

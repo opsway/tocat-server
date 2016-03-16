@@ -12,7 +12,7 @@ class OrdersController < ApplicationController
     @order = Order.includes(:invoice).find(params[:id])
     render json: @order, serializer: OrderShowSerializer
   end
-  
+
   def commission
     old_commision = @order.commission
     if @order.update_attributes(commission: params[:commission])
@@ -24,7 +24,7 @@ class OrdersController < ApplicationController
       render json: error_builder(@order), status: :unprocessable_entity
     end
   end
-  
+
   def set_internal
     old_value = @order.internal_order
     @order.internal_order = true
@@ -41,7 +41,7 @@ class OrdersController < ApplicationController
 
   def remove_internal
     old_value = @order.internal_order
-    if @order.handle_uninternal 
+    if @order.handle_uninternal
       @order.create_activity :remove_internal_order,
                               parameters: {changes: "#{old_value} -> #{@order.internal_order}"},
                               owner: User.current_user

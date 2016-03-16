@@ -8,9 +8,9 @@ class UsersController < ApplicationController
     else
       @articles = User.search_for(params[:search]).order('users.name asc').all_active
     end
-    
+
     if params[:limit].present? || params[:page].present? || params[:anyuser].present?
-      return paginate json: @articles, per_page: params[:limit] 
+      return paginate json: @articles, per_page: params[:limit]
     else
       render json: @articles
     end
@@ -39,7 +39,7 @@ class UsersController < ApplicationController
       render json: error_builder(@user), status: 406
     end
   end
-  
+
   def destroy
     params.permit!
     @user.create_activity :destroy,
@@ -85,7 +85,7 @@ class UsersController < ApplicationController
   end
 
   def check_user
-    unless @user.active? 
+    unless @user.active?
       return render json: {errors: ['User is inactive']}, status: 422
     end
   end
@@ -100,7 +100,7 @@ class UsersController < ApplicationController
     if params[:user].try(:[],:team).present?
       output.merge!({ team_id: params[:user]['team']})
     end
-    if params[:user].try(:[],:role).present?
+    if params[:user].try(:[],:role).present? && params[:actions] != 'update'
       output.merge!({ role_id: params[:user].try(:[], :role)})
     end
     output
