@@ -82,7 +82,6 @@ class Order < ActiveRecord::Base
   before_validation :set_paid_flag
   before_validation :set_teams_default_commission, if: proc { |o| o.commission.nil? }
   before_validation :set_internal_order_commission, if: proc { |o| o.internal_order? }
-
   before_validation :set_internal_from_parent
 
   def order_transactions
@@ -140,10 +139,6 @@ class Order < ActiveRecord::Base
   end
 
   private
-
-  def default_values
-    self.commission ||= DEFAULT_COMMISSION
-  end
 
   def additional_transactions
       #make transactions (task #34212)
@@ -443,10 +438,6 @@ class Order < ActiveRecord::Base
     if internal_order? && free_budget > 0
       errors[:completed] << 'Internal order can not have free budget. Please correct invoiced and allocatable budget accordingly'
     end
-  end
-
-  def set_default_commission
-    self.commission = DEFAULT_COMMISSION
   end
 
   def set_paid_flag

@@ -557,7 +557,7 @@ class SelfCheck
     Order.where(internal_order: true).find_each do |order|
       begin
         unless order.paid?
-          @alerts << DbError.store(__LINE__, "Expecting internal order #{order.id} (#{order.name}) to be 'paid'")
+          @alerts << DbError.store(559, "Expecting internal order #{order.id} (#{order.name}) to be 'paid'")
         end
       rescue
       end

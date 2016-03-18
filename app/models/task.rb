@@ -95,7 +95,7 @@ class Task < ActiveRecord::Base
         errors[:expenses] << 'Please remove Resolver first to setup Expense flag.'
       else
         errors[:resolver] << 'You can not setup Resolver for issue that is Expense'
-        end
+      end
     end
   end
 
