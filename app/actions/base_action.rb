@@ -34,10 +34,12 @@ module Actions
         end
         raise(ActiveRecord::Rollback, 'Rolling back') if failure?
       end
+    # rescue StandardError
+    #   push_errors('Operation failed')
     end
 
     def push_errors(errors_messages)
-      @errors += errors_messages
+      @errors += Array(errors_messages)
     end
   end
 end

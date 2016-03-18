@@ -135,7 +135,7 @@ class Task < ActiveRecord::Base
 
   def handle_balance_after_changing_budget
     self.transaction do
-      if budget_was != nil && budget == 0
+      if budget_was != nil && budget == 0 && user.present?
         create_transactions(user, user.team, -budget_was, "Reopening issue #{self.external_id}")
       end
     end

@@ -1,0 +1,6 @@
+en:
+  error_messages:
+    task:
+      budget:
+        cant_update_when_expense: 'You can not update budget for Expense. Please contact administrator to remove Expense flag first'
+        cant_update_when_accepted_and_paid: 'Can not update budget for task that is Accepted and paid'

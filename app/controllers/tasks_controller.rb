@@ -121,39 +121,11 @@ class TasksController < ApplicationController
   end
 
   def set_budgets
-    budgets = {}
-    if task_params[:budget].present?
-      budgets[:task_orders_attributes] = task_params[:budget]
-    end
-    budget_was = @task.task_orders.each(&:serializable_hash)
-    TaskOrders.transaction do
-      messages = []
-      if @task.expenses?
-        messages << 'You can not update budget for Expense. Please contact administrator to remove Expense flag first'
-      end
-      begin
-        @task.task_orders.destroy_all
-        @task.update(budgets)
-        @task.recalculate_paid_status! # FIXME
-      rescue
-      end
-      @task.task_orders.each do |task_order|
-        if task_order.errors.present?
-          messages << task_order.errors.full_messages
-        end
-      end
-      if messages.empty?
-        @task.create_activity :budget_update,
-                                 parameters: {
-                                   old: budget_was,
-                                   new: @task.task_orders.each(&:serializable_hash)
-                                 },
-                                 owner: User.current_user
-        render json: {}, status: 200
-      else
-        render json: { errors: messages.flatten }, status: :unprocessable_entity
-        raise ActiveRecord::Rollback.new
-      end
+    action = Actions::Tasks::SetBudgets.new(@task).call(budgets: task_params[:budget])
+    if action.success?
+      render json: {}, status: :ok
+    else
+      render json: { errors: action.errors }, status: :unprocessable_entity
     end
   end
 
