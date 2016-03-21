@@ -52,7 +52,7 @@ Rails.application.routes.draw do
             path: 'team',
             controller: 'teams',
             defaults: { format: 'json' },
-            only: [:show]
+            only: [:show, :update, :create]
 
   #transactions
   resources :transaction,
