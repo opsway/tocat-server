@@ -43,6 +43,7 @@ class Order < ActiveRecord::Base
   validate :check_inheritance
   validate :disallow_internal_for_suborders, if: :internal_order_changed?
   validate :cant_complete_internal_order_with_free_budget_left, if: :completed_changed?
+  validate :must_be_paid_when_completed
 
   before_save :check_budgets_for_sub_order
   after_save :set_paid_for_internal_order, if: :internal_order_changed?
@@ -72,9 +73,7 @@ class Order < ActiveRecord::Base
   after_save :recalculate_parent_free_budget, if: proc { |o| o.allocatable_budget_changed? && !o.new_record? && o.parent.present? }
   after_save :recalculate_parent_free_budget, if: proc { |o| o.invoiced_budget_changed? && !o.new_record? && o.parent.present? }
   before_save :check_for_completed, if: proc { |o| !o.completed_changed? }
-  before_save :check_for_paid_before_change_completed, if: proc { |o| o.completed_changed? }
   before_save :check_if_suborder_before_change_completed, if: proc { |o| o.completed_changed? }
-  before_save :check_for_accepted_tasks_before_completed, if: proc { |o| o.completed_changed? }
   before_save :check_if_parent_completed_on_suborder_creation, if: proc { |o| o.new_record? && o.parent_id.present? }
   before_save :handle_completed, if: proc { |o| o.completed_changed? && o.parent_id.nil? }
   before_destroy :check_if_parent_completed, if: proc { |o| o.parent_id.present? }
@@ -198,32 +197,9 @@ class Order < ActiveRecord::Base
     end
   end
 
-  def check_for_accepted_tasks_before_completed
-    tasks_array = []
-    tasks_array << tasks
-    tasks_array << sub_orders.collect(&:tasks)
-    tasks_array.flatten!
-    ids = tasks_array.select { |o| !o.paid || !o.accepted }.collect(&:external_id)
-    if ids.any?
-      errors[:base] << "Can not complete order: task(s) #{ids.join(',')} not Accepted&Paid"
-      false
-    end
-  end
-
   def check_if_suborder_before_change_completed
     if parent_id.present?
-      if completed
-        errors[:base] << 'Can not complete suborder'
-      else
-        errors[:base] << 'Can not un-complete suborder'
-      end
-      false
-    end
-  end
-
-  def check_for_paid_before_change_completed
-    unless paid
-      errors[:base] << 'Can not complete unpaid order'
+      errors[:base] << 'Can not un-complete suborder' unless completed
       false
     end
   end
@@ -461,14 +437,16 @@ class Order < ActiveRecord::Base
   end
 
   def parent_has_no_parent
-    if parent && parent.parent.present?
-      errors[:parent] << 'Parent must not have parent'
-    end
+    errors[:parent] << 'Parent must not have parent' if parent && parent.parent.present?
   end
 
   def parent_has_enough_free_budget
     if parent && parent.free_budget_except_order(self) < invoiced_budget
       errors[:parent] << 'Suborder can not be invoiced more than parent free budget'
     end
+  end
+
+  def must_be_paid_when_completed
+    errors[:paid] << 'Completed order must be paid' if completed? && !paid?
   end
 end

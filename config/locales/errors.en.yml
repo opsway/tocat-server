@@ -1,0 +1,15 @@
+en:
+  errors:
+    task:
+      budget:
+        cant_update_when_expense: 'You can not update budget for Expense. Please contact administrator to remove Expense flag first'
+        cant_update_when_accepted_and_paid: 'Can not update budget for task that is Accepted and paid'
+
+    order:
+      completed:
+        cant_complete_when_completed: 'Can not complete already completed order'
+        cant_complete_when_have_incorrect_tasks_type_1: "Issues %{ids} has Resolver and has Expense flag set. Expenses can not have Resolvers"
+        cant_complete_when_have_incorrect_tasks_type_2: "Issues %{ids} has no Resolver. Please set it as Expense flag or set Resolver"
+        cant_complete_when_unpaid: 'Can not complete unpaid order'
+        cant_complete_when_suborder: 'Can not complete suborder'
+        cant_complete_when_tasks_not_accepted_and_paid: "Can not complete order: task(s) %{ids} not Accepted&Paid"

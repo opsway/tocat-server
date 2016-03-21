@@ -147,20 +147,11 @@ class OrdersController < ApplicationController
   end
 
   def set_completed
-    if @order.completed == true
-      return render json: { errors: ['Can not complete already completed order'] }, status: :unprocessable_entity # FIXME
-    end
-
-    if @order.update_attributes(completed: true)
-      @order.create_activity :completed_update,
-                               parameters: {
-                                 new: @order.completed,
-                                 old: !@order.completed
-                               },
-                               owner: User.current_user
-      render json: @order, serializer: AfterCreationSerializer, status: 200
+    action = Actions::Orders::Complete.new(@order).call
+    if action.success?
+      render json: @order, serializer: AfterCreationSerializer, status: :ok
     else
-      render json: error_builder(@order), status: :unprocessable_entity
+      render json: { errors: action.errors }, status: :unprocessable_entity
     end
   end
 

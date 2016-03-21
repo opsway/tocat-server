@@ -30,7 +30,10 @@ class Task < ActiveRecord::Base
   scoped_search in: :user, on: :id, rename: :resolver, only_explicit: true
   scoped_search in: :orders, on: :id, rename: :order, only_explicit: true
   
-  scope :with_expenses, ->{where expenses: true}
+  scope :with_expenses, ->{ where(expenses: true) }
+  scope :without_expenses, -> { where(expenses: false) }
+  scope :with_resolver, -> { where.not(user: nil) }
+  scope :without_resolver, -> { where(user: nil) }
 
   def self.boolean_find(key, operator, value)
     { conditions: sanitize_sql_for_conditions(["tasks.#{key} #{operator} ?", value.to_s.to_bool]) }
