@@ -1,5 +1,4 @@
-//exports.url = 'http://test.tocat.opsway.com';
-exports.url = 'http://localhost:3005';
+exports.url = 'http://test.tocat.opsway.com';
 frisby = require('frisby');
 
 frisby.globalSetup({
