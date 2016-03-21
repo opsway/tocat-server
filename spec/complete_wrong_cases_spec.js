@@ -121,6 +121,17 @@ frisby.create('Correct invoice')
                                         .expectStatus(200)
                                         .toss();
 
+                                    frisby.create('Can not complete order with tasks not expenses and without resolver')
+                                        .post(url + '/order/' + order.id + '/complete/')
+                                        .expectStatus(422)
+                                        .expectJSON({errors:['Issues ' + task2_ext_id + ' has no Resolver. Please set it as Expense flag or set Resolver']})
+                                        .toss();
+
+                                    frisby.create('Set task2 Resolver id=2')
+                                        .post(url + '/task/' + task2.id + '/resolver', {'user_id' : 2})
+                                        .expectStatus(200)
+                                        .toss();
+
 
                                     frisby.create('Can complete parent order')
                                         .post(url + '/order/' + order.id + '/complete/')
