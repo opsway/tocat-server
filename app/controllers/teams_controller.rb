@@ -3,7 +3,7 @@ class TeamsController < ApplicationController
 
   def index
     @teams = Team.all
-    render json: @teams
+    paginate json: @teams, per_page: params[:limit]
   end
 
   def show
