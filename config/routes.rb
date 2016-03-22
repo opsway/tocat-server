@@ -10,6 +10,7 @@ Rails.application.routes.draw do
             defaults: { format: 'json' },
             only: [:index, :new, :create] do
     get 'parent_auto_complete', on: :collection
+    get 'available_parents', on: :collection
   end
 
   resources :roles,
