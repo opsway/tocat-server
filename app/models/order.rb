@@ -24,7 +24,7 @@ class Order < ActiveRecord::Base
   validates_numericality_of :commission,
                             greater_than_or_equal_to: 0,
                             less_than_or_equal_to: 100,
-                            message: "should be positive number between 1-100",
+                            message: "Commission should be positive number between 1-100",
                             only_integer: true,
                             allow_nil: false
   validate :check_complete_change_commission, if: :commission_changed?
@@ -429,7 +429,7 @@ class Order < ActiveRecord::Base
   end
 
   def set_teams_default_commission
-    self.commission = team.default_commission
+    self.commission = team.try :default_commission
   end
 
   def set_internal_order_commission
