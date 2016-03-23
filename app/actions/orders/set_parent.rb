@@ -10,6 +10,7 @@ module Actions
 
       def call(parent_id:)
         new_parent = find_parent(parent_id)
+        return self unless new_parent
         return self if order.parent == new_parent
         remember_prev_parent
 
