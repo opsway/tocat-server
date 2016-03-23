@@ -30,6 +30,7 @@ class Order < ActiveRecord::Base
   validate :check_complete_change_commission, if: :commission_changed?
   validate :parent_has_no_parent, if: 'parent.present?'
   validate :parent_has_enough_free_budget, if: 'parent.present?'
+  validate :parent_has_different_team, if: 'parent.present?'
 
   scoped_search on: [:name, :description, :invoiced_budget, :allocatable_budget, :free_budget, :paid, :completed, :internal_order]
   scoped_search in: :team, on: :name, rename: :team, only_explicit: true
@@ -448,5 +449,9 @@ class Order < ActiveRecord::Base
 
   def must_be_paid_when_completed
     errors[:paid] << 'Completed order must be paid' if completed? && !paid?
+  end
+
+  def parent_has_different_team
+    errors[:team] << 'Suborder can not have the same team as the parent' if team == parent.team
   end
 end
