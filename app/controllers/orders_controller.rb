@@ -1,5 +1,8 @@
 class OrdersController < ApplicationController
-  before_action :set_order, except: [:index, :create, :create_suborder, :new, :parent_auto_complete, :available_parents]
+  before_action :set_order, except: [:index, :create,
+                                     :create_suborder, :new,
+                                     :parent_auto_complete, :available_parents,
+                                     :available_for_invoice]
   helper_method :sort
 
 
@@ -166,6 +169,13 @@ class OrdersController < ApplicationController
   def available_parents
     orders = Queries::Orders::ParentAutoComplete.call(
       child_id: params[:child_id],
+      limit: 1000
+    )
+    render json: orders
+  end
+
+  def available_for_invoice
+    orders = Queries::Orders::AvailableForInvoice.call(
       limit: 1000
     )
     render json: orders
