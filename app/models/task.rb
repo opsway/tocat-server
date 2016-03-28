@@ -2,8 +2,9 @@ require 'will_paginate/array'
 class Task < ActiveRecord::Base
   include PublicActivity::Common
   validates :external_id,  presence: { message: "Missing external task ID" }, uniqueness: { message: "External ID is already used" }
-  validate :check_resolver_team, if: proc { |o| o.user_id_changed? && !o.user_id.nil? }
+  validate :resolver_must_be_in_task_team, if: proc { |o| o.user_id_changed? && !o.user_id.nil? }
   validate :check_if_order_completed, if: proc { |o| o.task_orders.any? }
+  validate :orders_in_the_same_team, if: proc { |o| o.task_orders.any? }
   validate :expense_should_not_have_resolver
   validate :manager_can_not_be_resolver, if: proc { |t| t.resolver.present? }
 
@@ -35,40 +36,20 @@ class Task < ActiveRecord::Base
   scope :with_resolver, -> { where.not(user: nil) }
   scope :without_resolver, -> { where(user: nil) }
 
+  alias_method :resolver, :user
+
   def self.boolean_find(key, operator, value)
     { conditions: sanitize_sql_for_conditions(["tasks.#{key} #{operator} ?", value.to_s.to_bool]) }
   end
 
-  def can_be_paid?
-    if task_orders.collect { |r| r.try(:order).try(:paid) }.include? false
-      return false
-    else
-      return true
-    end
-  end
-
   def handle_paid(paid)
-    if paid
-      if can_be_paid?
-        return self.update_attributes!(paid: true)
-      else
-        return false
-      end
-    else
-      return self.update_attributes!(paid: false)
-    end
+    return self.update_attributes!(paid: false) unless paid
+    self.update_attributes!(paid: can_be_paid?)
   end
 
   def team
-    team = nil
-    if task_orders.present?
-      task_orders.reload.each { |o| team = o.order.team if team != o.order.team }
-    end
-    team
-  end
-
-  def resolver
-    self.user
+    order_with_team = orders.reload.detect { |o| o.team.present? }
+    order_with_team.team if order_with_team
   end
 
   def external_url
@@ -76,36 +57,31 @@ class Task < ActiveRecord::Base
   end
 
   def recalculate_paid_status!
-    if task_orders.any?
-      self.update_attributes!(paid: can_be_paid?)
-    else
-      self.update_attributes!(paid: false)
-    end
+    self.update_attributes!(paid: can_be_paid?)
   end
 
   private
 
+  def can_be_paid?
+    orders.any? && orders.all?(&:paid?)
+  end
+
   def check_if_order_completed
     return if review_requested_changed?
-    if orders.collect(&:completed).include?(true)
-      errors[:base] << 'Completed order is used in budgets, can not update task'
-    end
+    errors[:base] << 'Completed order is used in budgets, can not update task' if orders.any?(&:completed?)
   end
 
   def expense_should_not_have_resolver
-    if expenses && resolver.present?
-      if expenses_changed?
-        errors[:expenses] << 'Please remove Resolver first to setup Expense flag.'
-      else
-        errors[:resolver] << 'You can not setup Resolver for issue that is Expense'
-      end
+    return unless expenses && resolver.present?
+    if expenses_changed?
+      errors[:expenses] << 'Please remove Resolver first to setup Expense flag.'
+    else
+      errors[:resolver] << 'You can not setup Resolver for issue that is Expense'
     end
   end
 
   def manager_can_not_be_resolver
-    if resolver.manager?
-      errors[:resolver] << 'Manager can not be set as a resolver'
-    end
+    errors[:resolver] << 'Manager can not be set as a resolver' if resolver.manager?
   end
 
   def increase_budget(task_order)
@@ -117,21 +93,15 @@ class Task < ActiveRecord::Base
   end
 
   def validate_unique_task_orders
-    validate_uniqueness_of_in_memory(
-      task_orders, [:order_id, :task_id], 'Duplicate Budgets.')
-
-    validate_orders_of_in_memory(
-      task_orders, 'Orders are created for different teams')
+    validate_uniqueness_of_in_memory(task_orders, [:order_id, :task_id], 'Duplicate Budgets.')
   end
 
   def handle_balance_after_changing_paid_status
     self.transaction do
       if accepted && paid
         create_transactions(user, team, budget, "Accepted and paid issue #{self.external_id}")
-      else
-        if accepted_was == true && paid_was == true
-          create_transactions(user, team, -budget, "Reopening issue #{self.external_id}")
-        end
+      elsif accepted_was == true && paid_was == true
+        create_transactions(user, team, -budget, "Reopening issue #{self.external_id}")
       end
     end
   end
@@ -156,81 +126,65 @@ class Task < ActiveRecord::Base
     end
   end
 
-  def create_transactions(owner, group, total, message)
+  def create_transactions(owner, team, total, message)
     owner_balance_was = owner.balance_account.balance
-    group_balance_was = group.balance_account.balance
-    group_income_was = group.income_account.balance
+    team_balance_was = team.balance_account.balance
+    team_income_was = team.income_account.balance
 
-    owner.balance_account.transactions.create! total: total,
-                                               comment: message,
-                                               user_id: owner.id
-    group.balance_account.transactions.create! total: total,
-                                               comment: message,
-                                               user_id: owner.id
-    group.income_account.transactions.create! total: total,
-                                              comment: message,
-                                              user_id: owner.id
-    owner.create_activity :balance_update,
-                                  parameters: { type: 'balance',
-                                                was: owner_balance_was,
-                                                new: owner.balance_account.balance,
-                                                message: message },
-                                  recipient: owner,
-                                  owner: User.current_user
-    group.create_activity :balance_update,
-                                  parameters: { type: 'balance',
-                                                was: group_balance_was,
-                                                new: group.balance_account.balance,
-                                                message: message },
-                                  recipient: group,
-                                  owner: User.current_user
-    group.create_activity :balance_update,
-                                  parameters: { type: 'payment',
-                                                was: group_income_was,
-                                                new: group.income_account.balance,
-                                                message: message },
-                                  recipient: group,
-                                  owner: User.current_user
+    owner.balance_account.transactions.create!(total: total, comment: message, user_id: owner.id)
+    team.balance_account.transactions.create!(total: total, comment: message, user_id: owner.id)
+    team.income_account.transactions.create!(total: total, comment: message, user_id: owner.id)
+
+    create_balance_update_activity(
+      type: 'balance', recipient: owner,
+      old: owner_balance_was, new: owner.balance_account.balance,
+      message: message)
+    create_balance_update_activity(
+      type: 'balance', recipient: team,
+      old: team_balance_was, new: team.balance_account.balance,
+      message: message)
+    create_balance_update_activity(
+      type: 'payment', recipient: team,
+      old: team_income_was, new: team.income_account.balance,
+      message: message)
   end
 
-  def check_resolver_team
-    return true if orders.empty?
-    team = orders.first.team
-    orders.each do |order|
-      if team != order.team
-        errors[:base] << "Task resolver is from different team than order"
-      end
-    end
-    if user.team != team
-      errors[:base] << "Task resolver is from different team than order"
-    end
+  def create_balance_update_activity(type:, old:, new:, recipient:, message:)
+    recipient.create_activity(
+      :balance_update,
+      parameters: {
+        type: type,
+        was: old,
+        new: new,
+        message: message
+      },
+      recipient: recipient,
+      owner: User.current_user)
+  end
+
+  def resolver_must_be_in_task_team
+    errors[:base] << 'Task resolver is from different team than order' if resolver && team && resolver.team != team
+  end
+
+  def orders_in_the_same_team
+    orders_teams = orders.map(&:team).uniq
+    errors[:base] << 'Orders are created for different teams' if orders_teams.size > 1
   end
 end
-
 
 
 module ActiveRecord
   class Base
     def validate_uniqueness_of_in_memory(collection, attrs, message)
       hashes = collection.inject({}) do |hash, record|
-        key = attrs.map {|a| record.send(a).to_s }.join
+        key = attrs.map { |a| record.send(a).to_s }.join
         if key.blank? || record.marked_for_destruction?
           key = record.object_id
         end
-        hash[key] = record unless hash[key]
+        hash[key] ||= record
         hash
       end
-      if collection.length > hashes.length
-        raise message
-      end
-    end
-
-    def validate_orders_of_in_memory(collection, message)
-      teams = []
-      collection.each { |r| teams << r.order.team if r.order.present? }
-      if teams.uniq.length > 1
-        errors[:base] << message
-      end
+      raise(message) if collection.length > hashes.length
     end
   end
 end

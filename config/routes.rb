@@ -11,6 +11,7 @@ Rails.application.routes.draw do
             only: [:index, :new, :create] do
     get 'parent_auto_complete', on: :collection
     get 'available_parents', on: :collection
+    get 'available_for_invoice', on: :collection
   end
 
   resources :roles,

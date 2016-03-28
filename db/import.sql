@@ -47,6 +47,7 @@ insert into accounts values(9, 'balance', now(), now(), 3, 'User');
 insert into accounts values(10, 'balance', now(), now(), 4, 'User');
 insert into accounts values(15, 'balance', now(), now(), 5, 'User');
 insert into accounts values(17, 'balance', now(), now(), 7, 'User');
+insert into accounts values(29, 'balance', now(), now(), 6, 'User');
 
 insert into accounts values(11, 'payment', now(), now(), 1, 'User');
 insert into accounts values(12, 'payment', now(), now(), 2, 'User');
@@ -54,6 +55,7 @@ insert into accounts values(13, 'payment', now(), now(), 3, 'User');
 insert into accounts values(14, 'payment', now(), now(), 4, 'User');
 insert into accounts values(16, 'payment', now(), now(), 5, 'User');
 insert into accounts values(18, 'payment', now(), now(), 7, 'User');
+insert into accounts values(30, 'payment', now(), now(), 6, 'User');
 
 insert into accounts values(21, 'payment', now(), now(), 8, 'User');
 insert into accounts values(22, 'payment', now(), now(), 9, 'User');

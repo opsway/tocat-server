@@ -20,18 +20,12 @@ class Transaction < ActiveRecord::Base
 
 
   scope :user, lambda { |id|
-    ids = []
-    Account.with_accountable(id, 'user').each do |account|
-      ids << account.id
-    end
+    ids = Account.with_accountable(id, 'user').pluck(:id)
     with_account_ids(ids) # TODO refactor
   }
 
   scope :team, lambda { |id|
-    ids = []
-    Account.with_accountable(id, 'team').each do |account|
-      ids << account.id
-    end
+    ids = Account.with_accountable(id, 'team').pluck(:id)
     with_account_ids(ids) # TODO refactor
   }
 

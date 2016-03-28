@@ -1,5 +1,8 @@
 class OrdersController < ApplicationController
-  before_action :set_order, except: [:index, :create, :create_suborder, :new, :parent_auto_complete, :available_parents]
+  before_action :set_order, except: [:index, :create,
+                                     :create_suborder, :new,
+                                     :parent_auto_complete, :available_parents,
+                                     :available_for_invoice]
   helper_method :sort
 
 
@@ -171,6 +174,13 @@ class OrdersController < ApplicationController
     render json: orders
   end
 
+  def available_for_invoice
+    orders = Queries::Orders::AvailableForInvoice.call(
+      limit: 1000
+    )
+    render json: orders
+  end
+
   private
 
   def set_order
@@ -197,11 +207,9 @@ class OrdersController < ApplicationController
       output.merge!({ parent_id: params.try(:[], 'order_id')})
       output.merge!({ invoiced_budget: params[:allocatable_budget] }) unless params[:invoiced_budget].present?
     end
-    
-    if params[:action] == 'create'
-      output.merge({commission: params.try(:[], 'commission')})
+    if params[:action] == 'create' || params[:action] == 'create_suborder'
+      output.merge!({commission: params.try(:[], 'commission')})
     end
-
     output
   end
 end
