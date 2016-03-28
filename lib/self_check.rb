@@ -356,6 +356,13 @@ class SelfCheck
     date_of_start = Date.parse('1/10/2015') # From this date we don't count manager transactions in Team payment and Team balance accounts - issue 34546
     User.find_each do |user|
       user.balance_account.transactions.where('comment LIKE "Salary %"').each do |t|
+        
+        # check balance account transaction doubles
+        user_balance_count = user.balance_account.transactions.where(comment: t.comment).where.not(id: t.id).count
+        if user_balance_count != 0
+          @alerts << DbError.store(363,"Wrong salary transaction for #{user.name}'s balance account. Details: #{t.comment}")
+        end
+        
         @transactions << t.id
         user_income_count = user.income_account.transactions.where("comment LIKE '#{t.comment}' AND total = #{t.total.abs}").count
         @transactions << user.income_account.transactions.where("comment LIKE '#{t.comment}' AND total = #{t.total.abs}").ids
