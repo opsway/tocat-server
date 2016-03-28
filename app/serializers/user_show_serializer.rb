@@ -53,6 +53,6 @@ class UserShowSerializer < ActiveModel::Serializer
   end
 
   def income_account_state
-    object.income_account.balance.to_f
+    object.income_account.try(:balance).to_f
   end
 end
