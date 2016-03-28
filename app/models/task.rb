@@ -163,7 +163,7 @@ class Task < ActiveRecord::Base
   end
 
   def resolver_must_be_in_task_team
-    errors[:base] << 'Task resolver is from different team than order' if resolver && resolver.team != team
+    errors[:base] << 'Task resolver is from different team than order' if resolver && team && resolver.team != team
   end
 
   def orders_in_the_same_team
