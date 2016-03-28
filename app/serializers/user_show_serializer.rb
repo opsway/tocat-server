@@ -43,8 +43,8 @@ class UserShowSerializer < ActiveModel::Serializer
 
   def accounts
     data = {}
-    data[:balance] = {id: object.balance_account.id}
-    data[:income] = {id: object.income_account.id}
+    data[:balance] = {id: object.balance_account.try(:id)}
+    data[:income] = {id: object.income_account.try(:id)}
     data
   end
 
