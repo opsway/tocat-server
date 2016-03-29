@@ -103,14 +103,18 @@ class SelfCheck
           @alerts << DbError.store(100,"Invoice #{invoice.external_id}(#{record[:invoice_number]} in zoho) is in VOID status.")
           next
         end
+
+        zoho_total = nil
+        zoho_invoice = RedmineTocatApi.get_invoice(invoice.fetch(:invoice_id))
+        zoho_total = zoho_invoice.fetch('sub_total') if zoho_invoice
+        zoho_total ||= record[:total]
+
         if record[:currency_code] == "USD"
-          @alerts << DbError.store(104,"Invoice #{invoice.external_id}(#{record[:invoice_number]} in zoho) has invalid total: It has #{invoice.total}, but it should be #{record[:total]}.") if invoice.total != record[:total]
-          record[:status] == 'paid' ?
-            status = true :
-            status = false
+          @alerts << DbError.store(104,"Invoice #{invoice.external_id}(#{record[:invoice_number]} in zoho) has invalid total: It has #{invoice.total}, but it should be #{zoho_total}.") if invoice.total != zoho_total
+          status = record[:status] == 'paid'
           @alerts << DbError.store(108,"Invoice #{invoice.external_id}(#{record[:invoice_number]} in zoho) has invalid paid status.") if invoice.paid != status
         else
-          @alerts << DbError.store(110,"Invoice #{invoice.external_id}(#{record[:invoice_number]} in zoho) has invalid total: It has #{invoice.total}, but it should be #{record[:total] * record[:exchange_rate]}.") if invoice.total != (record[:total] * record[:exchange_rate])
+          @alerts << DbError.store(110,"Invoice #{invoice.external_id}(#{record[:invoice_number]} in zoho) has invalid total: It has #{invoice.total}, but it should be #{zoho_total * record[:exchange_rate]}.") if invoice.total != (zoho_total * record[:exchange_rate])
         end
       end
     end

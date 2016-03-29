@@ -79,6 +79,24 @@ class RedmineTocatApi
     return invoices.flatten!
   end
 
+  def self.get_invoice(invoice_id)
+    url, org_id, auth = generate_url('get_invoices')
+    params  = { :params => { "organization_id"    => org_id,
+                             'authtoken'        => auth,
+                             'accept'          => 'json',
+    } }
+    url = url + invoice_id
+    request = get(url, params)
+
+    invoice = nil
+    # request
+    if request && !request.empty? && request != "{}"
+      request = JSON.parse(request)
+      invoice = request["invoice"]
+    end
+    invoice
+  end
+
   protected
 
 
