@@ -105,7 +105,7 @@ class SelfCheck
         end
 
         zoho_total = nil
-        zoho_invoice = RedmineTocatApi.get_invoice(invoice.fetch(:invoice_id))
+        zoho_invoice = RedmineTocatApi.get_invoice(invoice.external_id)
         zoho_total = zoho_invoice.fetch('sub_total') if zoho_invoice
         zoho_total ||= record[:total]
 
