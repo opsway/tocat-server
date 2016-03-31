@@ -1,7 +1,9 @@
 require 'will_paginate/array'
 class Invoice < ActiveRecord::Base
   include PublicActivity::Common
-  validates :external_id,  presence: { message: "Missing external invoice ID" }, uniqueness: { message: "ID is already used" }
+  validates :external_id,
+            presence: { message: 'Missing external invoice ID' },
+            uniqueness: { message: 'ID is already used' }
 
   has_many :orders
 
@@ -14,64 +16,30 @@ class Invoice < ActiveRecord::Base
     orders.sum(:invoiced_budget)
   end
 
-  def self.sorted_by_total(order)
-    if order == 'asc'
-      Invoice.all.sort_by(&:total)
-    else
-      Invoice.all.sort_by(&:total).reverse!
-    end
-  end
-
   private
 
   def handle_paid_status
     self.transaction do
-      orders.each do |order|
-        order.handle_paid(paid)
-        order.create_activity :paid_update,
-                                 parameters: {
-                                     invoice_id: id,
-                                     invoice_external_id: external_id,
-                                     old: !paid,
-                                     new: paid
-                                   },
-                                  owner: User.current_user
-        order.sub_orders.each do |sub_order|
-          sub_order.handle_paid(paid)
-          sub_order.create_activity :paid_update,
-                                       parameters: {
-                                           invoice_id: id,
-                                           invoice_external_id: external_id,
-                                           old: !paid,
-                                           new: paid
-                                         },
-                                         owner: User.current_user
-        end
+      handle_paid_for = lambda do |subject|
+        subject.handle_paid(paid)
+        subject.create_activity(
+          :paid_update,
+          parameters: {
+            invoice_id: id,
+            invoice_external_id: external_id,
+            old: !paid,
+            new: paid
+          },
+          owner: User.current_user)
       end
       orders.each do |order|
-        order.tasks.each do |task|
-          task.handle_paid(paid)
-          task.create_activity :paid_update,
-                                 parameters: {
-                                     invoice_id: id,
-                                     invoice_external_id: external_id,
-                                     old: !paid,
-                                     new: paid
-                                   },
-                                   owner: User.current_user
-        end
+        handle_paid_for.call(order)
+        order.sub_orders.each { |sub_order| handle_paid_for.call(sub_order) }
+      end
+      orders.each do |order|
+        order.tasks.each { |task| handle_paid_for.call(task) }
         order.sub_orders.each do |sub_order|
-          sub_order.tasks.each  do |task|
-            task.handle_paid(paid)
-            task.create_activity :paid_update,
-                                   parameters: {
-                                       invoice_id: id,
-                                       invoice_external_id: external_id,
-                                       old: !paid,
-                                       new: paid
-                                     },
-                                     owner: User.current_user
-          end
+          sub_order.tasks.each { |task| handle_paid_for.call(task) }
         end
       end
     end
