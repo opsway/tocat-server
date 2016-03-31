@@ -9,7 +9,7 @@ namespace :shiftplanning do
   task :update_transactions => :environment do
     #check lockfile 
     lock_file = "/tmp/salary_update_lock"
-    if File.exists? lock_file
+    if File.exist? lock_file
       pid = File.read lock_file
 
       # check if process really work (check pid from lockfile)
