@@ -45,7 +45,7 @@ namespace :test do
     files = Dir.glob('spec/*_spec.coffee')
     messages = []
     files.each do |file|
-      next if file.match /new_sql/
+      next if file.match(/new_sql/)
       begin
         Rake::Task["sql_data:load"].execute
         sh("jasmine-node --coffee --junitreport #{file}")

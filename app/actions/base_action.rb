@@ -32,7 +32,7 @@ module Actions
           operation.call
           break if failure?
         end
-        raise(ActiveRecord::Rollback, 'Rolling back') if failure?
+        fail(ActiveRecord::Rollback, 'Rolling back') if failure?
       end
     end
 

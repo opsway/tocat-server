@@ -525,7 +525,7 @@ class SelfCheck
           if calculated_budget < 0
             @alerts << DbError.store(507,"Expecting order #{order.id} (#{order.name}) free budget to be greater than zero")
           end
-          if val =! (order.free_budget + order.allocatable_budget)
+          if val != (order.free_budget + order.allocatable_budget)
             @alerts << DbError.store(510,"Order #{order.id} (#{order.name}) has invalid free budget!")
           end
         end
