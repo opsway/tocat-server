@@ -97,7 +97,7 @@ class RedmineTocatApi
     invoice
   end
 
-  protected
+  # protected TODO: hide methods below(put all methods in self << class block)
 
 
   def self.get(url, params)

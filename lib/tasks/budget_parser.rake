@@ -51,7 +51,7 @@ namespace :budget do
         end
       end
 
-      def get_multiplier(order_id, event)
+      def get_multiplier(order_id, _event)
         order = @client.query("SELECT * FROM orders o WHERE o.id='#{order_id}'").first
         if order
           multiplier = order['invoiced_budget'] / order['allocatable_budget']

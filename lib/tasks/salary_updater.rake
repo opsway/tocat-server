@@ -68,20 +68,20 @@ namespace :shiftplanning do
               salary_logger.info  "Processing it..." if debug
               begin
                 Transaction.create! comment: "Salary for #{shift['start_timestamp'].to_time.strftime("%d/%m/%y")}", #decrease user balance
-                                    total: "-#{user.daily_rate.to_s}",
+                                    total: "-#{user.daily_rate}",
                                     account: user.balance_account,
                                     user_id: user.id
                 Transaction.create! comment: "Salary for #{shift['start_timestamp'].to_time.strftime("%d/%m/%y")}", #increase user income
-                                    total: "#{user.daily_rate.to_s}",
+                                    total: "#{user.daily_rate}",
                                     account: user.income_account,
                                     user_id: user.id
                 unless user.role.try(:name) == 'Manager'
                     Transaction.create! comment: "Salary #{user.name} #{shift['start_timestamp'].to_time.strftime("%d/%m/%y")}", #decrease team balance
-                                        total: "-#{user.daily_rate.to_s}",
+                                        total: "-#{user.daily_rate}",
                                         account: user.team.balance_account,
                                         user_id: user.id
                     Transaction.create! comment: "Salary #{user.name} #{shift['start_timestamp'].to_time.strftime("%d/%m/%y")}", #decrease team income
-                                        total: "-#{user.daily_rate.to_s}",
+                                        total: "-#{user.daily_rate}",
                                         account: user.team.income_account,
                                         user_id: user.id
                 end
