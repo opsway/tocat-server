@@ -107,7 +107,7 @@ RSpec.describe TasksController, type: :controller do
     it 'should update budgets for task' do
       task = create(:task)
       order = create(:order, invoiced_budget: 100, allocatable_budget: 10)
-      task_order = create(:task_orders, task: task, order: order, budget: 1)
+      create(:task_orders, task: task, order: order, budget: 1)
       params = [{ order_id: order.id, budget: 10 }]
       post :set_budgets, _json: params, id: task.id, format: :json
       expect(task.budget).to eq 10

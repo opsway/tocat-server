@@ -18,7 +18,6 @@ class RedmineTocatApi
                                           'raw'          => true } }
     request              = get(url, params)
     if request && !request.empty? && request != "{}"
-      orders  = Hash.new
       request = JSON.parse(request)
       unless request["OrderEntity"].empty?
         return request["OrderEntity"]

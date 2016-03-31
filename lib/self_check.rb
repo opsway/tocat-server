@@ -275,7 +275,6 @@ class SelfCheck
 
   def accepted_and_paid_transactions
     Task.includes(:user).where(accepted: true, paid: true).each do |task|
-      transactions = []
       next unless task.user.present?
       next if task.accepted && task.user.try(:role).try(:name) == 'Manager'
       val = 0
