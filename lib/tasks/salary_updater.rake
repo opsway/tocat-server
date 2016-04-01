@@ -60,8 +60,10 @@ namespace :shiftplanning do
     users.each do |u|
       next if u['eid'] == 'semor'|| u['eid'] == 'ansam'
       user = User.find_by(login: u['eid'])
-      # binding.pry if user.nil?
-      next unless user
+      if user.nil?
+        salary_logger.error("User with login: #{u['eid']} doesn't exist.")
+        binding.pry
+      end
       salary_logger.info "START processing user #{user.name} with #{user.login} login" if debug
       u['shifts'].each do |shift|
         unless Timesheet.where("user_id = ? and in_day = ?", user.id, shift['in_day'].to_i).first
