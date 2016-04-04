@@ -2,15 +2,12 @@ class InvoicesController < ApplicationController
   before_action :set_invoice, except: [:index, :create]
 
   def index
-    @invoices = Invoice.search_for(params[:search]).order(sort)
-    if params[:sort].present?
-      params[:sort].split.each do |o|
-        if o =~ /\Atotal(:(asc|desc))?\Z/
-          @invoices = Queries::Invoices::SortedByTotal.new.call(order: o.split(':').second)
-        end
-      end
-    end
-    paginate json: @invoices, per_page: params[:limit]
+    invoices = Queries::Invoices::Index.new
+                 .call
+                 .search(params[:search])
+                 .sort(params[:sort])
+                 .relation
+    paginate json: invoices, per_page: params[:limit]
   end
 
   def show
