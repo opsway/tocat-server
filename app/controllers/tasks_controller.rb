@@ -139,6 +139,9 @@ class TasksController < ApplicationController
     begin
       if params[:task_id].present?
         @task = Task.includes(user: :team).find(params[:task_id])
+      elsif params[:external_id].present?
+        @task = Task.find_by(external_id: params[:external_id])
+        raise(ActiveRecord::RecordNotFound) unless @task
       else
         @task = Task.includes(user: :team).find(params[:id])
       end
