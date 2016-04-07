@@ -23,8 +23,7 @@ RSpec.describe UsersController, type: :controller do
       post :create, build(:user).attributes
       expect(response.status).to eq(406)
     end
-
-   end
+  end
 
   describe '/user/:id' do
     before(:each) do

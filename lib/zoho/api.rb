@@ -18,7 +18,6 @@ class RedmineTocatApi
                                           'raw'          => true } }
     request              = get(url, params)
     if request && !request.empty? && request != "{}"
-      orders  = Hash.new
       request = JSON.parse(request)
       unless request["OrderEntity"].empty?
         return request["OrderEntity"]
@@ -79,7 +78,25 @@ class RedmineTocatApi
     return invoices.flatten!
   end
 
-  protected
+  def self.get_invoice(invoice_id)
+    url, org_id, auth = generate_url('get_invoices')
+    params  = { :params => { "organization_id"    => org_id,
+                             'authtoken'        => auth,
+                             'accept'          => 'json',
+    } }
+    url = url + invoice_id
+    request = get(url, params)
+
+    invoice = nil
+    # request
+    if request && !request.empty? && request != "{}"
+      request = JSON.parse(request)
+      invoice = request["invoice"]
+    end
+    invoice
+  end
+
+  # protected TODO: hide methods below(put all methods in self << class block)
 
 
   def self.get(url, params)

@@ -12,19 +12,16 @@ class FixesForMinorBugsInSchema < ActiveRecord::Migration
     #Orders
     add_index :orders, :team_id
     change_column :orders, :invoice_id, :integer, null: false
-    change_column :orders, :invoiced_budget,
-                  :decimal, precision: 10,
-                  scale: 2, null: false
-    change_column :orders, :allocatable_budget,
-                  :decimal, precision: 10,
-                  scale: 2, null: false
+    change_column :orders, :invoiced_budget, :decimal,
+                  precision: 10, scale: 2, null: false
+    change_column :orders, :allocatable_budget, :decimal,
+                  precision: 10, scale: 2, null: false
     #Roles
     change_column :roles, :name, :string, null: false
 
     #Task_Orders
-    change_column :task_orders, :budget,
-                  :decimal, precision: 10,
-                  scale: 2, null: false
+    change_column :task_orders, :budget, :decimal,
+                  precision: 10, scale: 2, null: false
 
     #Tasks
     add_index :tasks, :user_id

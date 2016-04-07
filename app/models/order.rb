@@ -116,14 +116,14 @@ class Order < ActiveRecord::Base
     self.update_attributes(internal_order: false, paid: false)
     self.sub_orders.update_all(internal_order: false, paid: false)
     self.tasks.each do |task|
-        task.handle_paid(false)
-        task.create_activity :paid_update,
-                               parameters: {
-                                   internal: false,
-                                   old: !task.paid,
-                                   new: false
-                                 },
-                                 owner: User.current_user
+      task.handle_paid(false)
+      task.create_activity(:paid_update,
+                           parameters: {
+                             internal: false,
+                             old: !task.paid,
+                             new: false
+                           },
+                           owner: User.current_user)
     end
   end
 
@@ -393,13 +393,13 @@ class Order < ActiveRecord::Base
       self.tasks.each do |task|
         task.handle_paid(true)
         p "##{task.id} - #{task.paid}"
-        task.create_activity :paid_update,
-                               parameters: {
-                                   internal_order: true,
-                                   old: !task.paid,
-                                   new: true
-                                 },
-                                 owner: User.current_user
+        task.create_activity(:paid_update,
+                             parameters: {
+                               internal_order: true,
+                               old: !task.paid,
+                               new: true
+                             },
+                             owner: User.current_user)
       end
     end
   end

@@ -36,6 +36,7 @@ module Actions
         task.task_orders.destroy_all
         task.update(budgets)
         task_orders_errors = task.task_orders.flat_map { |to| to.errors.full_messages }
+        task.reload
         push_errors(task_orders_errors)
       end
 

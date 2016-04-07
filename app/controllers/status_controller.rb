@@ -2,7 +2,8 @@ class StatusController < ApplicationController
 
   def index
     messages = DbError.search_for(params[:search]).order("id").map(&:as_json)
-    if status = StatusCheck.last
+    status = StatusCheck.last
+    if status
       timestamp = status.finish_run || status.start_run
     else
       timestamp = 1.month.ago
