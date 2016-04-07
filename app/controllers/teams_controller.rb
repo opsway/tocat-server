@@ -43,7 +43,7 @@ class TeamsController < ApplicationController
   end
 
   def team_params
-    output = params.require(:team).permit(:name, :default_commission)
+    output = params.require(:team).permit(:name, :default_commission, :parent_id)
     output
   end
 end

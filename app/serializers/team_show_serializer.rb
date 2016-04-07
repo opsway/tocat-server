@@ -1,7 +1,7 @@
 class TeamShowSerializer < ActiveModel::Serializer
   include Rails.application.routes.url_helpers
 
-  attributes :id, :name, :default_commission, :balance_account_state, :income_account_state
+  attributes :id, :name, :default_commission, :balance_account_state, :income_account_state, :parent_id
 
   private
 

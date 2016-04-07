@@ -1,7 +1,9 @@
 class Team < ActiveRecord::Base
   include Accounts
   include PublicActivity::Common
-  validates :name, :default_commission, presence: true
+  belongs_to :parent, foreign_key: :parent_id, class_name: Team
+  has_many :children, foreign_key: :parent_id, class_name: Team
+  validates :name, :parent_id, :default_commission, presence: true
   has_many :orders
   has_many :users
   has_many :roles, :through => :users, source: :role
