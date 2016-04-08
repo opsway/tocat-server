@@ -12,14 +12,17 @@ module Queries
       end
 
       def call(params)
-        params.split(/\s*,\s*/).each do |option|
-          column = column(option)
-          direction = (option =~ /desc$/) ? 'desc' : 'asc'
-          sorter = sorter_for(column)
-          next unless sorter
-          self.relation = sorter.call(order: direction).relation
+        if params && !params.empty?
+          params.split(/\s*,\s*/).each do |option|
+            column = column(option)
+            direction = (option =~ /desc$/) ? 'desc' : 'asc'
+            sorter = sorter_for(column)
+            next unless sorter
+            self.relation = sorter.call(order: direction).relation
+          end
+        else
+          fallback_sort
         end
-        fallback_sort if params.empty?
         self
       end
 
