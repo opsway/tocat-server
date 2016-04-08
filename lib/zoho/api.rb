@@ -84,7 +84,7 @@ class RedmineTocatApi
                              'authtoken'        => auth,
                              'accept'          => 'json',
     } }
-    url = url + invoice_id
+    url = url + invoice_id.strip
     request = get(url, params)
 
     invoice = nil
