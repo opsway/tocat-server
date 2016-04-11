@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160310215705) do
+ActiveRecord::Schema.define(version: 20160407180600) do
 
   create_table "accounts", force: :cascade do |t|
     t.string   "account_type",     limit: 255, null: false
@@ -41,12 +41,13 @@ ActiveRecord::Schema.define(version: 20160310215705) do
   add_index "activities", ["trackable_id", "trackable_type"], name: "index_activities_on_trackable_id_and_trackable_type", using: :btree
 
   create_table "db_errors", force: :cascade do |t|
-    t.text     "alert",       limit: 65535,                 null: false
-    t.boolean  "checked",     limit: 1,     default: false, null: false
+    t.text     "alert",          limit: 65535,                 null: false
+    t.boolean  "checked",        limit: 1,     default: false, null: false
     t.datetime "last_run"
-    t.datetime "created_at",                                null: false
-    t.datetime "updated_at",                                null: false
-    t.integer  "line_number", limit: 4
+    t.datetime "created_at",                                   null: false
+    t.datetime "updated_at",                                   null: false
+    t.integer  "line_number",    limit: 4
+    t.integer  "transaction_id", limit: 4
   end
 
   create_table "invoices", force: :cascade do |t|
@@ -121,6 +122,7 @@ ActiveRecord::Schema.define(version: 20160310215705) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "default_commission", limit: 4
+    t.integer  "parent_id",          limit: 4,   null: false
   end
 
   create_table "timesheets", force: :cascade do |t|
@@ -136,12 +138,14 @@ ActiveRecord::Schema.define(version: 20160310215705) do
   add_index "timesheets", ["user_id"], name: "index_timesheets_on_user_id", using: :btree
 
   create_table "transactions", force: :cascade do |t|
-    t.decimal  "total",                  precision: 10, scale: 2, null: false
-    t.string   "comment",    limit: 255,                          null: false
-    t.integer  "account_id", limit: 4,                            null: false
-    t.integer  "user_id",    limit: 4
+    t.decimal  "total",                    precision: 10, scale: 2, null: false
+    t.string   "comment",      limit: 255,                          null: false
+    t.integer  "account_id",   limit: 4,                            null: false
+    t.integer  "user_id",      limit: 4
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.datetime "accrual_date"
+    t.string   "old_comment",  limit: 255
   end
 
   add_index "transactions", ["account_id"], name: "index_transactions_on_account_id", using: :btree

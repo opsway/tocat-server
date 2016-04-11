@@ -15,10 +15,10 @@ set FOREIGN_KEY_CHECKS=1;
 insert into status_checks values (1, now(), now());
 insert into roles values (1, "Manager", now(), now());
 insert into roles values (2, "Developer", now(), now());
-insert into teams values (1, "OpsWay1", now(), now(), 40);
-insert into teams values (2, "OpsWay2", now(), now(), 40);
-insert into teams values (3, "OpsWay3", now(), now(), 40);
-insert into teams values (4, "Central Office", now(), now(), 40);
+insert into teams values (1, "OpsWay1", now(), now(), 40,4);
+insert into teams values (2, "OpsWay2", now(), now(), 40,4);
+insert into teams values (3, "OpsWay3", now(), now(), 40,4);
+insert into teams values (4, "Central Office", now(), now(), 40,4);
 
 insert into users values(1, "Dev1", 'dev1', 1, 50, now(), now(), 2, true);
 insert into users values(2, "Dev2", 'dev2', 2, 60, now(), now(), 2, true);
