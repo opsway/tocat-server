@@ -11,7 +11,8 @@ class Team < ActiveRecord::Base
     users.joins(:role).where('roles.name = ?', 'Manager').where(active: true).first
   end
   def self.central_office
-    Team.where(name: 'Central Office').first
+    #Team.where(name: 'Central Office').first
+    Team.where('parent_id = id').first
   end
 
   def change_manager(manager_id)

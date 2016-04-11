@@ -78,7 +78,7 @@ class Order < ActiveRecord::Base
   before_save :check_if_parent_completed_on_suborder_creation, if: proc { |o| o.new_record? && o.parent_id.present? }
   before_save :handle_completed, if: proc { |o| o.completed_changed? && o.parent_id.nil? }
   before_destroy :check_if_parent_completed, if: proc { |o| o.parent_id.present? }
-  before_save :check_dberrors, if: :completed?
+  #before_save :check_dberrors, if: :completed?
   before_validation :set_paid_flag
   before_validation :set_teams_default_commission, if: proc { |o| o.commission.nil? }
   before_validation :set_internal_order_commission, if: proc { |o| o.internal_order? }
@@ -99,15 +99,32 @@ class Order < ActiveRecord::Base
     self.transaction do
       sub_orders.each do |suborder|
         val = suborder.invoiced_budget - suborder.task_orders.sum(:budget)
-        suborder.team.income_account.transactions.create! total: completed ? val : -val,
-                                                          comment: "Order ##{suborder.id} was #{ completed ? 'completed' : 'uncompleted'}"
-        suborder.send :additional_transactions
+        suborder.team.manager.balance_account.transactions.create! total: val, comment: "Order ##{suborder.id} was completed"
+        unless order.internal_order?
+          suborder.team.manager.balance_account.transactions.create! total: -(val * suborder.commission_coefficient), comment: "Order ##{suborder.id} was completed: Central Office fee"
+          handle_complete_tax(suborder.team.parent, val, suborder.commission)
+        end
+        
+        
         suborder.update_columns(completed: true)
       end
+      
       val = invoiced_budget - sub_orders.sum(:invoiced_budget) - task_orders.sum(:budget)
-      team.income_account.transactions.create! total: completed ? val : -val,
-                                               comment: "Order ##{id} was #{completed ? 'completed' : 'uncompleted'}"
-      additional_transactions
+      
+      team.manager.balance_account.transactions.create! total: val, comment: "Order ##{id} was completed"
+
+      unless order.internal_order?
+          team.manager.balance_account.transactions.create! total: -(val * self.commission_coefficient), comment: "Order ##{id} was completed: Central Office fee"
+          handle_complete_tax(team.parent, val, self.commission)
+      end
+    end
+  end
+  
+  def handle_complete_tax(team, val, commission)
+    team.manager.balance_account.transactions.create! total: val * commission / 100.0, comment: "Order ##{id} was completed: Central Office fee"
+    if team != team.parent
+      team.manager.balance_account.transactions.create! total: -(val * team.default_commission / 100.0), comment: "Order ##{id} was completed: Central Office fee"
+      handle_complete_tax(team.parent, val, team.default_commission)
     end
   end
 
@@ -139,36 +156,6 @@ class Order < ActiveRecord::Base
   end
 
   private
-
-  def additional_transactions
-      #make transactions (task #34212)
-      value = invoiced_budget * commission_coefficient
-
-      central_office = Team.central_office
-
-      unless internal_order?
-        if team.id != central_office.id # don't create transactions for central office
-          # a TODO - change Central office to Team.central_office.name
-          team.manager.balance_account.transactions.create! total: -value,  comment: "Order ##{id} was completed: Central office fee" if value != 0
-          # b
-          central_office.balance_account.transactions.create! total: value, comment: "Order ##{id} was completed: Central office fee" if value != 0
-        end
-        # c
-        central_office.income_account.transactions.create! total: invoiced_budget, comment: "Order ##{id} was completed" if invoiced_budget != 0
-      end
-      if team.income_account.balance > 0
-        if team.id != central_office.id # don't create transactions for central office
-          # d
-          team.manager.balance_account.transactions.create! total: team.income_account.balance, comment: "Order ##{id} was completed"
-          # e
-          team.income_account.transactions.create! total: -team.income_account.balance, comment: "Order ##{id} was completed"
-        end
-      end
-
-      tasks.with_expenses.find_each do |task|
-        central_office.income_account.transactions.create! total: -task.budget, comment: "Expense, Issue ##{task.external_id}"
-      end
-  end
 
   def set_invoiced
     self.invoiced_budget = allocatable_budget
@@ -430,7 +417,7 @@ class Order < ActiveRecord::Base
   end
 
   def set_teams_default_commission
-    self.commission = team.try :default_commission
+    self.commission ||= team.try :default_commission
   end
 
   def set_internal_order_commission
