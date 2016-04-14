@@ -102,7 +102,7 @@ class Order < ActiveRecord::Base
         suborder.team.manager.balance_account.transactions.create! total: val, comment: "Order ##{suborder.id} was completed"
         unless suborder.internal_order?
           suborder.team.manager.balance_account.transactions.create! total: -(val * suborder.commission_coefficient), comment: "Order ##{suborder.id} was completed: Central Office fee"
-          handle_complete_tax(suborder.team.parent, val, suborder.commission)
+          suborder.handle_complete_tax(suborder.team.parent, val, suborder.commission)
         end
         
         
@@ -122,6 +122,7 @@ class Order < ActiveRecord::Base
   
   def handle_complete_tax(team, val, commission)
     team.manager.balance_account.transactions.create! total: val * commission / 100.0, comment: "Order ##{id} was completed: Central Office fee"
+    return if parent_id.present?
     if team != team.parent
       team.manager.balance_account.transactions.create! total: -(val * team.default_commission / 100.0), comment: "Order ##{id} was completed: Central Office fee"
       handle_complete_tax(team.parent, val, team.default_commission)
