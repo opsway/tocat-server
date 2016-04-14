@@ -101,8 +101,8 @@ class Order < ActiveRecord::Base
         val = suborder.invoiced_budget - suborder.task_orders.sum(:budget)
         suborder.team.manager.balance_account.transactions.create! total: val, comment: "Order ##{suborder.id} was completed"
         unless suborder.internal_order?
-          suborder.team.manager.balance_account.transactions.create! total: -(val * suborder.commission_coefficient), comment: "Order ##{suborder.id} was completed: Central Office fee"
-          suborder.handle_complete_tax(suborder.team.parent, val, suborder.commission)
+          suborder.team.manager.balance_account.transactions.create! total: -(suborder.invoiced_budget * suborder.commission_coefficient), comment: "Order ##{suborder.id} was completed: Central Office fee"
+          suborder.handle_complete_tax(suborder.team.parent, suborder.invoiced_budget, suborder.commission)
         end
         
         
@@ -114,8 +114,8 @@ class Order < ActiveRecord::Base
       team.manager.balance_account.transactions.create! total: val, comment: "Order ##{id} was completed"
 
       unless self.internal_order?
-          team.manager.balance_account.transactions.create! total: -(val * self.commission_coefficient), comment: "Order ##{id} was completed: Central Office fee"
-          handle_complete_tax(team.parent, val, self.commission)
+          team.manager.balance_account.transactions.create! total: -(invoiced_budget * self.commission_coefficient), comment: "Order ##{id} was completed: Central Office fee"
+          handle_complete_tax(team.parent, invoiced_budget, self.commission)
       end
     end
   end
