@@ -18,6 +18,7 @@ gem 'hirb'
 gem 'public_activity'
 gem 'hashdiff'
 gem 'pry'
+gem 'jwt'
 
 
 
