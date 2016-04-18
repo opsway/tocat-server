@@ -1,6 +1,7 @@
 #  FIXME refactor this!!!
 
 Rails.application.routes.draw do
+
   get 'activity/index'
 
   #orders
@@ -13,6 +14,8 @@ Rails.application.routes.draw do
     get 'available_parents', on: :collection
     get 'available_for_invoice', on: :collection
   end
+          
+  resources :balance_transfers, only: [:show, :create, :index]
 
   resources :roles,
             path: 'roles',
