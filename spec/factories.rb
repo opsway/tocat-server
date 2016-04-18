@@ -17,6 +17,10 @@ FactoryGirl.define do
 
   factory :team do
     sequence(:name) { |n| "Team #{n}" }
+    default_commission 30
+    parent_id 1
+
+    to_create {|instance| instance.save(validate: false) }
   end
 
   factory :task_orders do
