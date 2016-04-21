@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160407180600) do
+ActiveRecord::Schema.define(version: 20160420162853) do
 
   create_table "accounts", force: :cascade do |t|
     t.string   "account_type",     limit: 255, null: false
@@ -158,6 +158,7 @@ ActiveRecord::Schema.define(version: 20160407180600) do
     t.datetime "updated_at"
     t.integer  "role_id",    limit: 4,                                          null: false
     t.boolean  "active",     limit: 1,                           default: true
+    t.string   "email",      limit: 255
   end
 
   add_index "users", ["role_id"], name: "index_users_on_role_id", using: :btree

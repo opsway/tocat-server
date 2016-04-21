@@ -72,7 +72,7 @@ class ApplicationController < ActionController::API
   end
 
   def authenticate_user!
-    action = Actions::AuthenticateRequest.new(headers: request.headers).call
+    action = Actions::AuthenticateRequest.new(request: request).call
     @current_user = action.user
     render json: { errors: 'Not Authorized' }, status: :unauthorized unless @current_user
   end
