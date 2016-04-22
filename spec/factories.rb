@@ -43,6 +43,7 @@ FactoryGirl.define do
   factory :user do
     sequence(:name) { |n| "User #{n}" }
     sequence(:login) { |n| "usr#{n}" }
+    sequence(:email) { |n| "usr#{n}@example.com" }
     association :team
     daily_rate 50
     association :role
