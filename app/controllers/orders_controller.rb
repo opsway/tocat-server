@@ -1,7 +1,6 @@
 class OrdersController < ApplicationController
   before_action :set_order, except: [:index, :create,
-                                     :create_suborder, :new,
-                                     :parent_auto_complete, :available_parents,
+                                     :new,
                                      :available_for_invoice]
   helper_method :sort
 
@@ -134,16 +133,6 @@ class OrdersController < ApplicationController
     end
   end
 
-  def create_suborder
-    @order = Order.new(order_params)
-    if @order.save
-      @order.create_activity :create, parameters: order_params, owner: User.current_user
-      render json: @order, serializer: AfterCreationSerializer, status: 201
-    else
-      render json: error_builder(@order), status: :unprocessable_entity
-    end
-  end
-
   def new
     @order = Order.new
     render json: @order, serializer: OrderNewSerializer
@@ -156,22 +145,6 @@ class OrdersController < ApplicationController
     else
       render json: { errors: action.errors }, status: :unprocessable_entity
     end
-  end
-
-  def parent_auto_complete
-    orders = Queries::Orders::ParentAutoComplete.call(
-      child_id: params[:child_id],
-      term: params[:term]
-    )
-    render json: orders
-  end
-
-  def available_parents
-    orders = Queries::Orders::ParentAutoComplete.call(
-      child_id: params[:child_id],
-      limit: 1000
-    )
-    render json: orders
   end
 
   def available_for_invoice
@@ -198,17 +171,12 @@ class OrdersController < ApplicationController
                            :invoiced_budget,
                            :allocatable_budget,
                            :invoice_id,
-                           :internal_order,
-                           :parent_id)
+                           :internal_order)
     if params[:team].present?
       output.merge!({ team_id: params.try(:[], 'team').try(:[], 'id') })
     end
     if params[:order_id].present?
-      output.merge!({ parent_id: params.try(:[], 'order_id')})
       output.merge!({ invoiced_budget: params[:allocatable_budget] }) unless params[:invoiced_budget].present?
-    end
-    if params[:action] == 'create' || params[:action] == 'create_suborder'
-      output.merge!({commission: params.try(:[], 'commission')})
     end
     output
   end

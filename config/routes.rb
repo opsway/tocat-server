@@ -34,8 +34,6 @@ Rails.application.routes.draw do
     post 'commission', to: 'orders#commission', as: 'commission', format: 'json'
     post 'invoice', to: 'orders#set_invoice', as: 'set_invoice', format: 'json'
     delete 'invoice', to: 'orders#delete_invoice', as: 'delete_invoice', format: 'json'
-    get 'suborder', to: 'orders#suborders', as: 'suborders', format: 'json'
-    post 'suborder', to: 'orders#create_suborder', as: 'new_suborder', format: 'json'
     post 'complete', to: 'orders#set_completed', as: 'set_completed', format: 'json'
     get 'budget', to: 'orders#budgets', format: 'json'
 
