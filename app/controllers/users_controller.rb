@@ -95,6 +95,7 @@ class UsersController < ApplicationController
                                           :login,
                                           :daily_rate,
                                           :team_id,
+                                          :real_money,
                                           :role_id
                                           )
     if params[:user].try(:[],:team).present?

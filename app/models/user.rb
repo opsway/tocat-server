@@ -12,6 +12,7 @@ class User < ActiveRecord::Base
   validates :team_id, presence: true
   validates :role_id, presence: true
   validate :team_can_have_only_one_manager
+  validate :team_can_have_only_one_member_with_real_money
 
   has_many :transactions
   has_many :tasks
@@ -53,5 +54,10 @@ class User < ActiveRecord::Base
   end
   def team_can_have_only_one_manager
     errors.add 'Team', 'already have a manager' if self.role.try(:name) == 'Manager' && self.team.users.where.not(id: self.id).where(active: true, role_id: Role.managers.select(:id)).any? #TODO - fix 
+  end
+  def team_can_have_only_one_member_with_real_money
+    if self.real_money
+      errors.add 'Team', 'already have a user with real money' if self.team.users.where.not(id: self.id).where(active: true, real_money: true).any?
+    end
   end
 end

@@ -97,25 +97,17 @@ class Order < ActiveRecord::Base
 
   def handle_completed
     self.transaction do
-      sub_orders.each do |suborder|
-        val = suborder.invoiced_budget - suborder.task_orders.sum(:budget)
-        suborder.team.manager.balance_account.transactions.create! total: val, comment: "Order ##{suborder.id} was completed"
-        unless suborder.internal_order?
-          suborder.team.manager.balance_account.transactions.create! total: -(suborder.invoiced_budget * suborder.commission_coefficient), comment: "Order ##{suborder.id} was completed: Central Office fee"
-          suborder.handle_complete_tax(suborder.team.parent, suborder.invoiced_budget, suborder.commission)
-        end
-        
-        
-        suborder.update_columns(completed: true)
+      couch = team.couch
+      unless team.manager.real_money?
+        team.manager.balance_account.transactions.create! total: invoiced_budget, comment: "Order ##{id} was completed"
       end
-      
-      val = invoiced_budget - sub_orders.sum(:invoiced_budget) - task_orders.sum(:budget)
-      
-      team.manager.balance_account.transactions.create! total: val, comment: "Order ##{id} was completed"
-
       unless self.internal_order?
+        unless team.manager.real_money?
           team.manager.balance_account.transactions.create! total: -(invoiced_budget * self.commission_coefficient), comment: "Order ##{id} was completed: Central Office fee"
-          handle_complete_tax(team.parent, invoiced_budget, self.commission)
+        end
+        couch.payment_account.transactions.transactions.create! total: invoiced_budget, comment: "Order ##{id} was completed"
+        couch.payment_account.transactions.transactions.create! total: - (invoiced_budget * self.commission_coefficient), comment: "Order ##{id} was completed: Central Office fee"
+        Team.central_office.payment_account.transactions.create! total: invoiced_budget * self.commission_coefficient, comment: "Order ##{id} was completed: Central Office fee"
       end
     end
   end

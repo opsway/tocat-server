@@ -10,6 +10,13 @@ class Team < ActiveRecord::Base
   def manager
     users.joins(:role).where('roles.name = ?', 'Manager').where(active: true).first
   end
+  def couch(team = self)
+    couch = team.users.where(active: true, real_money: true).first #in order (list)
+    unless couch
+      couch = couch(team.parent) 
+    end
+    couch
+  end
   def self.central_office
     #Team.where(name: 'Central Office').first
     Team.where('parent_id = id').first
