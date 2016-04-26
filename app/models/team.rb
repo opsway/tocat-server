@@ -17,12 +17,23 @@ class Team < ActiveRecord::Base
     end
     couch
   end
+  
+  def all_children
+    func = lambda do |team|
+      res = []
+      res << team.child_ids
+    end
+    all = [self.id]
+    all << child_ids
+    all << children.where.not(id: self.id).map {|c| func.call c }
+    all.flatten
+  end
+
   def self.central_office
     #Team.where(name: 'Central Office').first
     Team.where('parent_id = id').first
   end
-
-  def change_manager(manager_id)
+  def change_manager(manager_id)o.allocatable_budget
     current_manager = manager
     current_manager.update(role: Role.find_by(name: 'Developer')) if current_manager
     new_manager = User.find(manager_id) if manager_id > 0

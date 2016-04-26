@@ -10,6 +10,7 @@ class Order < ActiveRecord::Base
   validate :existence_of_invoice, if: :invoice_id?
   validate :non_existence_of_invoice_in_internal_orders
   validate :non_complete_on_internal_remove, if: :internal_order_changed?
+  validate :current_user_is_in_team_for_internal
 
   validates_numericality_of :invoiced_budget,
                             greater_than: 0,
@@ -441,5 +442,10 @@ class Order < ActiveRecord::Base
   end
   def check_budget
     errors[:base] << "Order should have allocatable budget equal to invoiced budget" if self.invoiced_budget != self.allocatable_budget
+  end
+  def current_user_is_in_team_for_internal
+    if internal_order?
+      errors[:base] << "You are not in team tree to set this order internal" unless self.team.all_children.include? User.current_user.try(:team).try(:id)
+    end
   end
 end
