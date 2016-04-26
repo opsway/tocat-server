@@ -58,6 +58,8 @@ class Order < ActiveRecord::Base
   belongs_to :parent, class_name: 'Order'
 
   before_save :set_invoiced, if: proc { |o| o.new_record? && o.parent.present? }
+  validate :check_internal, if: proc {|o| o.team_id_changed? }
+  validate :check_budget, if: proc {|o| o.internal_order? }
   before_save :set_free_budget, if: proc { |o| o.new_record? }
   before_destroy :check_if_order_has_tasks
   before_destroy :check_for_suborder
@@ -433,5 +435,11 @@ class Order < ActiveRecord::Base
 
   def parent_has_different_team
     errors[:team] << 'Suborder can not have the same team as the parent' if team == parent.team
+  end
+  def check_internal
+    errors[:team] << "Order can't change team if it is 'internal'" if self.internal_order?
+  end
+  def check_budget
+    errors[:base] << "Order should have allocatable budget equal to invoiced budget" if self.invoiced_budget != self.allocatable_budget
   end
 end
