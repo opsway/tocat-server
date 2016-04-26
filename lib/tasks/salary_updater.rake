@@ -94,26 +94,26 @@ namespace :shiftplanning do
                                     account: user.team.income_account,
                                     user_id: user.id)
               end
-            rescue => e
-              binding.pry
-              errors += 1
-              logger.error "#{Time.now} Transactions for #{user.name} was not created! - #{e.message}"
             end
+          rescue => e
+            binding.pry
+            errors += 1
+            logger.error "#{Time.now} Transactions for #{user.name} was not created! - #{e.message}"
           end
-          salary_logger.info "Shift record has been proceed" if debug
         end
-
-        unless Timesheet.find_by_sp_id(shift['id'])
-          Timesheet.create!(:sp_id => shift['id'],
-                            :user_id => user.id,
-                            :start_timestamp => shift['start_timestamp'],
-                            :end_timestamp => shift['end_timestamp'],
-                            :in_day => shift['in_day'])
-        end
+        salary_logger.info "Shift record has been proceed" if debug
       end
-      salary_logger.info "END processing user #{user.name} with #{user.login} login" if debug
-      salary_logger.info " " if debug
+
+      unless Timesheet.find_by_sp_id(shift['id'])
+        Timesheet.create!(:sp_id => shift['id'],
+                          :user_id => user.id,
+                          :start_timestamp => shift['start_timestamp'],
+                          :end_timestamp => shift['end_timestamp'],
+                          :in_day => shift['in_day'])
+      end
     end
+    salary_logger.info "END processing user #{user.name} with #{user.login} login" if debug
+    salary_logger.info " " if debug
     salary_logger.info "Salary update complete."
     if errors == 0
       DbError.delete dbid # Remove error if error count == 0 (and if we reached this line)
