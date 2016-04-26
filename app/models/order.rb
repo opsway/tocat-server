@@ -102,7 +102,7 @@ class Order < ActiveRecord::Base
     self.transaction do
       couch = team.couch
       unless team.manager.real_money?
-        team.manager.balance_account.transactions.create! total: invoiced_budget, comment: "Order ##{id} was completed"
+        team.manager.balance_account.transactions.create! total: invoiced_budget - task_orders.join(:task).where("tasks.expenses = true").sum(:budget), comment: "Order ##{id} was completed"
       end
       unless self.internal_order?
         unless team.manager.real_money?
@@ -445,7 +445,7 @@ class Order < ActiveRecord::Base
   end
   def current_user_is_in_team_for_internal
     if internal_order?
-      errors[:base] << "You are not in team tree to set this order internal" unless self.team.all_children.include? User.current_user.try(:team).try(:id)
+      errors[:base] << "You are not allowed to set this order as Internal" unless self.team.all_children.include? User.current_user.try(:team).try(:id)
     end
   end
 end
