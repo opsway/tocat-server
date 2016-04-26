@@ -105,8 +105,8 @@ class Order < ActiveRecord::Base
         unless team.manager.real_money?
           team.manager.balance_account.transactions.create! total: -(invoiced_budget * self.commission_coefficient), comment: "Order ##{id} was completed: Central Office fee"
         end
-        couch.income_account.transactions.transactions.create! total: invoiced_budget, comment: "Order ##{id} was completed"
-        couch.income_account.transactions.transactions.create! total: - (invoiced_budget * self.commission_coefficient), comment: "Order ##{id} was completed: Central Office fee"
+        couch.income_account.transactions.create! total: invoiced_budget, comment: "Order ##{id} was completed"
+        couch.income_account.transactions.create! total: - (invoiced_budget * self.commission_coefficient), comment: "Order ##{id} was completed: Central Office fee"
         Team.central_office.income_account.transactions.create! total: invoiced_budget * self.commission_coefficient, comment: "Order ##{id} was completed: Central Office fee"
       end
     end
