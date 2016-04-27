@@ -53,4 +53,4 @@ node_modules/frisby
 
 .powrc
 
-config/client_secrets.json
+config/google_app_secrets.json

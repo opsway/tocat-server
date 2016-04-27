@@ -7,9 +7,9 @@ module Actions
     class GoogleAuthentication < Actions::BaseAction
       attr_reader :auth_token
 
-      def initialize(auth_code:)
+      def initialize(user_info_provider: )
         super()
-        @auth_code = auth_code
+        @user_info_provider = user_info_provider
       end
 
       def call
@@ -19,7 +19,7 @@ module Actions
 
       private
 
-      attr_reader :auth_code
+      attr_reader :user_info_provider
 
       def user
         @guser ||= retrieve_user
@@ -29,18 +29,7 @@ module Actions
       end
 
       def retrieve_user
-        credentials = Google::APIClient::ClientSecrets.load(Rails.root.join('config', 'client_secrets.json'))
-        auth_client = credentials.to_authorization
-        auth_client.update!(
-          :scope => 'https://www.googleapis.com/auth/userinfo.email'
-        )
-        auth_client.code = auth_code
-
-        client = Google::Apis::Oauth2V2::Oauth2Service.new
-        client.authorization = auth_client
-        info = client.get_userinfo
-
-        User.find_by(email: info.email)
+        User.find_by(email: user_info_provider.user_email)
       rescue
         nil
       end

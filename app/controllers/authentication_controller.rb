@@ -5,19 +5,20 @@ class AuthenticationController < ApplicationController
 
   def authenticate
     if params[:code]
-      action = Actions::Users::GoogleAuthentication.new(auth_code: params[:code]).call
+      action = Actions::Users::GoogleAuthentication.new(user_info_provider: user_info_provider).call
       if action.success?
         render json: { auth_token: action.auth_token }
       else
         render json: { errors: action.errors }, status: :unauthorized
       end
     else
-      credentials = Google::APIClient::ClientSecrets.load(Rails.root.join('config', 'client_secrets.json'))
-      auth_client = credentials.to_authorization
-      auth_client.update!(
-        :scope => 'https://www.googleapis.com/auth/userinfo.email'
-      )
-      render json: { url: auth_client.authorization_uri.to_s }
+      render json: { url: user_info_provider.authorization_uri }
     end
+  end
+
+  private
+
+  def user_info_provider
+    OauthGoogle.new(code: params[:code], redirect_uri: authenticate_url)
   end
 end
