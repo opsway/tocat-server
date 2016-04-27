@@ -38,7 +38,7 @@ class BalanceTransfer < ActiveRecord::Base
   
 
   def create_transactions
-    comment = "Balance transfer from #{source.accountable.name} to #{target.accountable.name}"
+    comment = "Balance transfer:  #{self.description}"
     self.source_transaction = source.transactions.create! total: -total, comment: comment
     self.target_transaction = target.transactions.create! total: total, comment: comment
   end

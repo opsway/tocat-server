@@ -445,7 +445,7 @@ class Order < ActiveRecord::Base
   end
   def current_user_is_in_team_for_internal
     if internal_order?
-      errors[:base] << "You are not allowed to set this order as Internal" unless self.team.all_children.include? User.current_user.try(:team).try(:id)
+      errors[:base] << "You are not allowed to set this order as Internal" if !User.current_user.try(:team).try(:all_children).try(:include?, self.team.id) || !User.current_user.try(:real_money)  
     end
   end
 end
