@@ -5,16 +5,20 @@ class BtShowSerializer < ActiveModel::Serializer
   #belongs_to :target
   private
   def source
-    data = {}
-    data[:id] = object.source.accountable_id
-    data[:name] = object.source.accountable.name
-    data
+    if object.source
+      data = {}
+      data[:id] = object.source.accountable_id
+      data[:name] = object.source.accountable.name
+      data
+    end
   end
   def target
-    data = {}
-    data[:id] = object.target.accountable_id
-    data[:name] = object.target.accountable.name
-    data
+    if object.target
+      data = {}
+      data[:id] = object.target.accountable_id
+      data[:name] = object.target.accountable.name
+      data
+    end
   end
   
   def links

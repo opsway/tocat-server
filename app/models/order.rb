@@ -59,7 +59,7 @@ class Order < ActiveRecord::Base
   belongs_to :parent, class_name: 'Order'
 
   before_save :set_invoiced, if: proc { |o| o.new_record? && o.parent.present? }
-  validate :check_internal, if: proc {|o| o.team_id_changed? }
+  validate :check_internal, if: proc {|o| o.team_id_changed? && o.persisted? }
   validate :check_budget, if: proc {|o| o.internal_order? }
   before_save :set_free_budget, if: proc { |o| o.new_record? }
   before_destroy :check_if_order_has_tasks
