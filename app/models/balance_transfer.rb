@@ -36,17 +36,17 @@ class BalanceTransfer < ActiveRecord::Base
   
   def set_source_account
     if self.btype == 'takeout'
-      self.source = Team.central_office.manager.try(:balance_account)
+      self.source = Team.central_office.manager.try(:income_account)
     else
-      self.source = User.current_user.try(:balance_account)
+      self.source = User.current_user.try(:income_account)
     end
   end
 
   def set_target_account
     if self.btype == 'emit'
-      self.target = Team.central_office.manager.try(:balance_account)
+      self.target = Team.central_office.manager.try(:income_account)
     else
-      self.target = User.find_by_login(target_login).try(:balance_account)
+      self.target = User.find_by_login(target_login).try(:income_account)
     end
   end
   
