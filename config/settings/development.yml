@@ -4,3 +4,5 @@ zoho_books:
 creator:
   auth: '8fa0b27a260be8a7fc5a980389867d25'
   owner: 'verlgoff'
+authorized_hosts:
+- 'localhost'

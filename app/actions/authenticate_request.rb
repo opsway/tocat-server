@@ -31,7 +31,7 @@ module Actions
     end
 
     def authorized_hosts
-      ['localhost']
+      Settings.authorized_hosts
     end
 
     def legacy_auth?
