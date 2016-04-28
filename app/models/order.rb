@@ -101,7 +101,7 @@ class Order < ActiveRecord::Base
     self.transaction do
       couch = team.couch
       unless team.manager.real_money?
-        team.manager.balance_account.transactions.create! total: invoiced_budget - task_orders.join(:task).where("tasks.expenses = true").sum(:budget), comment: "Order ##{id} was completed"
+        team.manager.balance_account.transactions.create! total: invoiced_budget - task_orders.joins(:task).where("tasks.expenses = true").sum(:budget), comment: "Order ##{id} was completed"
       end
       unless self.internal_order?
         unless team.manager.real_money?
