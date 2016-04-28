@@ -44,7 +44,7 @@ class Order < ActiveRecord::Base
   validate :sub_order_team
   validate :check_inheritance
   validate :disallow_internal_for_suborders, if: :internal_order_changed?
-  validate :cant_complete_internal_order_with_free_budget_left, if: :completed_changed?
+  #validate :cant_complete_internal_order_with_free_budget_left, if: :completed_changed?
   validate :must_be_paid_when_completed
 
   before_save :check_budgets_for_sub_order
@@ -60,7 +60,6 @@ class Order < ActiveRecord::Base
 
   before_save :set_invoiced, if: proc { |o| o.new_record? && o.parent.present? }
   validate :check_internal, if: proc {|o| o.team_id_changed? && o.persisted? }
-  validate :check_budget, if: proc {|o| o.internal_order? }
   before_save :set_free_budget, if: proc { |o| o.new_record? }
   before_destroy :check_if_order_has_tasks
   before_destroy :check_for_suborder
@@ -394,12 +393,6 @@ class Order < ActiveRecord::Base
     end
   end
 
-  def cant_complete_internal_order_with_free_budget_left
-    if internal_order? && free_budget > 0
-      errors[:completed] << 'Internal order can not have free budget. Please correct invoiced and allocatable budget accordingly'
-    end
-  end
-
   def set_paid_flag
     if internal_order? || (parent.present? && parent.paid?)
       self.paid = true
@@ -439,9 +432,6 @@ class Order < ActiveRecord::Base
   end
   def check_internal
     errors[:team] << "Order can't change team if it is 'internal'" if self.internal_order?
-  end
-  def check_budget
-    errors[:base] << "Order should have allocatable budget equal to invoiced budget" if self.invoiced_budget != self.allocatable_budget
   end
   def current_user_is_in_team_for_internal
     if internal_order?
