@@ -30,12 +30,12 @@ module Actions
       headers['Authorization'].split(' ').last if headers['Authorization'].present?
     end
 
-    def authorized_hosts
-      Settings.authorized_hosts
+    def authorized_addresses
+      Settings.authorized_addresses
     end
 
     def legacy_auth?
-      authorized_hosts.include?(client_host)
+      authorized_addresses.include?(request.remote_ip)
     end
 
     def headers
@@ -44,10 +44,6 @@ module Actions
 
     def params
       request.params
-    end
-
-    def client_host
-      Resolv.getname(request.remote_ip)
     end
   end
 end
