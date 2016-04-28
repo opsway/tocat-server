@@ -30,9 +30,12 @@ module Actions
       headers['Authorization'].split(' ').last if headers['Authorization'].present?
     end
 
+    def authorized_hosts
+      ['localhost']
+    end
+
     def legacy_auth?
-      headers['Redmine-Auth'] == 'redmine' &&
-        params[:current_user].present?
+      authorized_hosts.include?(client_host)
     end
 
     def headers
@@ -41,6 +44,10 @@ module Actions
 
     def params
       request.params
+    end
+
+    def client_host
+      Resolv.getname(request.remote_ip)
     end
   end
 end
