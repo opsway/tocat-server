@@ -25,6 +25,9 @@ class BalanceTransfersController < ApplicationController
          owner: User.current_user
       render json: @bt, serializer: BtShowSerializer
     else
+      p '!'
+      p error_builder(@bt)
+      p '!'
       render json: error_builder(@bt), status: :unprocessable_entity
     end
   end

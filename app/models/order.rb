@@ -83,7 +83,6 @@ class Order < ActiveRecord::Base
   #before_save :check_dberrors, if: :completed?
   before_validation :set_paid_flag
   before_validation :set_teams_default_commission, if: proc { |o| o.commission.nil? }
-  before_validation :set_internal_order_commission, if: proc { |o| o.internal_order? }
   before_validation :set_internal_from_parent
 
   def order_transactions
@@ -407,10 +406,6 @@ class Order < ActiveRecord::Base
 
   def set_teams_default_commission
     self.commission ||= team.try :default_commission
-  end
-
-  def set_internal_order_commission
-    self.commission = INTERNAL_ORDER_COMMISSION if internal_order?
   end
 
   def parent_has_no_parent
