@@ -110,8 +110,8 @@ namespace :shiftplanning do
                             :in_day => shift['in_day'])
         end
       end
+      salary_logger.info "END processing user #{user.name} with #{user.login} login" if debug
     end
-    salary_logger.info "END processing user #{user.name} with #{user.login} login" if debug
     salary_logger.info " " if debug
     salary_logger.info "Salary update complete."
     if errors == 0
