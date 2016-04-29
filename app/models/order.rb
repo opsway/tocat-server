@@ -108,7 +108,7 @@ class Order < ActiveRecord::Base
         end
         couch.income_account.transactions.create! total: invoiced_budget, comment: "Order ##{id} was completed"
         couch.income_account.transactions.create! total: - (invoiced_budget * couch.team.default_commission / 100.00), comment: "Order ##{id} was completed: Central Office fee"
-        couch.income_account.transactions.create! total: invoiced_budget * couch.team.default_commission / 100.00, comment: "Order ##{id} was completed: Central Office fee"
+        Team.central_office.couch.income_account.transactions.create! total: invoiced_budget * couch.team.default_commission / 100.00, comment: "Order ##{id} was completed: Central Office fee"
       end
     end
   end
