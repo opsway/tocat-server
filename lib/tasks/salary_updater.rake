@@ -95,14 +95,14 @@ namespace :shiftplanning do
           end
         end
         salary_logger.info "Shift record has been proceed" if debug
-      end
 
-      unless Timesheet.find_by_sp_id(shift['id'])
-        Timesheet.create!(:sp_id => shift['id'],
-                          :user_id => user.id,
-                          :start_timestamp => shift['start_timestamp'],
-                          :end_timestamp => shift['end_timestamp'],
-                          :in_day => shift['in_day'])
+        unless Timesheet.find_by_sp_id(shift['id'])
+          Timesheet.create!(:sp_id => shift['id'],
+                            :user_id => user.id,
+                            :start_timestamp => shift['start_timestamp'],
+                            :end_timestamp => shift['end_timestamp'],
+                            :in_day => shift['in_day'])
+        end
       end
     end
     salary_logger.info "END processing user #{user.name} with #{user.login} login" if debug
