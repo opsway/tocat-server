@@ -1,10 +1,31 @@
 class TaskSerializer < ActiveModel::Serializer
   include Rails.application.routes.url_helpers
-  attributes :id, :external_id, :accepted, :paid, :review_requested, :links, :budget, :resolver, :expenses
+  attributes :id, :external_id, :accepted, :paid, :review_requested, :links, :budget, :resolver, :expenses, :orders, :potential_resolvers
 
   private
   def budget
     object.budget.to_f
+  end
+  def potential_resolvers
+    data = []
+    if object.orders.present?
+      object.orders.first.team.users.all_active.each do |user|
+        data << {id: user.id, login: user.login, name: user.name}
+      end
+    else
+      User.all_active.each do |user|
+        data << {id: user.id, login: user.login, name: user.name}
+      end
+    end
+    data
+  end
+
+  def orders
+    data = []
+    object.task_orders.each do |order|
+      data << {id: order.order_id, budget: order.budget}
+    end
+    data
   end
 
   def resolver
