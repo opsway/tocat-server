@@ -70,30 +70,23 @@ namespace :shiftplanning do
           salary_logger.info "#{user.name} has new shift record!" if debug
           salary_logger.info "Processing it..." if debug
           begin
-            unless user.real_money?
-              #decrease user balance
-              Transaction.create!(comment: "Salary for #{shift['start_timestamp'].to_time.strftime("%d/%m/%y")}",
-                                  total: "-#{user.daily_rate}",
-                                  account: user.balance_account,
-                                  user_id: user.id)
-              #increase user income
-              Transaction.create!(comment: "Salary for #{shift['start_timestamp'].to_time.strftime("%d/%m/%y")}",
-                                  total: "#{user.daily_rate}",
-                                  account: user.income_account,
-                                  user_id: user.id)
+            #decrease user balance
+            Transaction.create!(comment: "Salary for #{shift['start_timestamp'].to_time.strftime("%d/%m/%y")}",
+                                total: "-#{user.daily_rate}",
+                                account: user.balance_account,
+                                user_id: user.id)
+            #increase user income
+            Transaction.create!(comment: "Salary for #{shift['start_timestamp'].to_time.strftime("%d/%m/%y")}",
+                                total: "#{user.daily_rate}",
+                                account: user.income_account,
+                                user_id: user.id)
 
-              unless user.role.try(:name) == 'Manager'
-                #decrease team balance
-                Transaction.create!(comment: "Salary #{user.name} #{shift['start_timestamp'].to_time.strftime("%d/%m/%y")}",
-                                    total: "-#{user.daily_rate}",
-                                    account: user.team.balance_account,
-                                    user_id: user.id)
-                #decrease team income
-                Transaction.create!(comment: "Salary #{user.name} #{shift['start_timestamp'].to_time.strftime("%d/%m/%y")}",
-                                    total: "-#{user.daily_rate}",
-                                    account: user.team.income_account,
-                                    user_id: user.id)
-              end
+            unless user.role.try(:name) == 'Manager'
+              #decrease manager balance
+              Transaction.create!(comment: "Salary #{user.name} #{shift['start_timestamp'].to_time.strftime("%d/%m/%y")}",
+                                  total: "-#{user.daily_rate}",
+                                  account: user.team.manager.balance_account,
+                                  user_id: user.id)
             end
           rescue => e
             binding.pry
