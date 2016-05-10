@@ -25,7 +25,7 @@ class Order < ActiveRecord::Base
   validates_numericality_of :commission,
                             greater_than_or_equal_to: 0,
                             less_than_or_equal_to: 100,
-                            message: "Commission should be positive number between 1-100",
+                            message: "Commission should be positive number between 0-100",
                             only_integer: true,
                             allow_nil: false
   validate :check_complete_change_commission, if: :commission_changed?
@@ -83,7 +83,6 @@ class Order < ActiveRecord::Base
   #before_save :check_dberrors, if: :completed?
   before_validation :set_paid_flag
   before_validation :set_teams_default_commission, if: proc { |o| o.commission.nil? }
-  before_validation :set_internal_order_commission, if: proc { |o| o.internal_order? }
   before_validation :set_internal_from_parent
 
   def order_transactions
@@ -101,7 +100,7 @@ class Order < ActiveRecord::Base
     self.transaction do
       couch = team.couch
       unless team.manager.real_money?
-        team.manager.balance_account.transactions.create! total: invoiced_budget - task_orders.join(:task).where("tasks.expenses = true").sum(:budget), comment: "Order ##{id} was completed"
+        team.manager.balance_account.transactions.create! total: invoiced_budget - task_orders.joins(:task).where("tasks.expenses = true").sum(:budget), comment: "Order ##{id} was completed"
       end
       unless self.internal_order?
         unless team.manager.real_money?
@@ -109,7 +108,7 @@ class Order < ActiveRecord::Base
         end
         couch.income_account.transactions.create! total: invoiced_budget, comment: "Order ##{id} was completed"
         couch.income_account.transactions.create! total: - (invoiced_budget * couch.team.default_commission / 100.00), comment: "Order ##{id} was completed: Central Office fee"
-        Team.central_office.income_account.transactions.create! total: invoiced_budget * couch.team.default_commission / 100.00, comment: "Order ##{id} was completed: Central Office fee"
+        Team.central_office.couch.income_account.transactions.create! total: invoiced_budget * couch.team.default_commission / 100.00, comment: "Order ##{id} was completed: Central Office fee"
       end
     end
   end
@@ -407,10 +406,6 @@ class Order < ActiveRecord::Base
 
   def set_teams_default_commission
     self.commission ||= team.try :default_commission
-  end
-
-  def set_internal_order_commission
-    self.commission = INTERNAL_ORDER_COMMISSION if internal_order?
   end
 
   def parent_has_no_parent

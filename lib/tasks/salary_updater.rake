@@ -70,23 +70,25 @@ namespace :shiftplanning do
           salary_logger.info "#{user.name} has new shift record!" if debug
           salary_logger.info "Processing it..." if debug
           begin
-            #decrease user balance
-            Transaction.create!(comment: "Salary for #{shift['start_timestamp'].to_time.strftime("%d/%m/%y")}",
-                                total: "-#{user.daily_rate}",
-                                account: user.balance_account,
-                                user_id: user.id)
-            #increase user income
-            Transaction.create!(comment: "Salary for #{shift['start_timestamp'].to_time.strftime("%d/%m/%y")}",
-                                total: "#{user.daily_rate}",
-                                account: user.income_account,
-                                user_id: user.id)
-
-            unless user.role.try(:name) == 'Manager'
-              #decrease manager balance
-              Transaction.create!(comment: "Salary #{user.name} #{shift['start_timestamp'].to_time.strftime("%d/%m/%y")}",
+            unless user.real_money?
+              #decrease user balance
+              Transaction.create!(comment: "Salary for #{shift['start_timestamp'].to_time.strftime("%d/%m/%y")}",
                                   total: "-#{user.daily_rate}",
-                                  account: user.team.manager.balance_account,
+                                  account: user.balance_account,
                                   user_id: user.id)
+              #increase user income
+              Transaction.create!(comment: "Salary for #{shift['start_timestamp'].to_time.strftime("%d/%m/%y")}",
+                                  total: "#{user.daily_rate}",
+                                  account: user.income_account,
+                                  user_id: user.id)
+
+              unless user.role.try(:name) == 'Manager'
+                #decrease manager balance
+                Transaction.create!(comment: "Salary #{user.name} #{shift['start_timestamp'].to_time.strftime("%d/%m/%y")}",
+                                    total: "-#{user.daily_rate}",
+                                    account: user.team.manager.balance_account,
+                                    user_id: user.id)
+              end
             end
           rescue => e
             binding.pry
@@ -95,17 +97,17 @@ namespace :shiftplanning do
           end
         end
         salary_logger.info "Shift record has been proceed" if debug
-      end
 
-      unless Timesheet.find_by_sp_id(shift['id'])
-        Timesheet.create!(:sp_id => shift['id'],
-                          :user_id => user.id,
-                          :start_timestamp => shift['start_timestamp'],
-                          :end_timestamp => shift['end_timestamp'],
-                          :in_day => shift['in_day'])
+        unless Timesheet.find_by_sp_id(shift['id'])
+          Timesheet.create!(:sp_id => shift['id'],
+                            :user_id => user.id,
+                            :start_timestamp => shift['start_timestamp'],
+                            :end_timestamp => shift['end_timestamp'],
+                            :in_day => shift['in_day'])
+        end
       end
+      salary_logger.info "END processing user #{user.name} with #{user.login} login" if debug
     end
-    salary_logger.info "END processing user #{user.name} with #{user.login} login" if debug
     salary_logger.info " " if debug
     salary_logger.info "Salary update complete."
     if errors == 0

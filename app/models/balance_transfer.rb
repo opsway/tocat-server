@@ -6,8 +6,8 @@ class BalanceTransfer < ActiveRecord::Base
   belongs_to :source_transaction, class_name: Transaction
   validates :description, :total ,:presence => true
  
-  validates :source, presence: true, unless: Proc.new {|a| a.btype == 'emit'}
-  validates :target, presence: true, unless: Proc.new {|a| a.btype == 'takeout'}
+  validates :source_id, presence: true, if: Proc.new {|a| a.btype != 'emit'}
+  validates :target_id, presence: true, if: Proc.new {|a| p 'validate target!'; p a; a.btype != 'takeout'}
   validates :btype, inclusion: {in: %w(base emit takeout) }
 
   validates :description, length: { maximum: 250 }
@@ -54,12 +54,18 @@ class BalanceTransfer < ActiveRecord::Base
     comment = "Balance transfer:  #{self.description}"
     case self.btype
     when 'base'
-      self.source_transaction = source.transactions.create! total: -total, comment: comment
-      self.target_transaction = target.transactions.create! total: total, comment: comment
+      if source && target
+        self.source_transaction = source.transactions.create! total: -total, comment: comment
+        self.target_transaction = target.transactions.create! total: total, comment: comment
+      end
     when 'emit'
-      self.target_transaction = target.transactions.create! total: total, comment: comment
+      if target
+        self.target_transaction = target.transactions.create! total: total, comment: comment
+      end
     when 'takeout'
-      self.source_transaction = source.transactions.create! total: -total, comment: comment
+      if source
+        self.source_transaction = source.transactions.create! total: -total, comment: comment
+      end
     end
   end
 end
