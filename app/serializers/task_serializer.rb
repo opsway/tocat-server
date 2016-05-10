@@ -6,14 +6,14 @@ class TaskSerializer < ActiveModel::Serializer
   def budget
     object.budget.to_f
   end
-  def potential_resolvers
+  def potential_resolvers # TODO - make request more smart for roles 
     data = []
     if object.orders.present?
-      object.orders.first.team.users.all_active.each do |user|
+      object.orders.first.team.users.all_active.joins(:role).where("roles.name != 'Manager'").each do |user|
         data << {id: user.id, login: user.login, name: user.name}
       end
     else
-      User.all_active.each do |user|
+      User.all_active.joins(:role).where("roles.name != 'Manager'").each do |user|
         data << {id: user.id, login: user.login, name: user.name}
       end
     end
