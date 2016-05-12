@@ -10,7 +10,7 @@ class Order < ActiveRecord::Base
   validate :existence_of_invoice, if: :invoice_id?
   validate :non_existence_of_invoice_in_internal_orders
   validate :non_complete_on_internal_remove, if: :internal_order_changed?
-  validate :current_user_is_in_team_for_internal
+  validate :current_user_is_in_team_for_internal, if: :internal_order_changed?
 
   validates_numericality_of :invoiced_budget,
                             greater_than: 0,
