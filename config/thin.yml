@@ -1,7 +1,7 @@
 ---
 chdir: "/srv/tocat"
 servers: 1
-environment: production
+environment: <% ENV['RAILS_ENV'] %>
 socket: /tmp/thin.sock
 timeout: 30
 log: log/thin.log

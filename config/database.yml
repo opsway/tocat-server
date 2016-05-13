@@ -1,0 +1,14 @@
+development: &default
+  adapter: mysql2
+  database: <% ENV['DB_NAME'] %>
+  host: 127.0.0.1 
+  username: <% ENV['DB_USER'] %>
+  encoding: utf8
+  reconnect: true
+  password: <% ENV['DB_PASS'] %>
+  port: <% ENV['DB_PORT'] %>
+
+test:
+  <<: *default
+production:
+  <<: *default

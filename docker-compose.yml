@@ -1,0 +1,16 @@
+mysql:
+  image: sameersbn/mysql
+  environment:
+    - DB_USER=root
+    - DB_PASS=password
+    - DB_NAME=tocat_production
+  volumes:
+    - /srv/tocat/mysql:/var/lib/mysql
+
+tocat:
+  image: opsway/tocat:production
+  links: 
+    - mysql:mysql
+  environment:
+  ports: 
+    - "80:80"

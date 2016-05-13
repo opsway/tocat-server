@@ -1,0 +1,6 @@
+zoho_books:
+  auth: <% ENV['ZOHO_AUTH'] %> 
+  organization: <% ENV['ZOHO_ORG']
+creator:
+  auth: <% ENV['CREATOR_AUTH'] %>
+  owner: <% ENV['CREATOR_OWNER'] %>
