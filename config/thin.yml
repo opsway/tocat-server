@@ -1,0 +1,14 @@
+---
+chdir: "/srv/tocat"
+servers: 1
+environment: production
+socket: /tmp/thin.sock
+timeout: 30
+log: log/thin.log
+pid: tmp/pids/thin.pid
+max_conns: 1024
+max_persistent_conns: 1024
+require: []
+wait: 30
+threadpool_size: 40
+daemonize: true
