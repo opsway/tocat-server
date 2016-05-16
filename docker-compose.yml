@@ -1,7 +1,7 @@
 version: '2'
 services:
   tocat:
-    build: .
+    image: opswaycom/tocat:docker
     links: 
       - mysql:db
     environment:
