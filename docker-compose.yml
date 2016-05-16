@@ -6,12 +6,12 @@ services:
       - mysql:db
     environment:
       - DB_USER=tocat
-      - DB_PASSWORD=password
+      - DB_PASS=password
       - DB_NAME=tocat_production
       - DB_PORT=3306
       - DB_HOST=db
-      - SECRET_TOKEN = test
-      - SECRET_TOKEN_BASE = test
+      - SECRET_TOKEN=testtesttest
+      - SECRET_TOKEN_BASE=testtesttest
     volumes:
       - /srv/tocat/log:/srv/tocat/log
     ports: 
