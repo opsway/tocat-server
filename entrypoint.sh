@@ -8,16 +8,18 @@ case ${1} in
 
     case ${1} in
       app:start)
-        cd $TOCAT_HOME && bundle exec rake db:migrate
-        cd $TOCAT_HOME && bundle exec thin start -C config/thin.yml
+	sleep 10
+	service nginx start
+        cd $TOCAT_HOME && bundle exec rake db:migrate && bundle exec thin -C config/thin.yml start;
         ;;
       app:init)
+	service nginx start
         bundle exec rake db:create
         bundle exec rake db:migrate
         ;;
       app:rake)
         shift 1
-        execute_raketask $@
+        bundle exec rake $@
         ;;
     esac
     ;;

@@ -1,16 +1,30 @@
-mysql:
-  image: sameersbn/mysql
-  environment:
-    - DB_USER=root
-    - DB_PASS=password
-    - DB_NAME=tocat_production
-  volumes:
-    - /srv/tocat/mysql:/var/lib/mysql
+version: '2'
+services:
+  tocat:
+    build: .
+    links: 
+      - mysql:db
+    environment:
+      - DB_USER=tocat
+      - DB_PASSWORD=password
+      - DB_NAME=tocat_production
+      - DB_PORT=3306
+      - DB_HOST=db
+      - SECRET_TOKEN = test
+      - SECRET_TOKEN_BASE = test
+    volumes:
+      - /srv/tocat/log:/srv/tocat/log
+    ports: 
+      - "3000:80"
+    depends_on:
+      - mysql
 
-tocat:
-  image: opsway/tocat:production
-  links: 
-    - mysql:mysql
-  environment:
-  ports: 
-    - "80:80"
+  mysql:
+   image: mysql
+   environment:
+     - MYSQL_USER=tocat
+     - MYSQL_PASSWORD=password
+     - MYSQL_ROOT_PASSWORD=password
+     - MYSQL_DATABASE=tocat_production
+   volumes:
+     - /home/vit/mysql:/var/lib/mysql
