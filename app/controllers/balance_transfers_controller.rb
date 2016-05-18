@@ -3,11 +3,11 @@ class BalanceTransfersController < ApplicationController
     @articles = BalanceTransfer.order(sort)
     if params[:source].present?
       user = User.find_by_login params[:source]
-      @articles = @articles.where(source_id: user.balance_account.id)
+      @articles = @articles.where(source_id: user.income_account.id)
     end
     if params[:target].present?
       user = User.find_by_login params[:target]
-      @articles = @articles.where(target_id: user.balance_account.id)
+      @articles = @articles.where(target_id: user.income_account.id)
     end
     paginate json: @articles, per_page: params[:limit]
   end
@@ -25,9 +25,6 @@ class BalanceTransfersController < ApplicationController
          owner: User.current_user
       render json: @bt, serializer: BtShowSerializer
     else
-      p '!'
-      p error_builder(@bt)
-      p '!'
       render json: error_builder(@bt), status: :unprocessable_entity
     end
   end

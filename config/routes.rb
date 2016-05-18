@@ -16,6 +16,8 @@ Rails.application.routes.draw do
   end
           
   resources :balance_transfers, only: [:show, :create, :index]
+  resources :transfer_requests, only: [:show, :create, :index, :destroy, :update, :pay],
+                               defaults: { format: 'json' }
 
   resources :roles,
             path: 'roles',
