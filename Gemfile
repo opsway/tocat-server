@@ -17,6 +17,8 @@ gem 'hirb'
 gem 'public_activity'
 gem 'hashdiff'
 gem 'pry'
+gem 'jwt'
+gem 'google-api-client', '0.9'
 
 
 

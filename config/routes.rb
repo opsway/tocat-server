@@ -138,5 +138,7 @@ Rails.application.routes.draw do
   match '/status', to: 'status#index', via: :get
   match '/status/:id/checked', to: 'status#checked', via: [:put, :post, :delete]
 
+  match '/authenticate' => 'authentication#authenticate', via: [:post, :get], as: :authenticate
+
   match '*path', to: 'application#no_method', via: :all
 end

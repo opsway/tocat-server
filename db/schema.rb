@@ -186,6 +186,7 @@ ActiveRecord::Schema.define(version: 20160517102845) do
     t.integer  "role_id",    limit: 4,                                           null: false
     t.boolean  "active",     limit: 1,                           default: true
     t.boolean  "real_money", limit: 1,                           default: false
+    t.string   "email",      limit: 255
   end
 
   add_index "users", ["role_id"], name: "index_users_on_role_id", using: :btree

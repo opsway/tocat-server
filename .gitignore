@@ -52,3 +52,5 @@ node_modules/frisby
 .ruby-version
 
 .powrc
+
+config/google_app_secrets.json

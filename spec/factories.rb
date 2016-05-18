@@ -17,6 +17,10 @@ FactoryGirl.define do
 
   factory :team do
     sequence(:name) { |n| "Team #{n}" }
+    default_commission 30
+    parent_id 1
+
+    to_create {|instance| instance.save(validate: false) }
   end
 
   factory :task_orders do
@@ -39,6 +43,7 @@ FactoryGirl.define do
   factory :user do
     sequence(:name) { |n| "User #{n}" }
     sequence(:login) { |n| "usr#{n}" }
+    sequence(:email) { |n| "usr#{n}@example.com" }
     association :team
     daily_rate 50
     association :role
