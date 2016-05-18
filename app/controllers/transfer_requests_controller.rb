@@ -3,11 +3,11 @@ class TransferRequestsController < ApplicationController
   def index
     @articles = TransferRequest.order(sort)
     if params[:source].present?
-      user = User.find_by_login params[:source]
+      user = User.find params[:source]
       @articles = @articles.where(source_id: user.id)
     end
     if params[:target].present?
-      user = User.find_by_login params[:target]
+      user = User.find params[:target]
       @articles = @articles.where(target_id: user.id)
     end
     paginate json: @articles, per_page: params[:limit]
@@ -20,7 +20,7 @@ class TransferRequestsController < ApplicationController
     tr_params = @tr.attributes 
     if @tr.update transfer_params
       @tr.create_activity :update,
-        parameters: { changes: HashDiff(tr_params, transfer_params) },
+        parameters: { changes: HashDiff.diff(tr_params, transfer_params) },
         owner: User.current_user
       render json: @tr, serializer: RequestSerializer
     else
@@ -61,9 +61,9 @@ class TransferRequestsController < ApplicationController
   
   private
   def transfer_params
-    params.require(:transfer_request).permit(:total, :target, :description)
+    params.require(:transfer_request).permit(:total, :source_id, :description)
   end
   def find_request
-    @transfer_request = TransferRequest.find params[:id] 
+    @tr= TransferRequest.find params[:id] 
   end
 end

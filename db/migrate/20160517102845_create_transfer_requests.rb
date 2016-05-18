@@ -7,9 +7,6 @@ class CreateTransferRequests < ActiveRecord::Migration
       t.string :description
       t.float :total
       t.string :state
-      t.add_foreign_key :users, column: :source_id
-      t.add_foreign_key :users, column: :target_id
-      t.add_foreign_key :balance_transfers
       t.timestamps null: false
     end
   end

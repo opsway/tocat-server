@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160427165952) do
+ActiveRecord::Schema.define(version: 20160517102845) do
 
   create_table "accounts", force: :cascade do |t|
     t.string   "account_type",     limit: 255, null: false
@@ -162,6 +162,20 @@ ActiveRecord::Schema.define(version: 20160427165952) do
   add_index "transactions", ["comment"], name: "index_transactions_on_comment", using: :btree
   add_index "transactions", ["user_id"], name: "index_transactions_on_user_id", using: :btree
 
+  create_table "transfer_requests", force: :cascade do |t|
+    t.integer  "source_id",           limit: 4
+    t.integer  "target_id",           limit: 4
+    t.integer  "balance_transfer_id", limit: 4
+    t.string   "description",         limit: 255
+    t.float    "total",               limit: 24
+    t.string   "state",               limit: 255
+    t.datetime "created_at",                      null: false
+    t.datetime "updated_at",                      null: false
+  end
+
+  add_index "transfer_requests", ["source_id"], name: "index_transfer_requests_on_source_id", using: :btree
+  add_index "transfer_requests", ["target_id"], name: "index_transfer_requests_on_target_id", using: :btree
+
   create_table "users", force: :cascade do |t|
     t.string   "name",       limit: 255,                                         null: false
     t.string   "login",      limit: 255,                                         null: false
@@ -178,11 +192,18 @@ ActiveRecord::Schema.define(version: 20160427165952) do
   add_index "users", ["team_id"], name: "index_users_on_team_id", using: :btree
 
   add_foreign_key "orders", "invoices"
+  add_foreign_key "orders", "invoices"
+  add_foreign_key "orders", "orders", column: "parent_id"
   add_foreign_key "orders", "orders", column: "parent_id"
   add_foreign_key "orders", "teams"
+  add_foreign_key "orders", "teams"
+  add_foreign_key "task_orders", "orders"
   add_foreign_key "task_orders", "orders"
   add_foreign_key "task_orders", "tasks"
+  add_foreign_key "task_orders", "tasks"
   add_foreign_key "tasks", "users"
+  add_foreign_key "tasks", "users"
+  add_foreign_key "transactions", "accounts"
   add_foreign_key "transactions", "accounts"
   add_foreign_key "transactions", "users"
   add_foreign_key "users", "roles"

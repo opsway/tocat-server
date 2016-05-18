@@ -1,6 +1,6 @@
 class RequestSerializer < ActiveModel::Serializer
   include Rails.application.routes.url_helpers
-  attributes :id, :total, :description, :source, :target, :created, :links
+  attributes :id, :total, :description, :source, :target, :state, :created_at, :links
   #belongs_to :source
   #belongs_to :target
   private
