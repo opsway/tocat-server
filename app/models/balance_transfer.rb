@@ -7,7 +7,7 @@ class BalanceTransfer < ActiveRecord::Base
   validates :description, :total ,:presence => true
  
   validates :source_id, presence: true, if: Proc.new {|a| a.btype != 'emit'}
-  validates :target_id, presence: true, if: Proc.new {|a| p 'validate target!'; p a; a.btype != 'takeout'}
+  validates :target_id, presence: true, if: Proc.new {|a| a.btype != 'takeout'}
   validates :btype, inclusion: {in: %w(base emit takeout) }
 
   validates :description, length: { maximum: 250 }
@@ -38,7 +38,7 @@ class BalanceTransfer < ActiveRecord::Base
     if self.btype == 'takeout'
       self.source = Team.central_office.manager.try(:income_account)
     else
-      self.source = User.current_user.try(:income_account)
+      self.source ||= User.current_user.try(:income_account)
     end
   end
 
@@ -46,7 +46,7 @@ class BalanceTransfer < ActiveRecord::Base
     if self.btype == 'emit'
       self.target = Team.central_office.manager.try(:income_account)
     else
-      self.target = User.find_by_login(target_login).try(:income_account)
+      self.target ||= User.find_by_login(target_login).try(:income_account)
     end
   end
   

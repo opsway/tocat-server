@@ -16,6 +16,9 @@ Rails.application.routes.draw do
   end
           
   resources :balance_transfers, only: [:show, :create, :index]
+  resources :transfer_requests, defaults: { format: 'json' }, only: [:show, :create, :index, :destroy, :update] do
+    post 'pay', on: :member
+  end
 
   resources :roles,
             path: 'roles',
@@ -134,6 +137,8 @@ Rails.application.routes.draw do
 
   match '/status', to: 'status#index', via: :get
   match '/status/:id/checked', to: 'status#checked', via: [:put, :post, :delete]
+
+  match '/authenticate' => 'authentication#authenticate', via: [:post, :get], as: :authenticate
 
   match '*path', to: 'application#no_method', via: :all
 end

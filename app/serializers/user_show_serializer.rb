@@ -12,6 +12,7 @@ class UserShowSerializer < ActiveModel::Serializer
              :active,
              :real_money,
              :balance_account_state,
+             :email,
              :income_account_state
 
   private
