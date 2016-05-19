@@ -37,3 +37,7 @@ SHIFTPLANNING_KEY - shiftplanning key
 SHIFTPLANNING_LOGIN - shiftplanning login
 SHIFTPLANNING_PASSWORD - shiftplanning password
 
+
+Amazon SES:
+AWS_ACCESS_KEY_ID - aws access key id
+AWS_SECRET_ACCESS_KEY - aws secret access key
