@@ -7,6 +7,8 @@ class TransferRequest < ActiveRecord::Base
   validates :source_id, :target_id, presence: true
   validates :description, :length => { maximum: 250 }
   before_destroy :check_state_paid
+  after_save :send_notification, unless: Proc.new { |t| t.state == 'paid' }
+  after_save :send_notification_paid, if: Proc.new { |t| t.state == 'paid' }
   
   before_validation :set_state_and_target, if: Proc.new {|t| t.new_record? }
   validate :target_check_for_paid, if: Proc.new {|tr| tr.state_changed? && tr.state == 'paid' }
@@ -69,5 +71,26 @@ class TransferRequest < ActiveRecord::Base
   def set_state_and_target
     self.state = 'new'
     self.target = User.current_user
+  end
+  
+  def send_notification
+    AWS.config :access_key_id => Settings.aws_access_key_id, :secret_access_key => Settings.awss_secret_access_key
+    ses = AWS::SimpleEmailService.new(
+                                      :access_key_id => Settings.aws_access_key_id,
+                                      :secret_access_key => Settings.aws_secret_access_key)
+    
+    subject = "Transfer request from #{target.name} #{created_at.to_date}"
+    body = "Transfer request #{id} from #{target.name} to #{source.name}, total: #{total},\n #{description}"
+    ses.send_email subject: subject, from: target.email, to: source.email, body_text: body
+  end
+  def   send_notification_paid
+    AWS.config :access_key_id => Settings.aws_access_key_id, :secret_access_key => Settings.awss_secret_access_key
+    ses = AWS::SimpleEmailService.new(
+                                      :access_key_id => Settings.aws_access_key_id,
+                                      :secret_access_key => Settings.aws_secret_access_key)
+    subject = "Transfer request to #{source.name} #{created_at.to_date} was paid"
+    body = "Transfer request #{id} from #{target.name} to #{source.name}, total: #{total},\n #{description}"
+    ses.send_email subject: subject, from: source.email, to: target.email, body_text: body
+    
   end
 end

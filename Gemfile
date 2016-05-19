@@ -19,7 +19,7 @@ gem 'hashdiff'
 gem 'pry'
 gem 'jwt'
 gem 'google-api-client', '0.9'
-
+gem 'aws-sdk', '~> 1'
 
 
 group :development do
