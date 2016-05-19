@@ -7,6 +7,7 @@ class User < ActiveRecord::Base
             numericality: { greather_than: 0 },
             presence: true
 
+  validates :email, presence: true, uniqueness: true, format: /@/
   belongs_to :team
   belongs_to :role
   validates :team_id, presence: true
