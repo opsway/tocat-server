@@ -17,8 +17,7 @@ module Actions
     attr_reader :request
 
     def detect_user
-      @user ||= User.find(decoded_auth_token[:user_id]) if decoded_auth_token
-      @user ||= User.find_by(name: params[:current_user]) if legacy_auth?
+      @user ||= User.find_by_email(decoded_auth_token[:user_email]) if decoded_auth_token
       @user || push_errors('Invalid token') && nil
     end
 

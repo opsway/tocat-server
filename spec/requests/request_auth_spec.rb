@@ -18,7 +18,7 @@ describe 'User auth on request' do
   end
 
   context 'when valid token provided' do
-    let(:token) { JsonWebToken.encode(user_id: create(:user).id) }
+    let(:token) { JsonWebToken.encode(user_email: create(:user).email) }
 
     it 'gets 200' do
       get request_path, {}, { 'Authorization' => token }

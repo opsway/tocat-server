@@ -125,7 +125,7 @@ Rails.application.routes.draw do
             path: 'invoices',
             controller: 'invoices',
             defaults: { format: 'json' },
-            only: [:index, :create, :update]
+            only: [:index, :create, :update, :show, :destroy]
   resources :invoice,
             path: 'invoice',
             controller: 'invoices',
