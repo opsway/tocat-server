@@ -9,6 +9,7 @@ case ${1} in
     case ${1} in
       app:start)
 	sleep 3
+	service cron start
 	service nginx start
         cd $TOCAT_HOME && bundle exec rake db:migrate && bundle exec thin -C config/thin.yml start;
         ;;
