@@ -6,20 +6,15 @@ class ApplicationController < ActionController::API
   #before_filter :check_format
   include ActionController::Serialization
 
+  attr_reader :current_user
   helper_method :current_user
-  hide_action :current_user
   hide_action :default_serializer_options
   hide_action :error_builder
-
-  around_filter :set_current_user
+  around_action :authenticate_user!
 
 
   def default_serializer_options
     { root: false }
-  end
-
-  def current_user
-    @current_user ||= User.find_by_name(params[:current_user]) if params[:current_user]
   end
 
   def error_builder(object)
@@ -75,4 +70,16 @@ class ApplicationController < ActionController::API
     end
   end
 
+  def authenticate_user!
+    begin
+      action = Actions::AuthenticateRequest.new(request: request).call
+      @current_user = action.user
+      User.current_user = @current_user
+      return render json: { errors: 'Not Authorized' }, status: :unauthorized unless @current_user
+      yield
+    ensure
+      # to address the thread variable leak issues in Puma/Thin webserver
+      User.current_user = nil
+    end
+  end
 end

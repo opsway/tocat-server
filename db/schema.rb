@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160427165952) do
+ActiveRecord::Schema.define(version: 20160517102845) do
 
   create_table "accounts", force: :cascade do |t|
     t.string   "account_type",     limit: 255, null: false
@@ -54,13 +54,12 @@ ActiveRecord::Schema.define(version: 20160427165952) do
   end
 
   create_table "db_errors", force: :cascade do |t|
-    t.text     "alert",          limit: 65535,                 null: false
-    t.boolean  "checked",        limit: 1,     default: false, null: false
+    t.text     "alert",       limit: 65535,                 null: false
+    t.boolean  "checked",     limit: 1,     default: false, null: false
     t.datetime "last_run"
-    t.datetime "created_at",                                   null: false
-    t.datetime "updated_at",                                   null: false
-    t.integer  "line_number",    limit: 4
-    t.integer  "transaction_id", limit: 4
+    t.datetime "created_at",                                null: false
+    t.datetime "updated_at",                                null: false
+    t.integer  "line_number", limit: 4
   end
 
   create_table "invoices", force: :cascade do |t|
@@ -151,19 +150,31 @@ ActiveRecord::Schema.define(version: 20160427165952) do
   add_index "timesheets", ["user_id"], name: "index_timesheets_on_user_id", using: :btree
 
   create_table "transactions", force: :cascade do |t|
-    t.decimal  "total",                    precision: 10, scale: 2, null: false
-    t.string   "comment",      limit: 255,                          null: false
-    t.integer  "account_id",   limit: 4,                            null: false
-    t.integer  "user_id",      limit: 4
+    t.decimal  "total",                  precision: 10, scale: 2, null: false
+    t.string   "comment",    limit: 255,                          null: false
+    t.integer  "account_id", limit: 4,                            null: false
+    t.integer  "user_id",    limit: 4
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.datetime "accrual_date"
-    t.string   "old_comment",  limit: 255
   end
 
   add_index "transactions", ["account_id"], name: "index_transactions_on_account_id", using: :btree
   add_index "transactions", ["comment"], name: "index_transactions_on_comment", using: :btree
   add_index "transactions", ["user_id"], name: "index_transactions_on_user_id", using: :btree
+
+  create_table "transfer_requests", force: :cascade do |t|
+    t.integer  "source_id",           limit: 4
+    t.integer  "target_id",           limit: 4
+    t.integer  "balance_transfer_id", limit: 4
+    t.string   "description",         limit: 255
+    t.float    "total",               limit: 24
+    t.string   "state",               limit: 255
+    t.datetime "created_at",                      null: false
+    t.datetime "updated_at",                      null: false
+  end
+
+  add_index "transfer_requests", ["source_id"], name: "index_transfer_requests_on_source_id", using: :btree
+  add_index "transfer_requests", ["target_id"], name: "index_transfer_requests_on_target_id", using: :btree
 
   create_table "users", force: :cascade do |t|
     t.string   "name",       limit: 255,                                         null: false
@@ -175,6 +186,7 @@ ActiveRecord::Schema.define(version: 20160427165952) do
     t.integer  "role_id",    limit: 4,                                           null: false
     t.boolean  "active",     limit: 1,                           default: true
     t.boolean  "real_money", limit: 1,                           default: false
+    t.string   "email",      limit: 255
   end
 
   add_index "users", ["role_id"], name: "index_users_on_role_id", using: :btree

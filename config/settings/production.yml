@@ -4,3 +4,5 @@ zoho_books:
 creator:
   auth: <%= ENV['CREATOR_AUTH'] %>
   owner: <%= ENV['CREATOR_OWNER'] %>
+aws_key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
+aws_secret: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>

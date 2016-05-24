@@ -95,6 +95,7 @@ class UsersController < ApplicationController
                                           :login,
                                           :daily_rate,
                                           :team_id,
+                                          :email,
                                           :real_money,
                                           :role_id
                                           )
