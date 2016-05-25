@@ -1,7 +1,7 @@
 require 'google/api_client/client_secrets'
 
 class AuthenticationController < ApplicationController
-  skip_before_action :authenticate_user!
+  skip_filter :authenticate_user!
 
   def authenticate
     if params[:code]

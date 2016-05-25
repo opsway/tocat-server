@@ -41,3 +41,9 @@ SHIFTPLANNING_PASSWORD - shiftplanning password
 Amazon SES:
 AWS_ACCESS_KEY_ID - aws access key id
 AWS_SECRET_ACCESS_KEY - aws secret access key
+
+Google Oauth:
+
+GOOGLE_CLIENT_ID - google client id
+GOOGLE_CLIENT_SECRET - google secret
+REDIRECT_URIS - redirect uri for auth
