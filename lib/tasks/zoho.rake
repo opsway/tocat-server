@@ -13,7 +13,7 @@ namespace :zoho do
     }
     files.each do |file,sql|
       r = ActiveRecord::Base.connection.execute sql
-      CSV.open("/tmp/{file}", 'wb', force_quotes: true) do |csv|
+      CSV.open("/tmp/#{file}", 'wb', force_quotes: true) do |csv|
         r.each do |data|
           csv << data 
         end
