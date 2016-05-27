@@ -4,7 +4,7 @@ ENV RAILS_ENV=production \
     TOCAT_HOME="/srv/tocat" \
     TOCAT_LOG_DIR="/var/log/tocat" 
     
-RUN apt-get update && apt-get install -qq -y build-essential cron mysql-client libmysqlclient-dev gettext --fix-missing --no-install-recommends
+RUN apt-get update && apt-get install -qq -y build-essential cron rsyslog sendmail mysql-client libmysqlclient-dev gettext --fix-missing --no-install-recommends
 RUN gem install --no-document bundler
 WORKDIR ${TOCAT_HOME}
 COPY entrypoint.sh /sbin/entrypoint.sh

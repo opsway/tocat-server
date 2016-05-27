@@ -26,6 +26,9 @@ Zoho:
 ZOHO_AUTH - zoho auth
 ZOHO_ORG - zoho organization
 
+ZOHO_LOGIN - zoho login
+ZOHO_TOKEN - zoho token
+
 Creator:
 
 CREATOR_AUTH - creator auth

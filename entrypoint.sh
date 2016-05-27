@@ -8,19 +8,25 @@ case ${1} in
 
     case ${1} in
       app:start)
-	        sleep 1
-	        service cron start
+	  sleep 1
+	  env |sed 's/^\(.*\)$/export \1/g' >/root/.profile
           cd $TOCAT_HOME && envsubst < lib/google_app_secrets.json > config/google_app_secrets.json
-          cd $TOCAT_HOME && bundle exec whenever -w;
+	  cd $TOCAT_HOME && bundle exec whenever -w;
+	  service rsyslog start
+	  service sendmail start
+	  service cron start
           cd $TOCAT_HOME && bundle exec rake db:migrate && bundle exec thin -C config/thin.yml -a 0.0.0.0 -p 3000 start;
         ;;
       app:init)
           sleep 1
+	  env |sed 's/^\(.*\)$/export \1/g' >/root/.profile
           cd $TOCAT_HOME && envsubst < lib/google_app_secrets.json > config/google_app_secrets.json
-          service cron start
           bundle exec rake db:create
           bundle exec rake db:migrate
           cd $TOCAT_HOME && bundle exec whenever -w;
+	  service rsyslog start
+	  service sendmail start
+          service cron start
           ;;
       app:rake)
         shift 1
