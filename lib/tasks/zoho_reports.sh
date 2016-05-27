@@ -3,6 +3,7 @@
 rm /tmp/zohoreports*.csv
 
 bundle exec rake zoho:export
+bundle exec rake budget:parse
 
 curl -XPOST -F ZOHO_FILE=@/tmp/zohoreports_accounts.csv "https://reportsapi.zoho.com/api/$ZOHO_LOGIN/OpsWay Group/TOCAT_Accounts?ZOHO_ACTION=IMPORT&authtoken=$ZOHO_TOKEN&ZOHO_IMPORT_TYPE=TRUNCATEADD&ZOHO_AUTO_IDENTIFY=true&ZOHO_ON_IMPORT_ERROR=ABORT&ZOHO_OUTPUT_FORMAT=JSON&ZOHO_API_VERSION=1.0&ZOHO_CREATE_TABLE=false"
 
