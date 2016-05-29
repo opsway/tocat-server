@@ -16,17 +16,6 @@ class TransferRequestsController < ApplicationController
     render json: @tr, serializer: RequestSerializer
   end
 
-  def update
-    tr_params = @tr.attributes 
-    if @tr.update transfer_params
-      @tr.create_activity :update,
-        parameters: { changes: HashDiff.diff(tr_params, transfer_params) },
-        owner: User.current_user
-      render json: @tr, serializer: RequestSerializer
-    else
-      render json: error_builder(@tr), status: 406
-    end
-  end
   def pay
    @tr.state = 'paid'
    if @tr.save

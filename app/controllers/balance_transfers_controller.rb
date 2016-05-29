@@ -31,6 +31,6 @@ class BalanceTransfersController < ApplicationController
   
   private
   def transfer_params
-    params.require(:balance_transfer).permit(:total, :target_login, :description, :btype)
+    params.require(:balance_transfer).permit(:total, :target_login, :description)
   end
 end

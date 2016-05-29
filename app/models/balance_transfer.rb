@@ -6,9 +6,8 @@ class BalanceTransfer < ActiveRecord::Base
   belongs_to :source_transaction, class_name: Transaction
   validates :description, :total ,:presence => true
  
-  validates :source_id, presence: true, if: Proc.new {|a| a.btype != 'emit'}
-  validates :target_id, presence: true, if: Proc.new {|a| a.btype != 'takeout'}
-  validates :btype, inclusion: {in: %w(base emit takeout) }
+  validates :source_id, presence: true
+  validates :target_id, presence: true
 
   validates :description, length: { maximum: 250 }
   attr_accessor :target_login
@@ -16,8 +15,8 @@ class BalanceTransfer < ActiveRecord::Base
   validates_numericality_of :total, 
                             greater_than: 0,
                             message: "Total of balance transfer should be greater than 0"
-  before_validation :set_source_account, unless: Proc.new {|a| a.btype == 'emit'}
-  before_validation :set_target_account, unless: Proc.new {|a| a.btype == 'takeout'}
+  before_validation :set_source_account
+  before_validation :set_target_account
   before_validation :set_date
   after_validation :create_transactions
   #scoped_search in: :source, on: :accountable_id, rename: :source
@@ -35,37 +34,16 @@ class BalanceTransfer < ActiveRecord::Base
   end
   
   def set_source_account
-    if self.btype == 'takeout'
-      self.source = Team.central_office.manager.try(:income_account)
-    else
-      self.source ||= User.current_user.try(:income_account)
-    end
+    self.source ||= User.current_user.try(:income_account)
   end
 
   def set_target_account
-    if self.btype == 'emit'
-      self.target = Team.central_office.manager.try(:income_account)
-    else
-      self.target ||= User.find_by_login(target_login).try(:income_account)
-    end
+    self.target ||= User.find_by_login(target_login).try(:income_account)
   end
   
   def create_transactions
     comment = "Balance transfer:  #{self.description}"
-    case self.btype
-    when 'base'
-      if source && target
-        self.source_transaction = source.transactions.create! total: -total, comment: comment
-        self.target_transaction = target.transactions.create! total: total, comment: comment
-      end
-    when 'emit'
-      if target
-        self.target_transaction = target.transactions.create! total: total, comment: comment
-      end
-    when 'takeout'
-      if source
-        self.source_transaction = source.transactions.create! total: -total, comment: comment
-      end
-    end
+    self.source_transaction = source.transactions.create! total: -total, comment: comment
+    self.target_transaction = target.transactions.create! total: total, comment: comment
   end
 end
