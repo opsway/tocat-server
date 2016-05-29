@@ -102,14 +102,12 @@ class Order < ActiveRecord::Base
       unless team.manager.real_money?
         team.manager.balance_account.transactions.create! total: invoiced_budget - task_orders.joins(:task).where("tasks.expenses = true").sum(:budget), comment: "Order ##{id} was completed"
       end
-      unless self.internal_order?
-        unless team.manager.real_money?
-          team.manager.balance_account.transactions.create! total: -(invoiced_budget * self.commission_coefficient), comment: "Order ##{id} was completed: Central Office fee"
-        end
-        couch.income_account.transactions.create! total: invoiced_budget, comment: "Order ##{id} was completed"
-        couch.income_account.transactions.create! total: - (invoiced_budget * couch.team.default_commission / 100.00), comment: "Order ##{id} was completed: Central Office fee"
-        Team.central_office.couch.income_account.transactions.create! total: invoiced_budget * couch.team.default_commission / 100.00, comment: "Order ##{id} was completed: Central Office fee"
+      unless team.manager.real_money?
+        team.manager.balance_account.transactions.create! total: -(invoiced_budget * self.commission_coefficient), comment: "Order ##{id} was completed: Central Office fee"
       end
+      couch.income_account.transactions.create! total: invoiced_budget, comment: "Order ##{id} was completed"
+      couch.income_account.transactions.create! total: - (invoiced_budget * couch.team.default_commission / 100.00), comment: "Order ##{id} was completed: Central Office fee"
+      Team.central_office.couch.income_account.transactions.create! total: invoiced_budget * couch.team.default_commission / 100.00, comment: "Order ##{id} was completed: Central Office fee"
     end
   end
   
