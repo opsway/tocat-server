@@ -6,3 +6,5 @@ creator:
   owner: <%= ENV['CREATOR_OWNER'] %>
 aws_key_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
 aws_secret: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
+email_host: <%= ENV['EMAIL_HOST'] %>
+
