@@ -79,18 +79,18 @@ class TransferRequest < ActiveRecord::Base
                                       :access_key_id => Settings.aws_access_key_id,
                                       :secret_access_key => Settings.aws_secret_access_key)
     
-    subject = "Transfer request from #{target.name} #{created_at.to_date}"
-    body = "Transfer request #{id} from #{target.name} to #{source.name}, total: #{total},\n #{description}"
-    ses.send_email subject: subject, from: 'tocat@opsway.com', to: source.email, body_text: body
+    subject = "New balance transfer request from #{target.name}"
+    body = "Hello,\n You have new balance transfer request: http://erp.opsway.com/tocat/transfer_requests/#{id} \n From: #{target.name}\n Total: #{total}\n Description: #{description}\n Yours sincerely,\n TOCAT"
+    ses.send_email subject: subject, from: 'TOCAT@opsway.com', to: source.email, body_text: body
   end
   def   send_notification_paid
     AWS.config :access_key_id => Settings.aws_access_key_id, :secret_access_key => Settings.awss_secret_access_key
     ses = AWS::SimpleEmailService.new(
                                       :access_key_id => Settings.aws_access_key_id,
                                       :secret_access_key => Settings.aws_secret_access_key)
-    subject = "Transfer request to #{source.name} #{created_at.to_date} was paid"
-    body = "Transfer request #{id} from #{target.name} to #{source.name}, total: #{total},\n #{description}"
-    ses.send_email subject: subject, from: 'tocat@opsway.com', to: target.email, body_text: body
+    subject = "Balance transfer request to #{source.name} was paid"
+    body = "Hello,\n Your balance transfer request was paid: http://erp.opsway.com/tocat/transfer_requests/#{id} \n From: #{source.name}\n Total: #{total}\n Description: #{description}\n Yours sincerely,\n TOCAT"
+    ses.send_email subject: subject, from: 'TOCAT@opsway.com', to: target.email, body_text: body
     
   end
 end
