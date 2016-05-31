@@ -7,7 +7,8 @@ class AuthenticationController < ApplicationController
     if params[:code]
       action = Actions::Users::GoogleAuthentication.new(user_info_provider: user_info_provider).call
       if action.success?
-        render json: { auth_token: action.auth_token }
+        @token = action.auth_token
+        render 'auth.html'
       else
         render json: { errors: action.errors }, status: :unauthorized
       end
