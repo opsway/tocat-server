@@ -13,7 +13,7 @@ module Actions
       end
 
       def call
-        @auth_token = JsonWebToken.encode(user_id: user.id) if user
+        @auth_token = JsonWebToken.encode(user_email: user.email) if user
         self
       end
 
