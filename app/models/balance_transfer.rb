@@ -42,7 +42,7 @@ class BalanceTransfer < ActiveRecord::Base
   end
   
   def create_transactions
-    comment = "Balance transfer:  #{self.description}"
+    comment = "Balance transfer:  #{self.description}".truncate 255 # TODO - transaction comment should be not more 255 symbols
     self.source_transaction = source.transactions.create! total: -total, comment: comment
     self.target_transaction = target.transactions.create! total: total, comment: comment
   end
