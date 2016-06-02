@@ -95,6 +95,12 @@ namespace :shiftplanning do
             errors += 1
             logger.error "#{Time.now} Transactions for #{user.name} was not created! - #{e.message}"
           end
+          Timesheet.create!(:sp_id => shift['id'],
+                            :user_id => user.id,
+                            :start_timestamp => shift['start_timestamp'],
+                            :end_timestamp => shift['end_timestamp'],
+                            :in_day => shift['in_day'])
+
         end
         salary_logger.info "Shift record has been proceed" if debug
 
