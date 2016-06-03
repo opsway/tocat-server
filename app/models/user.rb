@@ -17,6 +17,8 @@ class User < ActiveRecord::Base
 
   has_many :transactions
   has_many :tasks
+  
+  has_and_belongs_to_many :payment_requests
 
   before_save :normalize_data
   scope :all_active, ->{where(active: true)}

@@ -86,7 +86,7 @@ class TransferRequest < ActiveRecord::Base
   end
   def   send_notification_paid
     host = Settings.email_host
-    AWS.config :access_key_id => Settings.aws_access_key_id, :secret_access_key => Settings.awss_secret_access_key
+    AWS.config :access_key_id => Settings.aws_access_key_id, :secret_access_key => Settings.aws_secret_access_key
     ses = AWS::SimpleEmailService.new(
                                       :access_key_id => Settings.aws_access_key_id,
                                       :secret_access_key => Settings.aws_secret_access_key)

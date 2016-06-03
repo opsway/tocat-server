@@ -21,6 +21,7 @@ gem 'jwt'
 gem 'google-api-client', '0.9'
 gem 'aws-sdk', '~> 1'
 gem 'whenever'
+gem 'aasm'
 
 
 group :development do
