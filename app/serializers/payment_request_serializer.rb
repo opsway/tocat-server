@@ -43,5 +43,6 @@ class PaymentRequestSerializer < ActiveModel::Serializer
       data[:user_id] = object.salary_account.accountable.id
       data[:id] = object.salary_account.id
     end
+    data
   end
 end

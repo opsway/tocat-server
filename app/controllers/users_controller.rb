@@ -16,14 +16,6 @@ class UsersController < ApplicationController
     end
   end
 
-  def add_payment
-    if @user.add_payment(params[:comment], params[:total])
-      render json: {}, status: 201
-    else
-      render json: error_builder(@user), status: :unprocessable_entity
-    end
-  end
-
   def show
     render json: @user, serializer: UserShowSerializer
   end

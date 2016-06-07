@@ -25,7 +25,7 @@ class PaymentRequest < ActiveRecord::Base
                             message: "Total of payment request should be greater than 0"
   validates :currency, inclusion: {in: %w(USD EUR UAH RUR KZT)}
   
-  validates :target, presence: true, if: Proc.new {|t| t.special? }
+  validates :target, presence: true, if: Proc.new {|t| t.status == 'dispatched' }
   validates :currency, inclusion: {in: %w(USD )}, if: Proc.new{|t| t.special? }
   validates :salary_account, presence: true, if: Proc.new{|t| t.special?}
 

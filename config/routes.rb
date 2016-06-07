@@ -21,6 +21,17 @@ Rails.application.routes.draw do
   resources :transfer_request, defaults: {format: 'json'}, only: [:show, :destroy], controller: 'transfer_requests' do
     post 'pay', on: :member
   end
+  
+  resources :payment_requests, only: [:create, :index]
+  resources :payment_request, only: [:show, :update], controller: :payment_requests do
+    member do
+      post 'approve'
+      post 'cancel'
+      post 'reject'
+      post 'complete'
+      post 'dispatch', to: 'payment_requests#dispatch_my'
+    end
+  end
 
   resources :roles,
             path: 'roles',
@@ -85,9 +96,7 @@ Rails.application.routes.draw do
             path: 'user',
             controller: 'users',
             defaults: { format: 'json' },
-            only: [:show, :update, :destroy] do
-    post 'add_payment', to: 'users#add_payment', as: 'add_payment', format: 'json'
-  end
+            only: [:show, :update, :destroy] 
 
   #teams
   resources :team,
