@@ -48,7 +48,7 @@ class PaymentRequestsController < ApplicationController
   def payment_params
     payment_attr = params.require(:payment_request).permit(:total, :description, :currency)
     if params[:payment_request][:special].present?
-      payment_attr.merge!({salary_account_id: params[:payment_request][:salary_account_id], special: true})
+      payment_attr.merge!({salary_account_id: params[:payment_request][:salary_account_id], special: true, bonus: params[:payment_request][:bonus]})
     end
     payment_attr
   end

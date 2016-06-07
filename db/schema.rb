@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160603114024) do
+ActiveRecord::Schema.define(version: 20160607152144) do
 
   create_table "accounts", force: :cascade do |t|
     t.string   "account_type",     limit: 255, null: false
@@ -103,6 +103,7 @@ ActiveRecord::Schema.define(version: 20160603114024) do
     t.datetime "updated_at",                                      null: false
     t.boolean  "special",           limit: 1,     default: false
     t.integer  "salary_account_id", limit: 4
+    t.boolean  "bonus",             limit: 1,     default: false
   end
 
   create_table "payment_requests_users", force: :cascade do |t|
