@@ -99,9 +99,9 @@ class Task < ActiveRecord::Base
   def handle_balance_after_changing_paid_status
     self.transaction do
       if accepted && paid
-        create_transactions(user, team, budget, "Accepted and paid issue #{self.external_id}")
+        create_transactions(user, team, budget, "Accepted and paid issue #{self.id}")
       elsif accepted_was == true && paid_was == true
-        create_transactions(user, team, -budget, "Reopening issue #{self.external_id}")
+        create_transactions(user, team, -budget, "Reopening issue #{self.id}")
       end
     end
   end
@@ -109,7 +109,7 @@ class Task < ActiveRecord::Base
   def handle_balance_after_changing_budget
     self.transaction do
       if budget_was != nil && budget == 0 && user.present?
-        create_transactions(user, user.team, -budget_was, "Reopening issue #{self.external_id}")
+        create_transactions(user, user.team, -budget_was, "Reopening issue #{self.id}")
       end
     end
   end
