@@ -1,4 +1,14 @@
 namespace :conv do
+  task :convert_url => :environment do
+    Task.where.not("external_id like 'http%'").find_each do |t|
+      if t.external_id.match(/opsway/)
+        Task.where(id: t.id).update_all(external_id: "http://redmine.opsway.com/issues/#{t.external_id.gsub(/\D/,'')}")
+      else  
+        Task.where(id: t.id).update_all(external_id: "http://erp.opsway.com/issues/#{t.external_id.gsub(/\D/,'')}")
+      end
+      t.save
+    end
+  end
   task :convert => :environment do
     Task.find_each do |task|
       unless task.external_id.match(/[a-zA-Z]_/)
