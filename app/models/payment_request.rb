@@ -68,7 +68,7 @@ class PaymentRequest < ActiveRecord::Base
   
   def cancel_allowed?
     return true if source_id == User.current_user.try(:id)
-    as_manager
+    as_manager?
   end
   
   def approve_allowed?
