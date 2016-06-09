@@ -14,7 +14,7 @@ class BalanceTransfer < ActiveRecord::Base
 
   validates_numericality_of :total, 
                             greater_than: 0,
-                            message: "Total of balance transfer should be greater than 0"
+                            message: "Total of internal payment should be greater than 0"
   before_validation :set_source_account
   before_validation :set_target_account
   before_validation :set_date

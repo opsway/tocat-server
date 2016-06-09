@@ -14,7 +14,7 @@ class TransferRequest < ActiveRecord::Base
   validate :target_check_for_paid, if: Proc.new {|tr| tr.state_changed? && tr.state == 'paid' }
   validates_numericality_of :total, 
                             greater_than: 0,
-                            message: "Total of balance transfer request should be greater than 0"
+                            message: "Total of internal invoice should be greater than 0"
   validates :state, inclusion: {in: %w(new paid) }
   validate :check_state, if: Proc.new{|t| t.persisted? }
   validate :check_target, if: Proc.new{|t| t.persisted? }
@@ -28,12 +28,12 @@ class TransferRequest < ActiveRecord::Base
   private
   def check_target
     if self.target_id != User.current_user.id && state != 'paid'
-      errors[:base] << "You can change only your transfer requests"
+      errors[:base] << "You can change only your internal invoice"
     end 
   end
   def check_state
     if state == 'paid' && !state_changed?
-      errors[:base] << "You can't change paid transfer request"
+      errors[:base] << "You can't change paid internal invoice"
       false
     end
   end
@@ -53,18 +53,18 @@ class TransferRequest < ActiveRecord::Base
   
   def check_state_paid
     if state != 'new' 
-      errors[:base] << "Transfer request have paid state, you can't remove it"
+      errors[:base] << "Internal invoice have paid state, you can't remove it"
       return false
     end
     if target_id != User.current_user.id
-      errors[:base] << "You can remove only your transfer request"
+      errors[:base] << "You can remove only your internal invoice"
       return false
     end
   end
   
   def target_check_for_paid
     if self.source_id != User.current_user.id
-      errors[:base] << "You can pay only your transfer requests"
+      errors[:base] << "You can pay only your internal invoice"
     end 
   end
   
@@ -80,8 +80,8 @@ class TransferRequest < ActiveRecord::Base
                                       :secret_access_key => Settings.aws_secret_access_key)
     host = Settings.email_host
     
-    subject = "New balance transfer request from #{target.name}"
-    body = "Hello,\n You have new balance transfer request: http://#{host}/tocat/transfer_requests/#{id} \n From: #{target.name}\n Total: #{total}\n Description: #{description}\n Yours sincerely,\n TOCAT"
+    subject = "New internal invoice from #{target.name}"
+    body = "Hello,\n You have new internal invoice: http://#{host}/tocat/internal_invoices/#{id} \n From: #{target.name}\n Total: #{total}\n Description: #{description}\n Yours sincerely,\n TOCAT"
     ses.send_email subject: subject, from: 'TOCAT@opsway.com', to: source.email, body_text: body
   end
   def   send_notification_paid
@@ -90,8 +90,8 @@ class TransferRequest < ActiveRecord::Base
     ses = AWS::SimpleEmailService.new(
                                       :access_key_id => Settings.aws_access_key_id,
                                       :secret_access_key => Settings.aws_secret_access_key)
-    subject = "Balance transfer request to #{source.name} was paid"
-    body = "Hello,\n Your balance transfer request was paid: http://#{host}/tocat/transfer_requests/#{id} \n From: #{source.name}\n Total: #{total}\n Description: #{description}\n Yours sincerely,\n TOCAT"
+    subject = "Internal invoice to #{source.name} was paid"
+    body = "Hello,\n Your internal invoice was paid: http://#{host}/tocat/internal_invoices/#{id} \n From: #{source.name}\n Total: #{total}\n Description: #{description}\n Yours sincerely,\n TOCAT"
     ses.send_email subject: subject, from: 'TOCAT@opsway.com', to: target.email, body_text: body
     
   end

@@ -22,7 +22,7 @@ class PaymentRequest < ActiveRecord::Base
 
   validates_numericality_of :total, 
                             greater_than: 0,
-                            message: "Total of payment request should be greater than 0"
+                            message: "Total of external payment should be greater than 0"
   validates :currency, inclusion: {in: %w(USD EUR UAH RUR KZT)}
   
   validates :target, presence: true, if: Proc.new {|t| t.status == 'dispatched' }
@@ -100,9 +100,9 @@ class PaymentRequest < ActiveRecord::Base
 
     subj = case status
     when 'new'
-      "Payment Request Created"
+      "External Payment Created"
     else
-      "Payment Request #{status.capitalize}"
+      "External Payment #{status.capitalize}"
     end
     
     AWS.config :access_key_id => Settings.aws_access_key_id, :secret_access_key => Settings.aws_secret_access_key
@@ -110,7 +110,7 @@ class PaymentRequest < ActiveRecord::Base
                                       :access_key_id => Settings.aws_access_key_id,
                                       :secret_access_key => Settings.aws_secret_access_key)
     host = Settings.email_host
-    body = "Hello,\n Payment request: http://#{host}/tocat/payment_requests/#{id} \n From: #{source.name}\n Status: #{status}\n Total: #{total}#{currency}\n Description: #{description}\n Yours sincerely,\n TOCAT"
+    body = "Hello,\n External Payment: http://#{host}/tocat/external_payments/#{id} \n From: #{source.name}\n Status: #{status}\n Total: #{total}#{currency}\n Description: #{description}\n Yours sincerely,\n TOCAT"
 
     self.users.where.not(id: User.current_user.id).each do |user|
       begin
