@@ -86,12 +86,7 @@ class PaymentRequest < ActiveRecord::Base
   
   def process_special
     if special?
-      if bonus?
-        Transaction.create!(comment: description.truncate(254),
-                            total: "#{self.total}",
-                            account: salary_account.accountable.income_account,
-                            user_id: salary_account.accountable.id)
-      else
+      unless bonus?
         Transaction.create!(comment: "Paid in Cash/Bank",
                             total: "-#{self.total}",
                             account: salary_account,

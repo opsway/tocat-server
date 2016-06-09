@@ -26,6 +26,14 @@ class PaymentRequestsController < ApplicationController
   
   def create
     @payment_request = PaymentRequest.new payment_params
+    if @payment_request.bonus?
+      Transaction.create!(comment: @payment_request.description.truncate(254),
+                          total: "#{@payment_request.total}",
+                          account: @payment_request.salary_account.accountable.income_account,
+                          user_id: @payment_request.salary_account.accountable.id)
+      @payment_request.id = 1
+      return render json: @payment_request, serializer: PaymentRequestSerializer
+    end
     if @payment_request.save
       render json: @payment_request, serializer: PaymentRequestSerializer
     else
