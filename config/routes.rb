@@ -17,6 +17,10 @@ Rails.application.routes.draw do
           
   resources :balance_transfers, only: [:create, :index]
   resources :balance_transfer, only: [:show], controller: 'balance_transfers'
+  resources :transfer_requests, defaults: { format: 'json' }, only: [:create, :index]
+  resources :transfer_request, defaults: {format: 'json'}, only: [:show, :destroy], controller: 'transfer_requests' do
+    post 'pay', on: :member
+  end
   
   resources :payment_requests, only: [:create, :index]
   resources :payment_request, only: [:show, :update], controller: :payment_requests do
