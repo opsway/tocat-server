@@ -96,7 +96,9 @@ Rails.application.routes.draw do
             path: 'user',
             controller: 'users',
             defaults: { format: 'json' },
-            only: [:show, :update, :destroy] 
+            only: [:show, :update, :destroy] do
+    post 'add_payment', to: 'users#add_payment', as: 'add_payment', format: 'json'
+  end
 
   #teams
   resources :team,
