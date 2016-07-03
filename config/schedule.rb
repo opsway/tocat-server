@@ -3,9 +3,9 @@ if ENV['CRON_JOB']
     command 'cd /srv/tocat/ && rake shiftplanning:update_transactions' 
   end
 
-  every '3 1 */1 * *' do
-    command 'cd /srv/tocat && rake status:selfcheck'
-  end
+# every '3 1 */1 * *' do
+#   command 'cd /srv/tocat && rake status:selfcheck'
+# end
 
   every '0 */1 * * *' do
     command 'cd /srv/tocat && rake budget:parse'
