@@ -16,6 +16,20 @@ class Account < ActiveRecord::Base
   def balance
     transactions.sum(:total)
   end
+  
+  def balance_account?
+    account_type == 'balance'
+  end
+  
+  def payment_account?
+    account_type == 'payment'
+  end
+  
+  def self.commission_user
+    Rails.cache.fetch(expires_in: 1.minute) do
+      User.find_by_login Rails.application.secrets[:tocat_manager]
+    end
+  end
 
   private
 
