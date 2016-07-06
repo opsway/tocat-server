@@ -1,6 +1,7 @@
 #  FIXME refactor this!!!
 
 Rails.application.routes.draw do
+  get 'acl' => 'acl#acl', defaults: {format: 'json'}
 
   get 'activity/index'
 

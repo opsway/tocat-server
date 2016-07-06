@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160704091123) do
+ActiveRecord::Schema.define(version: 20160706075755) do
 
   create_table "accounts", force: :cascade do |t|
     t.string   "account_type",     limit: 255, null: false
@@ -169,6 +169,18 @@ ActiveRecord::Schema.define(version: 20160704091123) do
   end
 
   add_index "timesheets", ["user_id"], name: "index_timesheets_on_user_id", using: :btree
+
+  create_table "tocat_roles", force: :cascade do |t|
+    t.string  "name",        limit: 255,               null: false
+    t.text    "permissions", limit: 65535
+    t.integer "position",    limit: 4,     default: 1, null: false
+  end
+
+  create_table "tocat_user_roles", force: :cascade do |t|
+    t.integer "user_id",       limit: 4, null: false
+    t.integer "tocat_role_id", limit: 4, null: false
+    t.integer "creator_id",    limit: 4, null: false
+  end
 
   create_table "transactions", force: :cascade do |t|
     t.decimal  "total",                  precision: 10, scale: 2, null: false

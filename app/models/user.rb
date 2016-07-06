@@ -17,6 +17,9 @@ class User < ActiveRecord::Base
 
   has_many :transactions
   has_many :tasks
+  has_one :tocat_user_role, class_name: "TocatUserRole"
+  has_one :tocat_role, through: :tocat_user_role, class_name: "TocatRole"
+
   
   has_and_belongs_to_many :payment_requests
 
