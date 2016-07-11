@@ -107,7 +107,7 @@ class TocatRole < ActiveRecord::Base
     paths[:teams][:show] = :show_issues
     paths[:teams][:create] = :create_team
     paths[:teams][:destroy] = :deactivate_team
-    paths[:teams][:update] = :create_teams
+    paths[:teams][:update] = :create_team
     paths[:teams][:makeactive] = :activate_team
     
     # roles
@@ -129,15 +129,15 @@ class TocatRole < ActiveRecord::Base
     #transfer requests
     paths[:transfer_requests] = {}
     paths[:transfer_requests][:index] = :view_transfers
-    paths[:transfer_requests][:create] = :create_transfers
-    paths[:transfer_requests][:pay] = :create_transfers
+    paths[:transfer_requests][:create] = :create_transfer
+    paths[:transfer_requests][:pay] = :create_transfer
     paths[:transfer_requests][:show] = :view_transfers
-    paths[:transfer_requests][:destroy] = :create_transfers
+    paths[:transfer_requests][:destroy] = :create_transfer
 
     #payment requests
     paths[:payment_requests] = {}
     paths[:payment_requests][:index] = :view_payment_requests
-    paths[:payment_requests][:create] = :create_transfers
+    paths[:payment_requests][:create] = :create_transfer
     paths[:payment_requests][:approve] = :approve_payment_request
     paths[:payment_requests][:cancel] = :cancel_payment_request
     paths[:payment_requests][:reject] = :reject_payment_request
@@ -152,7 +152,6 @@ class TocatRole < ActiveRecord::Base
     paths[:transactions][:show] = :show_transactions
 
     return true if request[:controller] == 'acl' && request[:action] == 'acl'
-
     return false unless paths[request[:controller].to_sym].present?
     return false unless paths[request[:controller].to_sym][request[:action].to_sym].present?
     return false unless User.current_user.tocat_allowed_to?(paths[request[:controller].to_sym][request[:action].to_sym])

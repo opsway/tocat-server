@@ -75,8 +75,8 @@ class ApplicationController < ActionController::API
       action = Actions::AuthenticateRequest.new(request: request).call
       @current_user = action.user
       User.current_user = @current_user
-      return render json: { errors: 'Not Authorized' }, status: :unauthorized unless @current_user
-      return render json: { errors: 'Not Authorized' }, status: :unauthorized unless TocatRole.check_path(request)
+      return render json: { errors: ['Not Authorized'] }, status: :unauthorized unless @current_user
+      return render json: { errors: ['Not Authorized by ACL'] }, status: :unauthorized unless TocatRole.check_path(request)
       yield
     ensure
       # to address the thread variable leak issues in Puma/Thin webserver
