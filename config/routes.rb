@@ -91,7 +91,7 @@ Rails.application.routes.draw do
             path: 'users',
             controller: 'users',
             defaults: { format: 'json' },
-            only: [:index, :create, :destroy]
+            only: [:index, :create, :destroy, :me]
 
   resources :user,
             path: 'user',

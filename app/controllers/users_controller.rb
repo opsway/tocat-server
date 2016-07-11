@@ -1,6 +1,6 @@
 class UsersController < ApplicationController
   before_action :set_user, except: [:index, :create]
-  before_action :check_user, except: [:index, :create, :destroy, :show]
+  before_action :check_user, except: [:index, :create, :destroy, :show, :me]
 
   def index
     if params[:anyuser].present?
@@ -19,7 +19,10 @@ class UsersController < ApplicationController
       render json: @articles
     end
   end
-
+  def me
+    @user = User.current_user
+    render json: @user, serializer: UserShowSerializer
+  end
   def show
     render json: @user, serializer: UserShowSerializer
   end

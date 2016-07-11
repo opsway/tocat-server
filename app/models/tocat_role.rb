@@ -91,6 +91,7 @@ class TocatRole < ActiveRecord::Base
 
     #users
     paths[:users] = {}
+    paths[:users][:me] = :show_issues
     paths[:users][:index] = :show_issues
     paths[:users][:create] = :create_user
     paths[:users][:destroy] = :deactivate_user
