@@ -44,7 +44,7 @@ Rails.application.routes.draw do
             path: 'order',
             controller: 'orders',
             defaults: { format: 'json' },
-            only: [:show, :edit, :update, :destroy] do
+            only: [:show, :update, :destroy] do
 
     post 'internal', to: 'orders#set_internal', as: 'set_internal', format: 'json'
     delete 'internal', to: 'orders#remove_internal', as: 'remove_internal', format: 'json'
@@ -99,6 +99,7 @@ Rails.application.routes.draw do
             defaults: { format: 'json' },
             only: [:show, :update, :destroy] do
     post 'add_payment', to: 'users#add_payment', as: 'add_payment', format: 'json'
+    post 'set_role', format: 'json'
   end
 
   #teams
@@ -133,6 +134,18 @@ Rails.application.routes.draw do
     post 'review', to: 'tasks#handle_review_request', as: 'request_review', format: 'json'
     delete 'review', to: 'tasks#handle_review_request', as: 'reviewed', format: 'json'
   end
+  #tocat (acl) roles
+  resources :tocat_roles,
+            :path => 'tocat_roles',
+            controller: 'tocat_roles',
+            defaults: { format: 'json' },
+            only: [:index,:create, :new]
+  resources :tocat_roles,
+            :path => 'tocat_role',
+            controller: 'tocat_roles',
+            defaults: { format: 'json' },
+            only: [:show,:destroy,:update]
+
 
   #invoices
   resources :invoice,
@@ -144,7 +157,7 @@ Rails.application.routes.draw do
             path: 'invoice',
             controller: 'invoices',
             defaults: { format: 'json' },
-            only: [:show, :edit, :update, :destroy] do
+            only: [:show, :update, :destroy] do
     post 'paid', to: 'invoices#set_paid', as: 'invoice_set_paid', format: 'json'
     delete 'paid', to: 'invoices#delete_paid', as: 'invoice_remove_paid', format: 'json'
   end

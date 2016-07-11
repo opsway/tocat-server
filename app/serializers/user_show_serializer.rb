@@ -13,9 +13,15 @@ class UserShowSerializer < ActiveModel::Serializer
              :real_money,
              :balance_account_state,
              :email,
-             :income_account_state
+             :income_account_state,
+             :tocat_role_id
+           
 
   private
+  
+  def tocat_role_id
+    object.tocat_role.id
+  end
 
   def daily_rate
     object.daily_rate.to_f

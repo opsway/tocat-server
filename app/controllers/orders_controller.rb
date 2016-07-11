@@ -61,9 +61,6 @@ class OrdersController < ApplicationController
     end
   end
 
-  def edit
-  end
-
   def create
     @order = Order.new(order_params)
     if @order.save

@@ -8,6 +8,10 @@ class UsersController < ApplicationController
     else
       @articles = User.search_for(params[:search]).order('users.name asc').all_active
     end
+    if params[:tocat_role].present?
+      @roles = TocatRole.all.select{|r| r.allowed_to? params[:tocat_role] }
+      @articles = @articles.joins(:tocat_role).where('tocat_roles.id in (?)', @roles.map(&:id))
+    end
 
     if params[:limit].present? || params[:page].present? || params[:anyuser].present?
       return paginate json: @articles, per_page: params[:limit]
@@ -28,6 +32,17 @@ class UsersController < ApplicationController
     end
   end
 
+  def set_role
+    user = User.find(params[:user_id])
+    role = TocatRole.find(params[:role])
+    user.tocat_user_role.destroy if user.tocat_user_role.present?
+    record = TocatUserRole.new(user: user, tocat_role:role, creator_id: User.current_user.id)
+    if record.save
+      render json: {}, status: 200
+    else
+      render json: {}, status: 406
+    end
+  end
 
   def create
     @user = User.new(user_params)

@@ -26,9 +26,13 @@ class User < ActiveRecord::Base
   before_save :normalize_data
   scope :all_active, ->{where(active: true)}
 
-  scoped_search on: [:name, :login]
+  scoped_search on: [:name, :login, :email, :real_money]
   scoped_search in: :team, on: :name, rename: :team, only_explicit: true
   scoped_search in: :role, on: :name, rename: :role, only_explicit: true
+  
+  def tocat_allowed_to?(action)
+    self.tocat_role.try(:permissions).try(:include?, action)
+  end
 
   delegate :manager?, to: :role
 

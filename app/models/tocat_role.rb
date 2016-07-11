@@ -1,6 +1,6 @@
 class TocatRole < ActiveRecord::Base
-  unloadable
   serialize :permissions
+  include PublicActivity::Common
   validates_presence_of :name
   validates_uniqueness_of :name
   validates_length_of :name, :maximum => 30
@@ -12,119 +12,149 @@ class TocatRole < ActiveRecord::Base
 
   def self.check_path(request)
     paths = {}
+    
+# Unused!
+#   paths[:tocat] = {}
+#   paths[:tocat][:toggle_accepted] = :modify_accepted
+#   paths[:tocat][:update_resolver] = :modify_resolver
+#   paths[:tocat][:budget_dialog] = :modify_budgets
+#   paths[:tocat][:save_budget_dialog] = :modify_budgets
+#   paths[:tocat][:delete_budget] = :modify_budgets
+#   paths[:tocat][:my_tocat] = :show_tocat_page
+#   paths[:tocat][:new_payment] = :create_transactions
+#   paths[:tocat][:create_payment] = :create_transactions
+#   paths[:tocat][:tocat_chart_data] = :show_tocat_page
+#   paths[:tocat][:request_review] = :can_request_review
+#   paths[:tocat][:review_handler] = :can_review_task
+#   paths[:tocat][:set_expenses] = :set_expenses
+#   paths[:tocat][:remove_expenses] = :remove_expenses
+    
+    #roles
+    paths[:roles] = {}
+    paths[:roles][:index] = :is_admin
 
+    #orders
     paths[:orders] = {}
+    paths[:orders][:available_parents] = :show_orders
+    paths[:orders][:available_for_invoice] = :show_orders
+    paths[:orders][:index] = :show_orders
     paths[:orders][:create] = :create_orders
     paths[:orders][:new] = :create_orders
-    paths[:orders][:create_suborder] = :create_orders
-    paths[:orders][:show] = :show_orders
-    paths[:orders][:csv] = :show_orders
-    paths[:orders][:index] = :show_orders
-    paths[:orders][:invoices] = :create_invoices
-    paths[:orders][:set_invoice] = :create_invoices
-    paths[:orders][:delete_invoice] = :create_invoices
-    paths[:orders][:edit] = :edit_orders
-    paths[:orders][:update] = :edit_orders
-    paths[:orders][:destroy] = :destroy_orders
-    paths[:orders][:toggle_complete] = :complete_orders
     paths[:orders][:set_internal] = :set_internal_orders
     paths[:orders][:remove_internal] = :remove_internal_orders
     paths[:orders][:commission] = :update_commission
+    paths[:orders][:set_completed] = :complete_orders
+    paths[:orders][:budgets] = :show_orders
+    paths[:orders][:set_invoice] = :create_invoices
+    paths[:orders][:delete_invoice] = :create_invoices
+    paths[:orders][:show] = :show_orders
+    paths[:orders][:update] = :edit_orders
+    paths[:orders][:destroy] = :destroy_orders
 
+    #invoices
     paths[:invoices] = {}
     paths[:invoices][:create] = :create_invoices
-    paths[:invoices][:new] = :create_invoices
     paths[:invoices][:show] = :show_invoices
     paths[:invoices][:index] = :show_invoices
     paths[:invoices][:destroy] = :destroy_invoices
     paths[:invoices][:set_paid] = :paid_invoices
-    paths[:invoices][:set_unpaid] = :paid_invoices
-    paths[:invoices][:deattach_order] = :create_invoices
-    paths[:invoices][:attach_order] = :create_invoices
-    paths[:invoices][:edit] = :edit_orders
+    paths[:invoices][:delete_paid] = :paid_invoices
     paths[:invoices][:update] = :edit_orders
 
-    paths[:tocat] = {}
-    paths[:tocat][:toggle_accepted] = :modify_accepted
-    paths[:tocat][:update_resolver] = :modify_resolver
-    paths[:tocat][:budget_dialog] = :modify_budgets
-    paths[:tocat][:save_budget_dialog] = :modify_budgets
-    paths[:tocat][:delete_budget] = :modify_budgets
-    paths[:tocat][:my_tocat] = :show_tocat_page
-    paths[:tocat][:new_payment] = :create_transactions
-    paths[:tocat][:create_payment] = :create_transactions
-    paths[:tocat][:tocat_chart_data] = :show_tocat_page
-    paths[:tocat][:request_review] = :can_request_review
-    paths[:tocat][:review_handler] = :can_review_task
-    paths[:tocat][:set_expenses] = :set_expenses
-    paths[:tocat][:remove_expenses] = :remove_expenses
+    # objects history
+    paths[:activity] = {}
+    paths[:activity][:index] = :show_activity_feed
+    paths[:activity][:create] = :show_activity_feed
+    paths[:activity][:show] = :show_activity_feed
+    paths[:activity][:update] = :show_activity_feed
+    
+    #tasks
+    paths[:tasks] = {}
+    paths[:tasks][:index] = :show_issues
+    paths[:tasks][:create] = :show_issues
+    paths[:tasks][:set_expenses] = :set_expenses
+    paths[:tasks][:delete_expenses] = :remove_expenses
+    paths[:tasks][:set_accepted] = :modify_accepted
+    paths[:tasks][:delete_accepted] = :modify_accepted
+    paths[:tasks][:set_resolver] = :modify_resolver
+    paths[:tasks][:delete_resolver] = :modify_resolver
+    paths[:tasks][:budgets] = :show_budgets
+    paths[:tasks][:set_budgets] = :modify_budgets
+    paths[:tasks][:orders] = :show_budgets
+    paths[:tasks][:handle_review_request] = :can_request_review
+    paths[:tasks][:show] = :show_issues
 
-    paths[:tickets] = {}
-    paths[:tickets][:index] = :show_issues
-
+    #status
     paths[:status] = {}
-    paths[:status][:status] = :show_status_page
+    paths[:status][:index] = :show_status_page
     paths[:status][:checked] = :mark_alerts_as_checked
 
     #users
-    paths[:tocat_users] = {}
-    paths[:tocat_users][:index] = :show_issues
-    paths[:tocat_users][:new] = :create_user
-    paths[:tocat_users][:create] = :create_user
-    paths[:tocat_users][:edit] = :update_user
-    paths[:tocat_users][:update] = :update_user
-    paths[:tocat_users][:destroy] = :deactivate_user
-    paths[:tocat_users][:makeactive] = :activate_user
+    paths[:users] = {}
+    paths[:users][:index] = :show_issues
+    paths[:users][:create] = :create_user
+    paths[:users][:destroy] = :deactivate_user
+    paths[:users][:add_payment] = :create_transactions
+    paths[:users][:set_role] = :is_admin
+    paths[:users][:show] = :show_issues
+    paths[:users][:update] = :update_user
+    paths[:users][:makeactive] = :activate_user #TODO - rewrite method
 
     #teams
-    paths[:tocat_teams] = {}
-    paths[:tocat_teams][:index] = :show_issues
-    paths[:tocat_teams][:new] = :create_team
-    paths[:tocat_teams][:create] = :create_team
-    paths[:tocat_teams][:edit] = :update_team
-    paths[:tocat_teams][:update] = :update_team
-    paths[:tocat_teams][:destroy] = :deactivate_team
-    paths[:tocat_teams][:makeactive] = :activate_team
+    paths[:teams] = {}
+    paths[:teams][:index] = :show_issues
+    paths[:teams][:show] = :show_issues
+    paths[:teams][:create] = :create_team
+    paths[:teams][:destroy] = :deactivate_team
+    paths[:teams][:update] = :create_teams
+    paths[:teams][:makeactive] = :activate_team
     
+    # roles
+    paths[:tocat_roles] = {}
+    paths[:tocat_roles][:index] = :is_admin
+    paths[:tocat_roles][:create] = :is_admin
+    paths[:tocat_roles][:new] = :is_admin
+    paths[:tocat_roles][:show] = :is_admin
+    paths[:tocat_roles][:update] = :is_admin
+    paths[:tocat_roles][:update] = :is_admin
+    paths[:tocat_roles][:destroy] = :is_admin
     #balance transfers
-    paths[:internal_payments] = {}
-    paths[:internal_payments][:index] = :view_transfers
-    paths[:internal_payments][:new] = :create_transfer
-    paths[:internal_payments][:create] = :create_transfer
-    paths[:internal_payments][:show] = :view_transfers
+
+    paths[:balance_transfers] = {}
+    paths[:balance_transfers][:index] = :view_transfers
+    paths[:balance_transfers][:create] = :create_transfer
+    paths[:balance_transfers][:show] = :view_transfers
+
     #transfer requests
-    paths[:internal_invoices] = {}
-    paths[:internal_invoices][:index] = :view_transfers
-    paths[:internal_invoices][:new] = :create_transfer
-    paths[:internal_invoices][:edit] = :create_transfer
-    paths[:internal_invoices][:update] = :create_transfer
-    paths[:internal_invoices][:destroy] = :create_transfer
-    paths[:internal_invoices][:create] = :create_transfer
-    paths[:internal_invoices][:show] = :view_transfers
-    paths[:internal_invoices][:pay] = :create_transfer
+    paths[:transfer_requests] = {}
+    paths[:transfer_requests][:index] = :view_transfers
+    paths[:transfer_requests][:create] = :create_transfers
+    paths[:transfer_requests][:pay] = :create_transfers
+    paths[:transfer_requests][:show] = :view_transfers
+    paths[:transfer_requests][:destroy] = :create_transfers
+
     #payment requests
-    paths[:external_payments] = {}
-    paths[:external_payments][:index]   = :view_payment_requests
-    paths[:external_payments][:show]    = :view_payment_requests
-    paths[:external_payments][:new]     = :create_payment_request
-    paths[:external_payments][:pay_in_cash] = :pay_in_cash_bank
-    paths[:external_payments][:salary_checkin] = :salary_check_in
-    paths[:external_payments][:edit]    = :edit_payment_request 
-    paths[:external_payments][:update]  = :edit_payment_request
-    paths[:external_payments][:create]  = :create_payment_request
-    paths[:external_payments][:approve] = :approve_payment_request
-    paths[:external_payments][:complete]= :complete_payment_request
-    paths[:external_payments][:reject]  = :reject_payment_request
-    paths[:external_payments][:cancel]  = :cancel_payment_request
-    paths[:external_payments][:dispatch_my]= :dispatch_payment_request
-    paths[:external_payments][:dispatch_post]= :dispatch_payment_request
+    paths[:payment_requests] = {}
+    paths[:payment_requests][:index] = :view_payment_requests
+    paths[:payment_requests][:create] = :create_transfers
+    paths[:payment_requests][:approve] = :approve_payment_request
+    paths[:payment_requests][:cancel] = :cancel_payment_request
+    paths[:payment_requests][:reject] = :reject_payment_request
+    paths[:payment_requests][:complete] = :complete_payment_request
+    paths[:payment_requests][:dispatch_my] = :dispatch_payment_request
+    paths[:payment_requests][:show] = :view_payment_requests
+    paths[:payment_requests][:update] = :edit_payment_request
 
     #transactions
     paths[:transactions] = {}
     paths[:transactions][:index] = :show_transactions
+    paths[:transactions][:show] = :show_transactions
+
+    return true if request[:controller] == 'acl' && request[:action] == 'acl'
+
     return false unless paths[request[:controller].to_sym].present?
     return false unless paths[request[:controller].to_sym][request[:action].to_sym].present?
-    return false unless User.current.tocat_allowed_to?(paths[request[:controller].to_sym][request[:action].to_sym])
+    return false unless User.current_user.tocat_allowed_to?(paths[request[:controller].to_sym][request[:action].to_sym])
     true
   end
 
@@ -171,7 +201,7 @@ class TocatRole < ActiveRecord::Base
 
 
   def allowed_to?(action)
-    allowed_permissions.include? action
+    allowed_permissions.include? action.to_sym
   end
 
   private
