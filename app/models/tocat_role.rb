@@ -148,7 +148,7 @@ class TocatRole < ActiveRecord::Base
 
     #transactions
     paths[:transactions] = {}
-    paths[:transactions][:index] = :show_transactions
+    paths[:transactions][:index] = :show_issues #TODO FIXME - for balance chart we should have another method there
     paths[:transactions][:show] = :show_transactions
 
     return true if request[:controller] == 'acl' && request[:action] == 'acl'
