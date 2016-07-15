@@ -20,7 +20,7 @@ class UserShowSerializer < ActiveModel::Serializer
   private
   
   def tocat_role_id
-    object.tocat_role.id
+    object.tocat_role.try(:id)
   end
 
   def daily_rate
