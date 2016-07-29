@@ -10,6 +10,9 @@ class TransferRequestsController < ApplicationController
       user = User.find params[:target]
       @articles = @articles.where(target_id: user.id)
     end
+    if params[:state].present?
+      @articles = @articles.where(state: params[:state])
+    end
     paginate json: @articles, per_page: params[:limit]
   end
   def show
