@@ -137,7 +137,8 @@ class TocatRole < ActiveRecord::Base
     #payment requests
     paths[:payment_requests] = {}
     paths[:payment_requests][:index] = :view_payment_requests
-    paths[:payment_requests][:create] = :create_transfer
+    #paths[:payment_requests][:create] = :create_transfer
+    paths[:payment_requests][:create] = :salary_check_in
     paths[:payment_requests][:approve] = :approve_payment_request
     paths[:payment_requests][:cancel] = :cancel_payment_request
     paths[:payment_requests][:reject] = :reject_payment_request
@@ -150,7 +151,6 @@ class TocatRole < ActiveRecord::Base
     paths[:transactions] = {}
     paths[:transactions][:index] = :show_issues #TODO FIXME - for balance chart we should have another method there
     paths[:transactions][:show] = :show_transactions
-
     return true if request[:controller] == 'acl' && request[:action] == 'acl'
     return false unless paths[request[:controller].to_sym].present?
     return false unless paths[request[:controller].to_sym][request[:action].to_sym].present?
