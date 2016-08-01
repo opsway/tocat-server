@@ -14,7 +14,8 @@ class UserShowSerializer < ActiveModel::Serializer
              :balance_account_state,
              :email,
              :income_account_state,
-             :tocat_role_id
+             :tocat_role_id,
+             :permissions
            
 
   private
@@ -25,6 +26,10 @@ class UserShowSerializer < ActiveModel::Serializer
 
   def daily_rate
     object.daily_rate.to_f
+  end
+  
+  def permissions
+    object.tocat_role.try(:permissions) || []
   end
 
   def tocat_team
