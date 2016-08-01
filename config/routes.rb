@@ -101,6 +101,7 @@ Rails.application.routes.draw do
             defaults: { format: 'json' },
             only: [:show, :update, :destroy] do
     post 'add_payment', to: 'users#add_payment', as: 'add_payment', format: 'json'
+    post 'salary_checkin', to: 'users#salary_checkin', as: 'salary_checkin', format: 'json'
     post 'set_role', format: 'json'
   end
 

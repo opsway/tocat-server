@@ -96,6 +96,7 @@ class TocatRole < ActiveRecord::Base
     paths[:users][:create] = :create_user
     paths[:users][:destroy] = :deactivate_user
     paths[:users][:add_payment] = :create_transactions
+    paths[:users][:salary_checkin] = :salary_check_in
     paths[:users][:set_role] = :is_admin
     paths[:users][:show] = :show_issues
     paths[:users][:update] = :update_user
@@ -138,7 +139,7 @@ class TocatRole < ActiveRecord::Base
     paths[:payment_requests] = {}
     paths[:payment_requests][:index] = :view_payment_requests
     #paths[:payment_requests][:create] = :create_transfer
-    paths[:payment_requests][:create] = :salary_check_in
+    paths[:payment_requests][:create] = :create_payment_requests
     paths[:payment_requests][:approve] = :approve_payment_request
     paths[:payment_requests][:cancel] = :cancel_payment_request
     paths[:payment_requests][:reject] = :reject_payment_request

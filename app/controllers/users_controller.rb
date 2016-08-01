@@ -34,6 +34,19 @@ class UsersController < ApplicationController
       render json: error_builder(@user), status: :unprocessable_entity
     end
   end
+  
+  def salary_checkin
+      Transaction.create!(comment: params[:comment].to_s.truncate(254),
+                          total: params[:total],
+                          account: @user.income_account,
+                          user_id: @user.id)
+      Transaction.create!(comment: params[:comment].to_s.truncate(254),
+                          total: 0 - params[:total].to_f,
+                          account: @user.balance_account,
+                          user_id: @user.id)
+      return render json: {}, status: 200
+  end
+  
 
   def set_role
     user = User.find(params[:user_id])
