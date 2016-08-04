@@ -55,6 +55,7 @@ class TransferRequestsController < ApplicationController
   def transfer_params
     res = params.require(:transfer_request).permit(:total, :source_id, :description)
     res[:description] = res[:description].to_s.truncate 254
+    res
   end
   def find_request
     @tr= TransferRequest.find params[:id] 
