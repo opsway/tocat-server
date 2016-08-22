@@ -102,6 +102,7 @@ Rails.application.routes.draw do
             only: [:show, :update, :destroy] do
     post 'add_payment', to: 'users#add_payment', as: 'add_payment', format: 'json'
     post 'salary_checkin', to: 'users#salary_checkin', as: 'salary_checkin', format: 'json'
+    post 'correction', to: 'users#correction', on: :member, as: 'correction', format: 'json'
     post 'set_role', format: 'json'
   end
 

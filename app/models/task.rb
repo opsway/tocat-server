@@ -6,7 +6,6 @@ class Task < ActiveRecord::Base
   validate :check_if_order_completed, if: proc { |o| o.task_orders.any? }
   validate :orders_in_the_same_team, if: proc { |o| o.task_orders.any? }
   validate :expense_should_not_have_resolver
-  validate :manager_can_not_be_resolver, if: proc { |t| t.resolver.present? }
 
   has_many :task_orders,
            class_name: 'TaskOrders',
@@ -78,10 +77,6 @@ class Task < ActiveRecord::Base
     else
       errors[:resolver] << 'You can not setup Resolver for issue that is Expense'
     end
-  end
-
-  def manager_can_not_be_resolver
-    errors[:resolver] << 'Manager can not be set as a resolver' if resolver.manager?
   end
 
   def increase_budget(task_order)

@@ -26,6 +26,13 @@ class UsersController < ApplicationController
   def show
     render json: @user, serializer: UserShowSerializer
   end
+  
+  def correction
+      Transaction.create!(comment: params[:comment].to_s.truncate(254),
+                          total: params[:total],
+                          account: @user.balance_account,
+                          user_id: @user.id)
+  end
 
   def add_payment
     if @user.add_payment(params[:comment], params[:total])

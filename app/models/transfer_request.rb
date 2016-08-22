@@ -41,7 +41,7 @@ class TransferRequest < ActiveRecord::Base
   def create_balance_transfer
     a = {
          total: total,
-         description: description,
+         description: description.truncate(255),
          source_id: source.income_account.id,
          target_id: target.income_account.id,
          btype: 'base' 

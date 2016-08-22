@@ -41,7 +41,7 @@ module Actions
       end
 
       def check_requirements
-        push_errors(I18n.t('errors.task.budget.cant_update_when_expense')) if task.expenses?
+        #push_errors(I18n.t('errors.task.budget.cant_update_when_expense')) if task.expenses?
         push_errors(I18n.t('errors.task.budget.cant_update_when_accepted_and_paid')) if task.accepted? && task.paid?
       end
 
