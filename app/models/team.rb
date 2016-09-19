@@ -11,7 +11,7 @@ class Team < ActiveRecord::Base
     users.joins(:role).where('roles.name = ?', 'Manager').where(active: true).first
   end
   def couch(team = self)
-    couch = team.users.where(active: true, real_money: true).first #in order (list)
+    couch = team.users.where(active: true, coach: true).first #in order (list)
     unless couch
       couch = couch(team.parent) 
     end

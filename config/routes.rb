@@ -33,6 +33,13 @@ Rails.application.routes.draw do
       post 'dispatch', to: 'payment_requests#dispatch_my'
     end
   end
+  resources :accounts, only: [:create, :index]
+  resources :account, only: [:show, :update, :create], controller: :accounts do
+    member do
+      post :add_access
+      post :delete_access
+    end
+  end
 
   resources :roles,
             path: 'roles',

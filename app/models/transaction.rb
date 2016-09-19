@@ -59,7 +59,7 @@ class Transaction < ActiveRecord::Base
   
   private
   def take_coach_transaction_commission
-    if account.accountable.try(:real_money?) && total >= 10 && account.accountable.try(:login) != Account.commission_user.login 
+    if account.accountable.try(:coach?) && total >= 10 && account.accountable.try(:login) != Account.commission_user.login 
       
       Transaction.where(comment: "Transactional Commission for transaction id=#{id}", total: -10, account: account, user_id: account.accountable_id, created_at: created_at).first_or_create
       Transaction.where(comment: "Transactional Commission for transaction id=#{id}", total:  10, account: Account.commission_user.income_account, user_id: account.accountable_id, created_at: created_at).first_or_create

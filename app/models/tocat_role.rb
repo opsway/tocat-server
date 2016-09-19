@@ -50,7 +50,18 @@ class TocatRole < ActiveRecord::Base
     paths[:orders][:show] = :show_orders
     paths[:orders][:update] = :edit_orders
     paths[:orders][:destroy] = :destroy_orders
-
+    
+    #accounts
+    paths[:accounts] = {}
+    paths[:accounts][:new]     = :create_account
+    paths[:accounts][:index]   = :view_all_accounts
+    paths[:accounts][:show]    = :view_all_accounts
+    paths[:accounts][:new]     = :create_account
+    paths[:accounts][:edit]    = :edit_account
+    paths[:accounts][:update]  = :edit_account
+    paths[:accounts][:create]  = :create_account
+    paths[:accounts][:add_access]  = :edit_account
+    paths[:accounts][:delete_access]  = :edit_account
     #invoices
     paths[:invoices] = {}
     paths[:invoices][:create] = :create_invoices
@@ -163,6 +174,7 @@ class TocatRole < ActiveRecord::Base
   def self.permissions #load from config?
     data = {}
     data[:orders] = [:create_orders, :show_orders, :edit_orders, :destroy_orders, :complete_orders, :set_internal_orders, :remove_internal_orders, :show_commission, :update_commission]
+    data[:accounts] = [:create_account, :edit_account, :view_linked_accounts, :view_all_accounts]
     data[:invoices] = [:create_invoices, :show_invoices, :destroy_invoices, :paid_invoices]
     data[:issues] = [:modify_accepted, :modify_resolver, :modify_budgets, :show_budgets, :show_issues, :show_aggregated_info, :can_request_review, :can_review_task, :set_expenses, :remove_expenses]
     data[:transactions] = [:show_transactions, :create_transactions]
@@ -171,6 +183,7 @@ class TocatRole < ActiveRecord::Base
     data[:teams] = [:create_team, :update_team, :activate_team, :deactivate_team]
     data[:internal_payments] = [:view_transfers, :create_transfer]
     data[:external_payments] = [:create_payment_request, :edit_payment_request, :cancel_payment_request, :approve_payment_request, :reject_payment_request, :complete_payment_request, :dispatch_payment_request, :view_payment_requests, :salary_check_in, :pay_in_cash_bank]
+
     return data
   end
 

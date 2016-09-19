@@ -11,7 +11,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160822034643) do
+ActiveRecord::Schema.define(version: 20160911103616) do
+
+  create_table "account_accesses", force: :cascade do |t|
+    t.integer  "account_id", limit: 4
+    t.integer  "user_id",    limit: 4
+    t.datetime "created_at",           null: false
+    t.datetime "updated_at",           null: false
+  end
 
   create_table "accounts", force: :cascade do |t|
     t.string   "account_type",     limit: 255, null: false
@@ -19,6 +26,7 @@ ActiveRecord::Schema.define(version: 20160822034643) do
     t.datetime "updated_at"
     t.integer  "accountable_id",   limit: 4,   null: false
     t.string   "accountable_type", limit: 255, null: false
+    t.string   "name",             limit: 255
   end
 
   add_index "accounts", ["accountable_id"], name: "index_accounts_on_accountable_id", using: :btree
@@ -119,6 +127,13 @@ ActiveRecord::Schema.define(version: 20160822034643) do
     t.datetime "updated_at"
   end
 
+  create_table "settings", force: :cascade do |t|
+    t.string   "name",       limit: 255
+    t.text     "value",      limit: 65535
+    t.datetime "created_at",               null: false
+    t.datetime "updated_at",               null: false
+  end
+
   create_table "status_checks", force: :cascade do |t|
     t.datetime "start_run"
     t.datetime "finish_run"
@@ -210,16 +225,17 @@ ActiveRecord::Schema.define(version: 20160822034643) do
   add_index "transfer_requests", ["target_id"], name: "index_transfer_requests_on_target_id", using: :btree
 
   create_table "users", force: :cascade do |t|
-    t.string   "name",       limit: 255,                                         null: false
-    t.string   "login",      limit: 255,                                         null: false
-    t.integer  "team_id",    limit: 4,                                           null: false
-    t.decimal  "daily_rate",             precision: 5, scale: 2,                 null: false
+    t.string   "name",               limit: 255,                                         null: false
+    t.string   "login",              limit: 255,                                         null: false
+    t.integer  "team_id",            limit: 4,                                           null: false
+    t.decimal  "daily_rate",                     precision: 5, scale: 2,                 null: false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "role_id",    limit: 4,                                           null: false
-    t.boolean  "active",     limit: 1,                           default: true
-    t.boolean  "real_money", limit: 1,                           default: false
-    t.string   "email",      limit: 255
+    t.integer  "role_id",            limit: 4,                                           null: false
+    t.boolean  "active",             limit: 1,                           default: true
+    t.boolean  "coach",              limit: 1,                           default: false
+    t.string   "email",              limit: 255
+    t.integer  "default_account_id", limit: 4
   end
 
   add_index "users", ["role_id"], name: "index_users_on_role_id", using: :btree

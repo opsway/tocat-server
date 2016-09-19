@@ -1,6 +1,7 @@
 class User < ActiveRecord::Base
   include Accounts
   include PublicActivity::Common
+  has_many :account_access
   validates :name, presence: true
   validates :login, presence: true
   validates :daily_rate,
@@ -13,7 +14,7 @@ class User < ActiveRecord::Base
   validates :team_id, presence: true
   validates :role_id, presence: true
   validate :team_can_have_only_one_manager
-  validate :team_can_have_only_one_member_with_real_money
+  validate :team_can_have_only_one_member_coach
 
   has_many :transactions
   has_many :tasks
@@ -26,7 +27,7 @@ class User < ActiveRecord::Base
   before_save :normalize_data
   scope :all_active, ->{where(active: true)}
 
-  scoped_search on: [:name, :login, :email, :real_money]
+  scoped_search on: [:name, :login, :email, :coach]
   scoped_search in: :team, on: :name, rename: :team, only_explicit: true
   scoped_search in: :role, on: :name, rename: :role, only_explicit: true
   
@@ -65,9 +66,9 @@ class User < ActiveRecord::Base
   def team_can_have_only_one_manager
     errors.add 'Team', 'already have a manager' if self.role.try(:name) == 'Manager' && self.team.users.where.not(id: self.id).where(active: true, role_id: Role.managers.select(:id)).any? #TODO - fix 
   end
-  def team_can_have_only_one_member_with_real_money
-    if self.real_money
-      errors.add 'Team', 'already have a user with real money' if self.team.users.where.not(id: self.id).where(active: true, real_money: true).any?
+  def team_can_have_only_one_member_coach
+    if self.coach
+      errors.add 'Team', 'already have a user with real money' if self.team.users.where.not(id: self.id).where(active: true, coach: true).any?
     end
   end
 end

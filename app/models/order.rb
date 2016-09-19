@@ -99,15 +99,16 @@ class Order < ActiveRecord::Base
   def handle_completed
     self.transaction do
       couch = team.couch
-      unless team.manager.real_money?
+      unless team.manager.coach?
         team.manager.balance_account.transactions.create! total: invoiced_budget - task_orders.joins(:task).where("tasks.expenses = true").sum(:budget), comment: "Order ##{id} was completed"
       end
-      unless team.manager.real_money?
+      unless team.manager.coach?
         team.manager.balance_account.transactions.create! total: -(invoiced_budget * self.commission_coefficient), comment: "Order ##{id} was completed: Central Office fee"
       end
       unless self.internal_order?
         couch.income_account.transactions.create! total: invoiced_budget, comment: "Order ##{id} was completed"
         couch.income_account.transactions.create! total: - (invoiced_budget * couch.team.default_commission / 100.00), comment: "Order ##{id} was completed: Central Office fee"
+        #TODO
         Team.central_office.couch.income_account.transactions.create! total: invoiced_budget * couch.team.default_commission / 100.00, comment: "Order ##{id} was completed: Central Office fee"
       end
     end
@@ -430,7 +431,7 @@ class Order < ActiveRecord::Base
   end
   def current_user_is_in_team_for_internal
     if internal_order?
-      errors[:base] << "You are not allowed to set this order as Internal" if !User.current_user.try(:team).try(:all_children).try(:include?, self.team.id) || !User.current_user.try(:real_money)  
+      errors[:base] << "You are not allowed to set this order as Internal" if !User.current_user.try(:team).try(:all_children).try(:include?, self.team.id) || !User.current_user.try(:coach)  
     end
   end
 end
