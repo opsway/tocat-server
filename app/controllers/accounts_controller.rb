@@ -49,6 +49,10 @@ class AccountsController < ApplicationController
     AccountAccess.where(user_id: params[:user_id], account_id: params[:id]).delete_all
     render json: @account, location: @account
   end
+  def linked
+    @accounts = current_user.available_accounts
+    render json: @accounts
+  end
 
   private
     

@@ -10,6 +10,6 @@ class TeamShowSerializer < ActiveModel::Serializer
   end
 
   def income_account_state
-    object.income_account.balance.to_f
+    object.payroll_account.balance.to_f
   end
 end

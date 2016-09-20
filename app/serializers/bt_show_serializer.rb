@@ -8,7 +8,7 @@ class BtShowSerializer < ActiveModel::Serializer
     if object.source
       data = {}
       data[:id] = object.source.accountable_id
-      data[:name] = object.source.accountable.name
+      data[:name] = object.source.name
       data
     end
   end
@@ -16,7 +16,7 @@ class BtShowSerializer < ActiveModel::Serializer
     if object.target
       data = {}
       data[:id] = object.target.accountable_id
-      data[:name] = object.target.accountable.name
+      data[:name] = object.target.name
       data
     end
   end

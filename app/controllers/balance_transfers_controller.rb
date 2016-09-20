@@ -3,11 +3,11 @@ class BalanceTransfersController < ApplicationController
     @articles = BalanceTransfer.order(sort)
     if params[:source].present?
       user = User.find_by_login params[:source]
-      @articles = @articles.where(source_id: user.income_account.id)
+      @articles = @articles.where(source_id: user.payroll_account.id)
     end
     if params[:target].present?
       user = User.find_by_login params[:target]
-      @articles = @articles.where(target_id: user.income_account.id)
+      @articles = @articles.where(target_id: user.payroll_account.id)
     end
     paginate json: @articles, per_page: params[:limit]
   end
@@ -31,6 +31,6 @@ class BalanceTransfersController < ApplicationController
   
   private
   def transfer_params
-    params.require(:balance_transfer).permit(:total, :target_login, :description)
+    params.require(:balance_transfer).permit(:total, :target_login, :description, :source_id, :target_id)
   end
 end

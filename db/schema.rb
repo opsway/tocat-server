@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160911103616) do
+ActiveRecord::Schema.define(version: 20160920225952) do
 
   create_table "account_accesses", force: :cascade do |t|
     t.integer  "account_id", limit: 4
@@ -59,6 +59,8 @@ ActiveRecord::Schema.define(version: 20160911103616) do
     t.datetime "created_at",                        null: false
     t.datetime "updated_at",                        null: false
     t.string   "btype",                 limit: 255
+    t.integer  "target_account_id",     limit: 4
+    t.integer  "source_account_id",     limit: 4
   end
 
   create_table "db_errors", force: :cascade do |t|
@@ -112,6 +114,7 @@ ActiveRecord::Schema.define(version: 20160911103616) do
     t.boolean  "special",           limit: 1,     default: false
     t.integer  "salary_account_id", limit: 4
     t.boolean  "bonus",             limit: 1,     default: false
+    t.integer  "source_account_id", limit: 4
   end
 
   create_table "payment_requests_users", force: :cascade do |t|
@@ -217,8 +220,11 @@ ActiveRecord::Schema.define(version: 20160911103616) do
     t.text     "description",         limit: 65535
     t.float    "total",               limit: 24
     t.string   "state",               limit: 255
-    t.datetime "created_at",                        null: false
-    t.datetime "updated_at",                        null: false
+    t.datetime "created_at",                                        null: false
+    t.datetime "updated_at",                                        null: false
+    t.integer  "source_account_id",   limit: 4
+    t.integer  "target_account_id",   limit: 4
+    t.boolean  "payroll",             limit: 1,     default: false
   end
 
   add_index "transfer_requests", ["source_id"], name: "index_transfer_requests_on_source_id", using: :btree

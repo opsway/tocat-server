@@ -9,7 +9,7 @@ class TransactionSerializer < ActiveModel::Serializer
     {
       id: object.account.accountable_id,
       type: object.account.accountable.class.name.downcase,
-      name: object.account.accountable.name,
+      name: object.account.name.to_s + '-' + object.account.accountable.try(:name).to_s,
       href: "/#{object.account.accountable.class.name.downcase}/#{object.account.accountable_id}"
     }
   end

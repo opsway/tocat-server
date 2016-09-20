@@ -79,7 +79,7 @@ namespace :shiftplanning do
               #increase user income
               Transaction.create!(comment: "Salary for #{shift['start_timestamp'].to_time.strftime("%d/%m/%y")}",
                                   total: "#{user.daily_rate}",
-                                  account: user.income_account,
+                                  account: user.payroll_account,
                                   user_id: user.id)
 
               unless user.role.try(:name) == 'Manager'
@@ -124,9 +124,9 @@ namespace :shiftplanning do
 
   task :check_transactions  => :environment do
     User.all.each do |user|
-      if user.income_account.transactions.where(comment:"Salary for 14/04/15").count >= 2
+      if user.payroll_account.transactions.where(comment:"Salary for 14/04/15").count >= 2
         puts user.name
-        user.income_account.transactions.where(comment:"Salary for 14/04/15").first.destroy
+        user.payroll_account.transactions.where(comment:"Salary for 14/04/15").first.destroy
         user.balance_account.transactions.where(comment:"Salary for 14/04/15").first.destroy
         user.team.balance_account.transactions.where(comment:"Salary #{user.name} 14/04/15")
         # Transaction.create! comment: "This user has 2 salary for 14 of April. Balanse increased.",

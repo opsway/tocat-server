@@ -62,6 +62,7 @@ class TocatRole < ActiveRecord::Base
     paths[:accounts][:create]  = :create_account
     paths[:accounts][:add_access]  = :edit_account
     paths[:accounts][:delete_access]  = :edit_account
+    paths[:accounts][:linked]  = :view_linked_accounts
     #invoices
     paths[:invoices] = {}
     paths[:invoices][:create] = :create_invoices
@@ -151,7 +152,7 @@ class TocatRole < ActiveRecord::Base
     paths[:payment_requests] = {}
     paths[:payment_requests][:index] = :view_payment_requests
     #paths[:payment_requests][:create] = :create_transfer
-    paths[:payment_requests][:create] = :create_payment_requests
+    paths[:payment_requests][:create] = :create_payment_request
     paths[:payment_requests][:approve] = :approve_payment_request
     paths[:payment_requests][:cancel] = :cancel_payment_request
     paths[:payment_requests][:reject] = :reject_payment_request

@@ -15,7 +15,7 @@ class Transaction < ActiveRecord::Base
   scoped_search in: :account, on: :accountable_type, only_explicit: true
   scoped_search in: :user, on: :name, rename: :user, only_explicit: true
   
-  after_save :take_coach_transaction_commission
+  #after_save :take_transaction_commission
 
 
 

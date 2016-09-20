@@ -15,7 +15,8 @@ class UserShowSerializer < ActiveModel::Serializer
              :email,
              :income_account_state,
              :tocat_role_id,
-             :permissions
+             :permissions,
+             :all_accounts
            
 
   private
@@ -30,6 +31,14 @@ class UserShowSerializer < ActiveModel::Serializer
   
   def permissions
     object.tocat_role.try(:permissions) || []
+  end
+  
+  def all_accounts
+    data = []
+    object.accounts.each do |a|
+      data << {id: a.id, name: a.name, account_type: a.account_type, balance: a.balance}
+    end
+    data
   end
 
   def tocat_team
@@ -57,7 +66,7 @@ class UserShowSerializer < ActiveModel::Serializer
   def accounts
     data = {}
     data[:balance] = {id: object.balance_account.try(:id)}
-    data[:income] = {id: object.income_account.try(:id)}
+    data[:payroll] = {id: object.payroll_account.try(:id)}
     data
   end
 
@@ -66,6 +75,6 @@ class UserShowSerializer < ActiveModel::Serializer
   end
 
   def income_account_state
-    object.income_account.try(:balance).to_f
+    object.payroll_account.try(:balance).to_f
   end
 end

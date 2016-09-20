@@ -15,7 +15,7 @@ namespace :zoho do
           if transaction["Account"].split.last == 'Balance'
             account_ = user.balance_account
           else
-            account_ = user.income_account
+            account_ = user.payroll_account
           end
           account_.transactions.create!(comment: transaction['Comment'],
                                         total: transaction['Total'].split('$ ').last.gsub(',','').to_d,
@@ -39,7 +39,7 @@ namespace :zoho do
           if transaction["Account"].split.last == 'Balance'
             account_ = group.balance_account
           else
-            account_ = group.income_account
+            account_ = group.payroll_account
           end
           account_.transactions.create!(comment: transaction['Comment'],
                                         total: transaction['Total'].split('$ ').last.gsub(',','').to_d,

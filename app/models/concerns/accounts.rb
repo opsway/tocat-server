@@ -13,7 +13,7 @@ module Accounts
                   account_type: 'balance').first
   end
 
-  def income_account
+  def payroll_account
     Account.where(accountable_id: self.id,
                   accountable_type: self.class.name,
                   account_type: 'payroll').first

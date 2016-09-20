@@ -16,48 +16,27 @@ class PaymentRequestsController < ApplicationController
   def show
   end
   
-  def update
-    if @payment_request.new? && @payment_request.update(update_params)
-      render json: @payment_request, serializer: PaymentRequestSerializer
-    else
-      render json: error_builder(@payment_request), status: 406
-    end
-  end
-  
   def create
     @payment_request = PaymentRequest.new payment_params
-    if @payment_request.bonus?
-      Transaction.create!(comment: @payment_request.description.truncate(254),
-                          total: "#{@payment_request.total}",
-                          account: @payment_request.salary_account.accountable.income_account,
-                          user_id: @payment_request.salary_account.accountable.id)
-      @payment_request.id = 1
-      return render json: @payment_request, serializer: PaymentRequestSerializer
-    end
     if @payment_request.save
       render json: @payment_request, serializer: PaymentRequestSerializer
     else
+      p "can't save"
+      p @payment_request.errors
       render json: error_builder(@payment_request), status: 406
     end
   end
   
-  %w(approve cancel reject complete).each do |m|
+  %w(cancel complete).each do |m|
     define_method m do
       @payment_request.send "#{m}!"
     end
   end
   
-  def dispatch_my
-    @payment_request.target = User.find_by_email(params[:email])
-    @payment_request.dispatch!
-  end
   private
   
   def payment_params
-    payment_attr = params.require(:payment_request).permit(:total, :description, :currency)
-    if params[:payment_request][:special].present?
-      payment_attr.merge!({salary_account_id: params[:payment_request][:salary_account_id], special: true, bonus: params[:payment_request][:bonus]})
-    end
+    payment_attr = params.require(:payment_request).permit(:total, :description, :source_account_id)
     payment_attr
   end
   def update_params

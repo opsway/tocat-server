@@ -1,4 +1,4 @@
-class PaymentRequest < ActiveRecord::Base
+class PaymentRequest < ActiveRecord::Base # external payment
   include AASM
   include PublicActivity::Common
   
@@ -10,6 +10,7 @@ class PaymentRequest < ActiveRecord::Base
   belongs_to :source, class_name: User
   belongs_to :target, class_name: User
   belongs_to :salary_account, class_name: Account
+  belongs_to :source_account, class_name: Account
 
   #callbacks
   before_validation :set_source_user
@@ -24,41 +25,50 @@ class PaymentRequest < ActiveRecord::Base
                             greater_than: 0,
                             message: "Total of external payment should be greater than 0"
   validates :currency, inclusion: {in: %w(USD EUR UAH RUR KZT)}
-  
   validates :target, presence: true, if: Proc.new {|t| t.status == 'dispatched' }
   validates :currency, inclusion: {in: %w(USD )}, if: Proc.new{|t| t.special? }
-  validates :salary_account, presence: true, if: Proc.new{|t| t.special?}
+  after_create :make_transactions
+  validate :check_balance
+  after_initialize :set_currency
 
   
   aasm :column => 'status' do
     state :new, initial: true
-    state :approved, :dispatched, :canceled, :rejected, :completed
+    state :canceled, :completed
     
-    event :approve do
-      transitions :from => :new, :to => :approved, :guard => :approve_allowed?
-    end
-    event :cancel do
+    event :cancel, after: :make_back_transactions do
       transitions :from => :new, :to => :canceled, :guard => :cancel_allowed?
     end
     
-    event :complete, after: :process_special do
-      transitions :from => :dispatched, :to => :completed, :guard => :complete_allowed?
-    end
-    event :reject do
-      transitions :from => [:dispatched, :approved], :to => :rejected, :guard => :reject_allowed?
-    end
-    
-    event :dispatch do
-      transitions :from => :approved, :to => :dispatched, :guard => :dispatch_allowed?
+    event :complete do
+      transitions :from => :new, :to => :completed, :guard => :complete_allowed?
     end
   end
+
   def edit_allowed?
     return false unless new?
     return true if source_id == User.current_user.try(:id)
     return false unless User.current_user.try(:role).try(:manager?)
     User.current_user.try(:team).try(:all_children).try(:include?, self.source.team.id)
   end
+
   private 
+  def make_transactions
+    source_account.transactions.create(total: - (total + total*Setting.external_payment_commission/100.0), comment: "Pay external payment #{id}")
+    Account.find(Setting.finance_fund_account_id).transactions.create(total: total + total*Setting.external_payment_commission/100.0, comment: "Pay external payment #{id}")
+  end
+  def make_back_transactions
+    source_account.transactions.create(total: + (total + total*Setting.finance_commission/100.0), comment: "Cancel external payment #{id}")
+    Account.find(Setting.finance_fund_account_id).transactions.create(total: - (total + total*Setting.finance_commission/100.0), comment: "Cancel external payment #{id}")
+  end
+  
+  def check_balance
+    if source_account.balance <= (total + total*Setting.finance_commission/100.0) and !source.coach
+      errors[:base] << "Balance for external payment account is negative"
+      false
+    end
+  end
+  
   def dispatch_allowed?
     true
   end
@@ -71,10 +81,6 @@ class PaymentRequest < ActiveRecord::Base
     as_manager?
   end
   
-  def approve_allowed?
-    as_manager?
-  end
-
   def as_manager?
     return false unless User.current_user.try(:role).try(:manager?)
     User.current_user.try(:team).try(:all_children).try(:include?, self.source.team.id)
@@ -84,17 +90,6 @@ class PaymentRequest < ActiveRecord::Base
     true
   end
   
-  def process_special
-    if special?
-      unless bonus?
-        Transaction.create!(comment: "Paid in Cash/Bank",
-                            total: "-#{self.total}",
-                            account: salary_account,
-                            user_id: salary_account.accountable.id)
-      end
-    end
-  end
-
   def notify_all
     self.create_activity :status_change, parameters: {status: "Status changed to #{status}"}, owner: User.current_user
 
@@ -118,11 +113,18 @@ class PaymentRequest < ActiveRecord::Base
       rescue
       end
     end
+    if Rails.env.production?
+      ses.send_email subject: subj, from: 'TOCAT@opsway.com', to: Setting.finance_service_email, body_text: body
+    end
   end
   def set_source_user
     self.source ||= User.current_user
   end
   def add_current_user
     self.users << User.current_user unless self.user_ids.include?(User.current_user.id)
+  end
+  
+  def set_currency
+    self.currency ||= 'USD'
   end
 end

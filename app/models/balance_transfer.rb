@@ -1,4 +1,4 @@
-class BalanceTransfer < ActiveRecord::Base
+class BalanceTransfer < ActiveRecord::Base # internal payment
   include PublicActivity::Common
   belongs_to :source, class_name: Account
   belongs_to :target, class_name: Account
@@ -15,15 +15,13 @@ class BalanceTransfer < ActiveRecord::Base
   validates_numericality_of :total, 
                             greater_than: 0,
                             message: "Total of internal payment should be greater than 0"
-  before_validation :set_source_account
-  before_validation :set_target_account
   before_validation :set_date
   after_validation :create_transactions
   #scoped_search in: :source, on: :accountable_id, rename: :source
   #scoped_search in: :target, on: :accountable_id, rename: :target
   
   def as_json(options={})
-    additional_params = {source: source.try(:accountable).try(:name), target: target.try(:accountable).try(:name)}
+    additional_params = {source: source.try(:accountable).try(:name)||source.name, target: target.try(:accountable).try(:name)||target.name}
     self.attributes.merge additional_params
   end
 
@@ -31,14 +29,6 @@ class BalanceTransfer < ActiveRecord::Base
   
   def set_date
     self.created = Time.now
-  end
-  
-  def set_source_account
-    self.source ||= User.current_user.try(:income_account)
-  end
-
-  def set_target_account
-    self.target ||= User.find_by_login(target_login).try(:income_account)
   end
   
   def create_transactions

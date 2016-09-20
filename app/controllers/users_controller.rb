@@ -45,7 +45,7 @@ class UsersController < ApplicationController
   def salary_checkin
       Transaction.create!(comment: params[:comment].to_s.truncate(254),
                           total: params[:total],
-                          account: @user.income_account,
+                          account: @user.payroll_account,
                           user_id: @user.id)
       Transaction.create!(comment: params[:comment].to_s.truncate(254),
                           total: 0 - params[:total].to_f,

@@ -56,6 +56,12 @@ class User < ActiveRecord::Base
                       owner: User.current_user
     end
   end
+  def available_accounts
+    @accounts = [money_account]
+    @accounts += account_access.includes(:account).map(&:account)
+    @accounts
+  end
+
 
   private
 

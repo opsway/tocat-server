@@ -24,16 +24,15 @@ Rails.application.routes.draw do
   end
   
   resources :payment_requests, only: [:create, :index]
-  resources :payment_request, only: [:show, :update], controller: :payment_requests do
+  resources :payment_request, only: [:show], controller: :payment_requests do
     member do
-      post 'approve'
       post 'cancel'
-      post 'reject'
       post 'complete'
-      post 'dispatch', to: 'payment_requests#dispatch_my'
     end
   end
-  resources :accounts, only: [:create, :index]
+  resources :accounts, only: [:create, :index] do
+    get 'linked', on: :collection
+  end
   resources :account, only: [:show, :update, :create], controller: :accounts do
     member do
       post :add_access
