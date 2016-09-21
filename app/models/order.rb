@@ -120,15 +120,15 @@ class Order < ActiveRecord::Base
         Account.find(Setting.dividends_fund_account_id).transactions.create! total: invoiced_budget * Setting.dividends_commission / 100.00,
           comment: "Order ##{id} was completed: Dividends commission"
 
-        couch.income_account.transactions.create! total: - invoiced_budget * Setting.central_office_commission / 100.00,
+        couch.money_account.transactions.create! total: - invoiced_budget * Setting.central_office_commission / 100.00,
           comment: "Order ##{id} was completed: Central Office fee"
-        couch.income_account.transactions.create! total: - invoiced_budget * Setting.growth_commission / 100.00,
+        couch.money_account.transactions.create! total: - invoiced_budget * Setting.growth_commission / 100.00,
           comment: "Order ##{id} was completed: Growth commission"
-        couch.income_account.transactions.create! total: - invoiced_budget * Setting.finance_commission / 100.00,
+        couch.money_account.transactions.create! total: - invoiced_budget * Setting.finance_commission / 100.00,
           comment: "Order ##{id} was completed: Finance commission"
-        couch.income_account.transactions.create! total: - invoiced_budget * Setting.teams_commission / 100.00,
+        couch.money_account.transactions.create! total: - invoiced_budget * Setting.teams_commission / 100.00,
           comment: "Order ##{id} was completed: Teams commission"
-        couch.income_account.transactions.create! total: - invoiced_budget * Setting.dividends_commission / 100.00,
+        couch.money_account.transactions.create! total: - invoiced_budget * Setting.dividends_commission / 100.00,
           comment: "Order ##{id} was completed: Dividends commission"
       end
     end

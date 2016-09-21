@@ -54,12 +54,12 @@ class PaymentRequest < ActiveRecord::Base # external payment
 
   private 
   def make_transactions
-    source_account.transactions.create(total: - (total + total*Setting.external_payment_commission/100.0), comment: "Pay external payment #{id}")
-    Account.find(Setting.finance_fund_account_id).transactions.create(total: total + total*Setting.external_payment_commission/100.0, comment: "Pay external payment #{id}")
+    source_account.transactions.create(total: - (total + total*Setting.external_payment_commission/100.0), comment: "Pay external payment #{id}", not_take_transactions: true)
+    Account.find(Setting.finance_fund_account_id).transactions.create(total: total + total*Setting.external_payment_commission/100.0, comment: "Pay external payment #{id}", not_take_transactions: true)
   end
   def make_back_transactions
-    source_account.transactions.create(total: + (total + total*Setting.finance_commission/100.0), comment: "Cancel external payment #{id}")
-    Account.find(Setting.finance_fund_account_id).transactions.create(total: - (total + total*Setting.finance_commission/100.0), comment: "Cancel external payment #{id}")
+    source_account.transactions.create(total: + (total + total*Setting.finance_commission/100.0), comment: "Cancel external payment #{id}", not_take_transactions: true)
+    Account.find(Setting.finance_fund_account_id).transactions.create(total: - (total + total*Setting.finance_commission/100.0), comment: "Cancel external payment #{id}", not_take_transactions: true)
   end
   
   def check_balance

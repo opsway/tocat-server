@@ -147,15 +147,14 @@ class TocatRole < ActiveRecord::Base
     paths[:transfer_requests][:pay] = :create_transfer
     paths[:transfer_requests][:show] = :view_transfers
     paths[:transfer_requests][:destroy] = :create_transfer
+    paths[:transfer_requests][:withdraw] = :create_transfer
 
     #payment requests
     paths[:payment_requests] = {}
     paths[:payment_requests][:index] = :view_payment_requests
     #paths[:payment_requests][:create] = :create_transfer
     paths[:payment_requests][:create] = :create_payment_request
-    paths[:payment_requests][:approve] = :approve_payment_request
     paths[:payment_requests][:cancel] = :cancel_payment_request
-    paths[:payment_requests][:reject] = :reject_payment_request
     paths[:payment_requests][:complete] = :complete_payment_request
     paths[:payment_requests][:dispatch_my] = :dispatch_payment_request
     paths[:payment_requests][:show] = :view_payment_requests
