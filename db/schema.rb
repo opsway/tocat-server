@@ -11,21 +11,22 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160921140535) do
+ActiveRecord::Schema.define(version: 20160921192752) do
 
   create_table "account_accesses", force: :cascade do |t|
     t.integer  "account_id", limit: 4
     t.integer  "user_id",    limit: 4
-    t.datetime "created_at",           null: false
-    t.datetime "updated_at",           null: false
+    t.datetime "created_at",                           null: false
+    t.datetime "updated_at",                           null: false
+    t.boolean  "default",    limit: 1, default: false
   end
 
   create_table "accounts", force: :cascade do |t|
-    t.string   "account_type",     limit: 255, null: false
+    t.string   "account_type",     limit: 255,              null: false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "accountable_id",   limit: 4,   null: false
-    t.string   "accountable_type", limit: 255, null: false
+    t.integer  "accountable_id",   limit: 4,   default: 0,  null: false
+    t.string   "accountable_type", limit: 255, default: "", null: false
     t.string   "name",             limit: 255
   end
 

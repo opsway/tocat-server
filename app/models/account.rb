@@ -4,11 +4,10 @@ class Account < ActiveRecord::Base
   #validates :accountable_id, presence: true #TODO - maybe remove it
 
   validate :check_account_type
-  validate :check_accounts_amount
 
   scoped_search on: [:name, :account_type]
 
-  before_save :set_name, if: :new_record?
+  before_save :set_name
   before_save :normalize_account_type
 
   belongs_to :accountable, polymorphic: true
@@ -49,14 +48,12 @@ class Account < ActiveRecord::Base
     end
   end
 
-  def check_accounts_amount
-    return unless accountable_id && accountable_type.present?
-    amount = Account.where(accountable_id: accountable_id,
-                           accountable_type: accountable.class.name)
-                    .length
-    errors[:base] << '2 accounts for this parent already exists.' if (amount >= 3)
-  end
+
   def set_name
-    self.name ||= "#{accountable.try(:name)} #{account_type}"
+    if self.accountable
+      self.name ||= "#{accountable.try(:name)}"
+    else
+      self.name ||= account_accesses.first.try(:user).try(:name)
+    end
   end
 end

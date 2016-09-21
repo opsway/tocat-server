@@ -8,7 +8,7 @@ module Accounts
   end
 
   def balance_account
-    Account.where(accountable_id: self.id,
+    AccountAccess.where(accountable_id: self.id,
                   accountable_type: self.class.name,
                   account_type: 'balance').first
   end
@@ -29,9 +29,6 @@ module Accounts
   def create_accounts
     self.accounts.create! account_type: 'balance'
     self.accounts.create! account_type: 'payroll'
-    money = self.accounts.create! account_type: 'money'
-    self.default_account_id = money.id
-    self.save
   end
 
   def destroy_accounts

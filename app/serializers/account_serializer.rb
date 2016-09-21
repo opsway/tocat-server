@@ -18,7 +18,7 @@ class AccountSerializer < ActiveModel::Serializer
   def access
     data = []
     object.account_accesses.each do |a|
-      data << {id: a.user_id, name: a.user.name}
+      data << {id: a.user_id, name: a.user.name, default: a.default}
     end
     data
   end

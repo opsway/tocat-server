@@ -24,7 +24,7 @@ class TransferRequest < ActiveRecord::Base # internal invoice
   before_save :create_balance_transfer, if: Proc.new {|tr| tr.state_changed? && tr.state == 'paid' }
   
   def as_json(options = {})
-    additional_params = { source: source_account.try(:name), target: target_account.try(:name) }
+    additional_params = { source: source_account.try(:name)||source.try(:name), target: target_account.try(:name)||target.try(:name) }
     self.attributes.merge additional_params
   end
 

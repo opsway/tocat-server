@@ -2,12 +2,12 @@ class BalanceTransfersController < ApplicationController
   def index
     @articles = BalanceTransfer.order(sort)
     if params[:source].present?
-      user = User.find_by_login params[:source]
-      @articles = @articles.where(source_id: user.payroll_account.id)
+      account = Account.find params[:source]
+      @articles = @articles.where(source_id: account.id)
     end
     if params[:target].present?
-      user = User.find_by_login params[:target]
-      @articles = @articles.where(target_id: user.payroll_account.id)
+      account = Account.find params[:target]
+      @articles = @articles.where(target_id: account.id)
     end
     paginate json: @articles, per_page: params[:limit]
   end

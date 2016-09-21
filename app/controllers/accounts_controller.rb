@@ -1,6 +1,6 @@
 class AccountsController < ApplicationController
   def index
-    @accounts = Account.search_for(params[:search])
+    @accounts = Account.search_for(params[:search]).order('name asc')
     paginate json: @accounts, per_page: params[:limit]
   end
 
@@ -39,8 +39,15 @@ class AccountsController < ApplicationController
   def add_access
     @account = Account.find(params[:id])
     @user = User.find params[:user_id]
-    @account.account_accesses.find_or_create_by account: @account, user: @user 
-    render json: @account, location: @account
+    @access = AccountAccess.find_or_create_by account: @account, user: @user
+    if params[:default].present?
+      @access.default = true
+    end
+    if @access.save
+      render json: @account, location: @account
+    else
+      render json: error_builder(@access), status: 406
+    end
   end
   
   def delete_access

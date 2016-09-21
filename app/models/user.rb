@@ -1,7 +1,7 @@
 class User < ActiveRecord::Base
-  include Accounts
   include PublicActivity::Common
   has_many :account_access
+  has_many :accounts, through: :account_access
   validates :name, presence: true
   validates :login, presence: true
   validates :daily_rate,
@@ -57,13 +57,37 @@ class User < ActiveRecord::Base
     end
   end
   def available_accounts
-    @accounts = [money_account]
-    @accounts += account_access.includes(:account).map(&:account)
+    @accounts =  [money_account]
+    @accounts += Account.where(account_type: 'money').joins(:account_accesses).where('account_accesses.default = false and user_id = ?', id).to_a
     @accounts
   end
 
+  def default_account(account_type)
+    Account.where(account_type: account_type).joins(:account_accesses).where('account_accesses.default = true and user_id = ?', id).first
+  end
+
+  def payroll_account
+    default_account 'payroll'
+  end
+
+  def money_account
+    default_account 'money'
+  end
+  
+  def balance_account
+    default_account 'balance'
+  end
+  after_create :create_accounts
 
   private
+
+  def create_accounts
+    self.accounts.create! account_type: 'balance'
+    self.accounts.create! account_type: 'payroll'
+    self.accounts.create! account_type: 'money'
+    account_access.update_all(default: true)
+    self.accounts.map(&:save)
+  end
 
   def normalize_data
     self.login = self.login.downcase

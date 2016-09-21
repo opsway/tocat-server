@@ -8,7 +8,7 @@ class Transaction < ActiveRecord::Base
   belongs_to :user
   belongs_to :team
   belongs_to :account
-  attr_accessor :not_take_transaction
+  attr_accessor :not_take_transactions
   
   def special_accounts
     Setting.where("name like '%account_id'").pluck(:value).map(:to_i)
@@ -63,7 +63,7 @@ class Transaction < ActiveRecord::Base
   # end
   
   private
-  def take_coach_transaction_commission
+  def take_transaction_commission
     return true if not_take_transactions
     if account.accountable.try(:coach?) && total >= Setting.transactional_commission && !account_id.in?(special_accounts)
       

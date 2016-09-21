@@ -21,7 +21,7 @@ class BalanceTransfer < ActiveRecord::Base # internal payment
   #scoped_search in: :target, on: :accountable_id, rename: :target
   
   def as_json(options={})
-    additional_params = {source: source.try(:accountable).try(:name)||source.name, target: target.try(:accountable).try(:name)||target.name}
+    additional_params = {source: source.try(:accountable).try(:name)||source.try(:name), target: target.try(:accountable).try(:name)||target.try(:name)}
     self.attributes.merge additional_params
   end
 
