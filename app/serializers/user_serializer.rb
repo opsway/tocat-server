@@ -1,7 +1,7 @@
 class UserSerializer < ActiveModel::Serializer
   include Rails.application.routes.url_helpers
 
-  attributes :id, :name, :login, :tocat_team, :tocat_server_role, :links, :balance_account_state, :income_account_state, :active, :daily_rate, :coach, :email, :tocat_role_id
+  attributes :id, :name, :login, :tocat_team, :tocat_server_role, :links, :balance_account_state, :income_account_state, :active, :daily_rate, :coach, :email, :tocat_role_id, :all_accounts
 
   private
 
@@ -37,5 +37,13 @@ class UserSerializer < ActiveModel::Serializer
 
   def income_account_state
     object.payroll_account.try(:balance).try(:to_f)
+  end
+
+  def all_accounts
+    data = []
+    object.account_access.where(default: true).map(&:account).each do |a|
+      data << {id: a.id, name: a.name, account_type: a.account_type, balance: a.balance}
+    end
+    data
   end
 end
