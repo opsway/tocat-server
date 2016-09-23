@@ -86,7 +86,9 @@ class TransferRequest < ActiveRecord::Base # internal invoice
     subject = "New internal invoice from #{target.name}"
     body = "Hello,\n You have new internal invoice: http://#{host}/tocat/internal_invoices/#{id} \n From: #{target.name}\n Total: #{total}\n Description: #{description}\n Yours sincerely,\n TOCAT"
     if Rails.env.production?
-      ses.send_email subject: subject, from: 'TOCAT@opsway.com', to: source.email, body_text: body
+      source_account.account_accesses.map(&:user).each do |u|
+        ses.send_email subject: subject, from: 'TOCAT@opsway.com', to: u.email, body_text: body
+      end
     end
   end
   def   send_notification_paid

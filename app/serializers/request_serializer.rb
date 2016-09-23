@@ -5,18 +5,18 @@ class RequestSerializer < ActiveModel::Serializer
   #belongs_to :target
   private
   def source
-    if object.source_account
+    if object.source_account || object.source
       data = {}
-      data[:id] = object.source_account.id
-      data[:name] = object.source_account.name
+      data[:id] = object.source_account.try :id
+      data[:name] = object.source_account.try(:name) || source.try(:name)
       data
     end
   end
   def target
-    if object.target_account
+    if object.target_account || object.target
       data = {}
-      data[:id] = object.target_account.id
-      data[:name] = object.target_account.name
+      data[:id] = object.target_account.try :id
+      data[:name] = object.target_account.try(:name) || object.target.try(:name)
       data
     end
   end

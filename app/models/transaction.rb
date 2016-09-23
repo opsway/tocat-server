@@ -10,8 +10,8 @@ class Transaction < ActiveRecord::Base
   belongs_to :account
   attr_accessor :not_take_transactions
   
-  def special_accounts
-    Setting.where("name like '%account_id'").pluck(:value).map(:to_i)
+  def self.special_accounts
+    Setting.where("name like '%account_id'").pluck(:value).map(&:to_i)
   end
 
   scoped_search on: [:comment, :created_at]
@@ -64,8 +64,8 @@ class Transaction < ActiveRecord::Base
   
   private
   def take_transaction_commission
-    return true if not_take_transactions
-    if account.accountable.try(:coach?) && total >= Setting.transactional_commission && !account_id.in?(special_accounts)
+    return true if not_take_transactions #TODO - how to take commission?
+    if account.accountable.try(:coach?) && total >= Setting.transactional_commission && !account_id.in?(Transaction.special_accounts)
       
       Transaction.where(comment: "Transactional Commission for transaction id=#{id}", total: - Setting.transactional_commission, account: account, user_id: account.accountable_id, created_at: created_at).first_or_create
       Transaction.where(comment: "Transactional Commission for transaction id=#{id}", total:  Setting.transactional_commission, account: Account.find(Setting.transaction_account_id), user_id: account.accountable_id, created_at: created_at).first_or_create
