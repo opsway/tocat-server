@@ -42,6 +42,10 @@ class TransferRequest < ActiveRecord::Base # internal invoice
   end
 
   def create_balance_transfer
+    if target.payroll_account.balance < total
+      errors[:base] << "Payroll amount of user account < invoice total"
+      return false
+    end
     a = {
          total: total,
          description: description.truncate(255),
@@ -51,6 +55,9 @@ class TransferRequest < ActiveRecord::Base # internal invoice
         }
     bt = BalanceTransfer.create a
     self.balance_transfer = bt
+    if bt.persisted? && payroll
+      target.payroll_account.transactions.create(total: -total, comment: description.truncate(255))
+    end
     return bt.persisted?
   end
   

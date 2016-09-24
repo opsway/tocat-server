@@ -37,11 +37,16 @@ class TransferRequestsController < ApplicationController
     if account.id == current_user.payroll_account.id
       coach = current_user.team.couch
       total = account.balance
-      source_id = couch.id
+      source_id = coach.id
       description = "Withdraw account #{account.name} #{Date.current}"
-      target_account_id = account.id
-      source_account_id = coach.money_account
-      target_account_id = current_user.money_account
+      source_account_id = coach.money_account.id
+      target_account_id = current_user.money_account.id
+      p '?'
+      p '?'
+      p source_account_id
+      p target_account_id
+      p '?'
+      p '?'
       @tr = TransferRequest.new(total: total, 
                                 source_id: source_id, 
                                 description: description, 
@@ -56,6 +61,7 @@ class TransferRequestsController < ApplicationController
         render json: @tr, serializer: RequestSerializer
 
       else
+        p @tr.errors
         render json: error_builder(@tr), status: 406
       end
     else

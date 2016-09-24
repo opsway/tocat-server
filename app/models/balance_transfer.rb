@@ -4,19 +4,17 @@ class BalanceTransfer < ActiveRecord::Base # internal payment
   belongs_to :target, class_name: Account
   belongs_to :target_transaction, class_name: Transaction
   belongs_to :source_transaction, class_name: Transaction
-  validates :description, :total ,:presence => true
+  validates :description, :total, :source_id, :target_id, :presence => true
  
-  validates :source_id, presence: true
-  validates :target_id, presence: true
-
   validates :description, length: { maximum: 250 }
   attr_accessor :target_login
+  validate :account_balance_with_transaction_commission
 
   validates_numericality_of :total, 
                             greater_than: 0,
                             message: "Total of internal payment should be greater than 0"
   before_validation :set_date
-  after_validation :create_transactions
+  before_save :create_transactions
   #scoped_search in: :source, on: :accountable_id, rename: :source
   #scoped_search in: :target, on: :accountable_id, rename: :target
   
@@ -26,6 +24,12 @@ class BalanceTransfer < ActiveRecord::Base # internal payment
   end
 
   private
+  
+  def account_balance_with_transaction_commission
+    if source.balance + Setting.transactional_commission < total
+      errors[:base] << 'Account do not have anough money'
+    end
+  end
   
   def set_date
     self.created = Time.now
