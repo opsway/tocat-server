@@ -28,6 +28,7 @@ class TransferRequestsController < ApplicationController
         owner: User.current_user
       render json: @tr, serializer: RequestSerializer
    else
+     p @tr.errors
       render json: error_builder(@tr), status: 406
    end
   end
@@ -41,12 +42,6 @@ class TransferRequestsController < ApplicationController
       description = "Withdraw account #{account.name} #{Date.current}"
       source_account_id = coach.money_account.id
       target_account_id = current_user.money_account.id
-      p '?'
-      p '?'
-      p source_account_id
-      p target_account_id
-      p '?'
-      p '?'
       @tr = TransferRequest.new(total: total, 
                                 source_id: source_id, 
                                 description: description, 

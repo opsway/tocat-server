@@ -64,6 +64,6 @@ class AccountsController < ApplicationController
   private
     
   def account_params
-    params.require(:account).permit(:name, :accountable_id, :account_type)
+    params.require(:account).permit(:name, :accountable_id, :account_type, :pay_comission)
   end
 end
