@@ -1,5 +1,5 @@
 class AccountSerializer < ActiveModel::Serializer
-  attributes :id, :name, :balance, :access
+  attributes :id, :name, :balance, :access,:pay_comission
 
   private
 
