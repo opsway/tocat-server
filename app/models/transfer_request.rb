@@ -57,6 +57,8 @@ class TransferRequest < ActiveRecord::Base # internal invoice
     self.balance_transfer = bt
     if bt.persisted? && payroll
       target.payroll_account.transactions.create(total: -total, comment: description.truncate(255))
+    else
+      errors[:base] << bt.errors.full_messages.join(', ')
     end
     return bt.persisted?
   end

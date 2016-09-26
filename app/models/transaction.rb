@@ -71,4 +71,5 @@ class Transaction < ActiveRecord::Base
       Transaction.where(comment: "Transactional Commission for transaction id=#{id}", total:  Setting.transactional_commission, account: Account.find(Setting.transaction_account_id), user_id: account.accountable_id, created_at: created_at).first_or_create
     end
   end
+  true
 end
