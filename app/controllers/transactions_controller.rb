@@ -3,7 +3,7 @@ class TransactionsController < ApplicationController
 
   def index
     transactions = Transaction.includes(:account).search_for(params[:search])
-    if params[:user].present?
+    if params[:account].present?
       transactions = transactions.user(params[:user])
     elsif params[:team].present?
       transactions = transactions.team(params[:team])

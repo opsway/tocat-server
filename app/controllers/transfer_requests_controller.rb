@@ -39,7 +39,7 @@ class TransferRequestsController < ApplicationController
       coach = current_user.team.couch
       total = account.balance
       source_id = coach.id
-      description = "Withdraw account #{account.name} #{Date.current}"
+      description = "Withdraw from #{account.name} account #{Date.current}"
       source_account_id = coach.money_account.id
       target_account_id = current_user.money_account.id
       @tr = TransferRequest.new(total: total, 
@@ -53,7 +53,7 @@ class TransferRequestsController < ApplicationController
         @tr.create_activity :pay,
           parameters: { total: @tr.total },
           owner: User.current_user
-        render json: @tr, serializer: RequestSerializer
+        render json: {name: coach.name}
 
       else
         p @tr.errors
