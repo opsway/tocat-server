@@ -4,7 +4,12 @@ class PaymentRequestsController < ApplicationController
   helper_method :sort
 
   def index
-    @articles = PaymentRequest.search_for(params[:search]).order(sort)
+    if User.current_user.tocat_allowed_to?(:view_all_transfer_requests)
+      @articles = PaymentRequest.search_for(params[:search]).order(sort)
+    else
+      account_ids = AccountAccess.where(user_id: User.current_user).select(:account_id)
+      @articles = PaymentRequest.search_for(params[:search]).where(source_account_id: account_ids).order(sort)
+    end
     if params[:source].present?
       source = User.find_by_email(params[:source])
       @articles = @articles.where(source_id: source.try(:id)) 

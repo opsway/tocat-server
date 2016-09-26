@@ -58,7 +58,7 @@ class User < ActiveRecord::Base
   end
   def available_accounts
     @accounts =  [money_account]
-    @accounts += Account.where(account_type: 'money').joins(:account_accesses).where('account_accesses.default = false and user_id = ?', id).to_a
+    @accounts += Account.joins(:account_accesses).where('account_accesses.default = false and user_id = ?', id).to_a
     @accounts
   end
 

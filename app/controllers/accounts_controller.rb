@@ -11,6 +11,10 @@ class AccountsController < ApplicationController
 
     render json: @account
   end
+  def all
+    accounts = Account.where(account_type: 'money').order('name asc')
+    return render json: accounts.map{|a| {name: a.name, id: a.id}}
+  end
 
   # POST /accounts
   # POST /accounts.json

@@ -2,7 +2,7 @@ class TasksController < ApplicationController
   before_action :set_task, except: [:index, :create]
 
   def index
-    @articles = Task.includes(:task_orders).includes(:user).search_for(params[:search]).order(sort)
+    @articles = Task.includes(:orders).includes(:user).search_for(params[:search]).order(sort)
     paginate json: @articles, per_page: params[:limit]
   end
 

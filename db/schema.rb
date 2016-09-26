@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160926050957) do
+ActiveRecord::Schema.define(version: 20160926170538) do
 
   create_table "account_accesses", force: :cascade do |t|
     t.integer  "account_id", limit: 4
@@ -227,6 +227,7 @@ ActiveRecord::Schema.define(version: 20160926050957) do
     t.integer  "source_account_id",   limit: 4
     t.integer  "target_account_id",   limit: 4
     t.boolean  "payroll",             limit: 1,     default: false
+    t.integer  "payroll_account_id",  limit: 4
   end
 
   add_index "transfer_requests", ["source_id"], name: "index_transfer_requests_on_source_id", using: :btree

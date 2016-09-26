@@ -1,6 +1,12 @@
 class BalanceTransfersController < ApplicationController
   def index
-    @articles = BalanceTransfer.order(sort)
+
+    if User.current_user.tocat_allowed_to?(:view_all_payment_requests)
+      @articles =  BalanceTransfer.order(sort)
+    else
+      account_ids = AccountAccess.where(user_id: User.current_user).select(:account_id)
+      @articles =  BalanceTransfer.order(sort).where("source_id in (?) or target_id in (?) ", account_ids, account_ids)
+    end
     if params[:source].present?
       account = Account.find params[:source]
       @articles = @articles.where(source_id: account.id)

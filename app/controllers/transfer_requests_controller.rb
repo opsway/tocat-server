@@ -1,7 +1,13 @@
 class TransferRequestsController < ApplicationController
   before_action :find_request, only: [:show, :update, :destroy, :pay]
   def index
-    @articles = TransferRequest.order(sort)
+    @articles =
+      if User.current_user.tocat_allowed_to?(:view_all_payment_requests)
+        TransferRequest.order(sort)
+      else
+        account_ids = AccountAccess.where(user_id: User.current_user).select(:account_id)
+        TransferRequest.order(sort).where("source_account_id in (?) or target_account_id in (?) or payroll_account_id in (?)", account_ids, account_ids, account_ids)
+      end
     if params[:source].present?
       user = User.find params[:source]
       @articles = @articles.where(source_id: user.id)
@@ -35,7 +41,7 @@ class TransferRequestsController < ApplicationController
   
   def withdraw
     account = Account.find(params[:account_id])
-    if account.id == current_user.payroll_account.id
+    if account.id.in? current_user.account_access.map(&:account_id)
       coach = current_user.team.couch
       total = account.balance
       source_id = coach.id
@@ -47,7 +53,7 @@ class TransferRequestsController < ApplicationController
                                 description: description, 
                                 target_account_id: target_account_id, 
                                 source_account_id: source_account_id, 
-                                target_account_id: target_account_id, 
+                                payroll_account_id: account.id,
                                 payroll: true)
       if @tr.save
         @tr.create_activity :pay,

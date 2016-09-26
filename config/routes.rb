@@ -34,6 +34,7 @@ Rails.application.routes.draw do
   end
   resources :accounts, only: [:create, :index] do
     get 'linked', on: :collection
+    get 'all', on: :collection
   end
   resources :account, only: [:show, :update, :create], controller: :accounts do
     member do

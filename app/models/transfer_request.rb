@@ -4,6 +4,7 @@ class TransferRequest < ActiveRecord::Base # internal invoice
   belongs_to :target, class_name: User
   belongs_to :target_account, class_name: Account
   belongs_to :source_account, class_name: Account
+  belongs_to :payroll_account, class_name: Account
 
   belongs_to :balance_transfer
   validates :description, :total, presence: true
@@ -42,7 +43,7 @@ class TransferRequest < ActiveRecord::Base # internal invoice
   end
 
   def create_balance_transfer
-    if target.payroll_account.balance < total
+    if payroll_account.balance < total
       errors[:base] << "Payroll amount of user account < invoice total"
       return false
     end
@@ -56,7 +57,7 @@ class TransferRequest < ActiveRecord::Base # internal invoice
     bt = BalanceTransfer.create a
     self.balance_transfer = bt
     if bt.persisted? && payroll
-      target.payroll_account.transactions.create(total: -total, comment: description.truncate(255))
+      payroll_account.transactions.create(total: -total, comment: description.truncate(255))
     else
       errors[:base] << bt.errors.full_messages.join(', ')
     end
