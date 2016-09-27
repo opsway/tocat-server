@@ -70,7 +70,7 @@ namespace :shiftplanning do
           salary_logger.info "#{user.name} has new shift record!" if debug
           salary_logger.info "Processing it..." if debug
           begin
-            unless user.real_money?
+            unless user.coach?
               #decrease user balance
               Transaction.create!(comment: "Salary for #{shift['start_timestamp'].to_time.strftime("%d/%m/%y")}",
                                   total: "-#{user.daily_rate}",
