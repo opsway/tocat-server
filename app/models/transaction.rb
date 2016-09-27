@@ -64,8 +64,8 @@ class Transaction < ActiveRecord::Base
   
   private
   def take_transaction_commission
-    return true if not_take_transactions #TODO - how to take commission?
-    if account.pay_comission && total >= Setting.transactional_commission
+    return true if not_take_transactions 
+    if account.pay_comission && total >= Setting.transactional_commission && account.money_account?
       
       Transaction.where(comment: "Transactional Commission for transaction id=#{id}", total: - Setting.transactional_commission, account: account, user_id: account.accountable_id, created_at: created_at).first_or_create
       Transaction.where(comment: "Transactional Commission for transaction id=#{id}", total:  Setting.transactional_commission, account: Account.find(Setting.transaction_account_id), user_id: account.accountable_id, created_at: created_at).first_or_create

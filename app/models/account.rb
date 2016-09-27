@@ -28,6 +28,10 @@ class Account < ActiveRecord::Base
     account_type == 'payroll'
   end
   
+  def money_account?
+    account_type == 'money'
+  end
+  
   def self.commission_user
     Rails.cache.fetch(expires_in: 1.minute) do
       User.find_by_login Rails.application.secrets[:tocat_manager]
