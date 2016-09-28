@@ -1,6 +1,6 @@
 class PaymentRequestSerializer < ActiveModel::Serializer
   include Rails.application.routes.url_helpers
-  attributes :id, :source, :target, :salary_account, :special, :description, :total, :currency, :created_at, :updated_at, :links, :history, :status
+  attributes :id, :source, :target, :source_account, :special, :description, :total, :currency, :created_at, :updated_at, :links, :history, :status
   
   def links
     data = {}
@@ -36,13 +36,10 @@ class PaymentRequestSerializer < ActiveModel::Serializer
     end
   end
   
-  def salary_account
-    if object.special && object.salary_account
-      data = {}
-      data[:name] = object.salary_account.accountable.name
-      data[:user_id] = object.salary_account.accountable.id
-      data[:id] = object.salary_account.id
-    end
+  def source_account
+    data = {}
+    data[:name] = object.source_account.try(:name)  || object.source.try(:name)
+    data[:id] = object.source_account.try :id
     data
   end
 end

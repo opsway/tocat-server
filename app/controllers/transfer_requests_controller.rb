@@ -9,12 +9,10 @@ class TransferRequestsController < ApplicationController
         TransferRequest.order(sort).where("source_account_id in (?) or target_account_id in (?) or payroll_account_id in (?)", account_ids, account_ids, account_ids)
       end
     if params[:source].present?
-      user = User.find params[:source]
-      @articles = @articles.where(source_id: user.id)
+      @articles = @articles.where(source_account_id: params[:source])
     end
     if params[:target].present?
-      user = User.find params[:target]
-      @articles = @articles.where(target_id: user.id)
+      @articles = @articles.where(target_account_id: params[:target])
     end
     if params[:state].present?
       @articles = @articles.where(state: params[:state])
@@ -34,7 +32,6 @@ class TransferRequestsController < ApplicationController
         owner: User.current_user
       render json: @tr, serializer: RequestSerializer
    else
-     p @tr.errors
       render json: error_builder(@tr), status: 406
    end
   end

@@ -12,7 +12,7 @@ class AccountsController < ApplicationController
     render json: @account
   end
   def all
-    accounts = Account.where(account_type: 'money').order('name asc')
+    accounts = Account.where(account_type: 'money').joins(:account_accesses => :user).where('users.active = true').order('name asc').select('distinct(accounts.id),accounts.name')
     return render json: accounts.map{|a| {name: a.name, id: a.id}}
   end
 

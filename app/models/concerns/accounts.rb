@@ -8,7 +8,7 @@ module Accounts
   end
 
   def balance_account
-    AccountAccess.where(accountable_id: self.id,
+    Account.where(accountable_id: self.id,
                   accountable_type: self.class.name,
                   account_type: 'balance').first
   end

@@ -43,7 +43,7 @@ class TransferRequest < ActiveRecord::Base # internal invoice
   end
 
   def create_balance_transfer
-    if payroll_account.balance < total
+    if payroll_account && payroll_account.balance < total
       errors[:base] << "Payroll amount of user account < invoice total"
       return false
     end

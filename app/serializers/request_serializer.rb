@@ -8,7 +8,7 @@ class RequestSerializer < ActiveModel::Serializer
     if object.source_account || object.source
       data = {}
       data[:id] = object.source_account.try :id
-      data[:name] = object.source_account.try(:name) || source.try(:name)
+      data[:name] = object.source_account.try(:name) || object.source.try(:name)
       data
     end
   end

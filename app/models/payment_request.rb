@@ -54,17 +54,21 @@ class PaymentRequest < ActiveRecord::Base # external payment
 
   private 
   def make_transactions
-    source_account.transactions.create(total: - (total + total*Setting.external_payment_commission/100.0), comment: "External payment #{id}", not_take_transactions: true)
-    Account.find(Setting.finance_fund_account_id).transactions.create(total: total + total*Setting.external_payment_commission/100.0, comment: "External payment #{id}", not_take_transactions: true)
+    commission = total*Setting.external_payment_commission/100.0
+    commission = 5.0 if commission < 5
+    source_account.transactions.create(total: - (total + commission), comment: "External payment #{id}", not_take_transactions: true)
+    Account.find(Setting.finance_fund_account_id).transactions.create(total: total + commission, comment: "External payment #{id}", not_take_transactions: true)
   end
   def make_back_transactions
-    source_account.transactions.create(total: + (total + total*Setting.finance_commission/100.0), comment: "Cancel external payment #{id}", not_take_transactions: true)
-    Account.find(Setting.finance_fund_account_id).transactions.create(total: - (total + total*Setting.finance_commission/100.0), comment: "Cancel external payment #{id}", not_take_transactions: true)
+    commission = total*Setting.external_payment_commission/100.0
+    commission = 5.0 if commission < 5
+    source_account.transactions.create(total: + (total + commission), comment: "Cancel external payment #{id}", not_take_transactions: true)
+    Account.find(Setting.finance_fund_account_id).transactions.create(total: - (total + commission), comment: "Cancel external payment #{id}", not_take_transactions: true)
   end
   
   def check_balance
     if source_account.balance <= (total + total*Setting.finance_commission/100.0) and !source.coach
-      errors[:base] << "Balance for external payment account is negative"
+      errors[:base] << "You can not pay more than you have (including External Payment Comission)"
       false
     end
   end
@@ -77,6 +81,7 @@ class PaymentRequest < ActiveRecord::Base # external payment
   end
   
   def cancel_allowed?
+    return false unless User.current_user.account_access.where(account_id: source_account.id).any?
     return true if source_id == User.current_user.try(:id)
     as_manager?
   end
@@ -87,6 +92,7 @@ class PaymentRequest < ActiveRecord::Base # external payment
   end
   
   def complete_allowed?
+    return false unless User.current_user.account_access.where(account_id: source_account.id).any?
     true
   end
   

@@ -11,8 +11,10 @@ class PaymentRequestsController < ApplicationController
       @articles = PaymentRequest.search_for(params[:search]).where(source_account_id: account_ids).order(sort)
     end
     if params[:source].present?
-      source = User.find_by_email(params[:source])
-      @articles = @articles.where(source_id: source.try(:id)) 
+      @articles = @articles.where(source_account_id: params[:source]) 
+    end
+    if params[:created_by].present?
+      @articles = @articles.where(source_id: params[:created_by]) 
     end
     @articles = @articles.where status: params[:status] if params[:status].present?
     paginate json: @articles, per_page: params[:limit]
