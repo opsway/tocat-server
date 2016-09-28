@@ -124,11 +124,11 @@ class Task < ActiveRecord::Base
   def create_transactions(owner, team, total, message)
     owner_balance_was = owner.balance_account.balance
     team_balance_was = team.balance_account.balance
-    team_income_was = team.income_account.balance
+    team_income_was = team.payroll_account.balance
 
     owner.balance_account.transactions.create!(total: total, comment: message, user_id: owner.id)
     team.balance_account.transactions.create!(total: total, comment: message, user_id: owner.id)
-    team.income_account.transactions.create!(total: total, comment: message, user_id: owner.id)
+    team.payroll_account.transactions.create!(total: total, comment: message, user_id: owner.id)
 
     create_balance_update_activity(
       type: 'balance', recipient: owner,
@@ -140,7 +140,7 @@ class Task < ActiveRecord::Base
       message: message)
     create_balance_update_activity(
       type: 'payment', recipient: team,
-      old: team_income_was, new: team.income_account.balance,
+      old: team_income_was, new: team.payroll_account.balance,
       message: message)
   end
 
