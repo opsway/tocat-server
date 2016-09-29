@@ -109,27 +109,38 @@ class Order < ActiveRecord::Base
         couch.money_account.transactions.create! total: invoiced_budget, comment: "Order ##{id} was completed"
         #couch.income_account.transactions.create! total: - (invoiced_budget * couch.team.default_commission / 100.00), comment: "Order ##{id} was completed: Central Office fee"
         #TODO
-        Account.find(Setting.central_office_account_id).transactions.create! total: invoiced_budget * Setting.central_office_commission / 100.00,
-          comment: "Order ##{id} was completed: Central Office fee"
-        Account.find(Setting.growth_fund_account_id).transactions.create! total: invoiced_budget * Setting.growth_commission / 100.00,
-          comment: "Order ##{id} was completed: Growth commission"
-        Account.find(Setting.finance_fund_account_id).transactions.create! total: invoiced_budget * Setting.finance_commission / 100.00,
-          comment: "Order ##{id} was completed: Finance commission"
-        Account.find(Setting.teams_fund_account_id).transactions.create! total: invoiced_budget * Setting.teams_commission / 100.00,
-          comment: "Order ##{id} was completed: Teams commission"
-        Account.find(Setting.dividends_fund_account_id).transactions.create! total: invoiced_budget * Setting.dividends_commission / 100.00,
-          comment: "Order ##{id} was completed: Dividends commission"
+        if Setting.central_office_commission > 0
+          Account.find(Setting.central_office_account_id).transactions.create! total: invoiced_budget * Setting.central_office_commission / 100.00,
+            comment: "Order ##{id} was completed: Central Office fee"
+          couch.money_account.transactions.create! total: - invoiced_budget * Setting.central_office_commission / 100.00,
+            comment: "Order ##{id} was completed: Central Office fee"
+        end
 
-        couch.money_account.transactions.create! total: - invoiced_budget * Setting.central_office_commission / 100.00,
-          comment: "Order ##{id} was completed: Central Office fee"
-        couch.money_account.transactions.create! total: - invoiced_budget * Setting.growth_commission / 100.00,
-          comment: "Order ##{id} was completed: Growth commission"
-        couch.money_account.transactions.create! total: - invoiced_budget * Setting.finance_commission / 100.00,
-          comment: "Order ##{id} was completed: Finance commission"
-        couch.money_account.transactions.create! total: - invoiced_budget * Setting.teams_commission / 100.00,
-          comment: "Order ##{id} was completed: Teams commission"
-        couch.money_account.transactions.create! total: - invoiced_budget * Setting.dividends_commission / 100.00,
-          comment: "Order ##{id} was completed: Dividends commission"
+        if Setting.growth_commission > 0
+          Account.find(Setting.growth_fund_account_id).transactions.create! total: invoiced_budget * Setting.growth_commission / 100.00,
+            comment: "Order ##{id} was completed: Growth commission"
+          couch.money_account.transactions.create! total: - invoiced_budget * Setting.growth_commission / 100.00,
+            comment: "Order ##{id} was completed: Growth commission"
+        end
+
+        if Setting.finance_commission > 0
+          Account.find(Setting.finance_fund_account_id).transactions.create! total: invoiced_budget * Setting.finance_commission / 100.00,
+            comment: "Order ##{id} was completed: Finance commission"
+          couch.money_account.transactions.create! total: - invoiced_budget * Setting.finance_commission / 100.00,
+            comment: "Order ##{id} was completed: Finance commission"
+        end
+        if Setting.teams_commission > 0
+          Account.find(Setting.teams_fund_account_id).transactions.create! total: invoiced_budget * Setting.teams_commission / 100.00,
+            comment: "Order ##{id} was completed: Teams commission"
+          couch.money_account.transactions.create! total: - invoiced_budget * Setting.teams_commission / 100.00,
+            comment: "Order ##{id} was completed: Teams commission"
+        end
+        if Setting.dividends_commission > 0
+          Account.find(Setting.dividends_fund_account_id).transactions.create! total: invoiced_budget * Setting.dividends_commission / 100.00,
+            comment: "Order ##{id} was completed: Dividends commission"
+          couch.money_account.transactions.create! total: - invoiced_budget * Setting.dividends_commission / 100.00,
+            comment: "Order ##{id} was completed: Dividends commission"
+        end
       end
     end
   end
