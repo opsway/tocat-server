@@ -26,8 +26,11 @@ class BalanceTransfer < ActiveRecord::Base # internal payment
   private
   
   def account_balance_with_transaction_commission
-    if total + Setting.transactional_commission > source.balance && !User.current_user.coach
+    if total > source.balance && !User.current_user.coach
       errors[:base] << 'You can not pay more that you have (including Transaction Commission)'
+    end
+    if !User.current_user.coach && target.pay_comission && total >= Setting.transactional_micropayment && target.balance + total < Setting.transactional_commission
+      errors[:base] << "Target account can't receive money"
     end
   end
   
