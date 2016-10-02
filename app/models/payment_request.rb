@@ -67,7 +67,8 @@ class PaymentRequest < ActiveRecord::Base # external payment
   end
   
   def check_balance
-    if source_account.balance <= (total + total*Setting.finance_commission/100.0) and !source.coach
+    commission = [5.0, total.to_f*Setting.finance_commission/100.0].max
+    if source_account.balance <= (total.to_f + commission) and !source.coach
       errors[:base] << "You can not pay more than you have (including External Payment Comission)"
       false
     end

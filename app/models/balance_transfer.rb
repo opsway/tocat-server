@@ -26,7 +26,7 @@ class BalanceTransfer < ActiveRecord::Base # internal payment
   private
   
   def account_balance_with_transaction_commission
-    if source.balance + Setting.transactional_commission < total && !User.current_user.coach
+    if total + Setting.transactional_commission > source.balance && !User.current_user.coach
       errors[:base] << 'Account do not have anough money'
     end
   end
