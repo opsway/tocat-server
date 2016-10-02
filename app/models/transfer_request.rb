@@ -43,7 +43,7 @@ class TransferRequest < ActiveRecord::Base # internal invoice
   end
 
   def create_balance_transfer
-    if payroll_account && payroll_account.balance < total
+    if payroll_account && payroll_account.balance < total && !User.current_user.coach?
       errors[:base] << "Can not process request, as From: account has less than requested sum"
       return false
     end
