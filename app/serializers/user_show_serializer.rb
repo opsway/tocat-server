@@ -35,8 +35,8 @@ class UserShowSerializer < ActiveModel::Serializer
   
   def all_accounts
     data = []
-    object.account_access.where(default: true).map(&:account).each do |a|
-      data << {id: a.id, name: a.name, account_type: a.account_type, balance: a.balance}
+    object.account_access.includes(:account).each do |a|
+      data << {id: a.account.id, name: a.account.name, account_type: a.account.account_type, balance: a.account.balance, default: a.default}
     end
     data
   end

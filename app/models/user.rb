@@ -47,7 +47,7 @@ class User < ActiveRecord::Base
 
   def add_payment(comment, total)
     self.transaction do
-      income_account.transactions.create! total: -total.to_i,
+      payroll_account.transactions.create! total: -total.to_i,
                                           comment: comment,
                                           user_id: id
       create_activity key: 'user.add_payment',
