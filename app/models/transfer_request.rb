@@ -19,10 +19,12 @@ class TransferRequest < ActiveRecord::Base # internal invoice
   validates_numericality_of :total, 
                             greater_than: 0,
                             message: "Total of internal invoice should be greater than 0"
-  validates :state, inclusion: {in: %w(new paid) }
+  validates :state, inclusion: {in: %w(new paid canceled) }
   validate :check_state, if: Proc.new{|t| t.persisted? }
   validate :check_target, if: Proc.new{|t| t.persisted? }
   before_save :create_balance_transfer, if: Proc.new {|tr| tr.state_changed? && tr.state == 'paid' }
+  before_save :create_payroll_transfer, if: Proc.new {|tr| tr.new_record? && tr.payroll? }
+  before_destroy :return_money_to_payroll, if: Proc.new {|tr| tr.payroll?}
   
   def as_json(options = {})
     additional_params = { source: source_account.try(:name)||source.try(:name), target: target_account.try(:name)||target.try(:name) }
@@ -41,12 +43,23 @@ class TransferRequest < ActiveRecord::Base # internal invoice
       false
     end
   end
-
-  def create_balance_transfer
+  
+  def create_payroll_transfer
     if payroll_account && payroll_account.balance < total && !User.current_user.coach?
       errors[:base] << "Can not process request, as From: account has less than requested sum"
       return false
     end
+    if payroll?
+      payroll_account.transactions.create(total: -total, comment: description.truncate(255))
+    else
+      errors[:base] << bt.errors.full_messages.join(', ')
+    end
+  end
+  def return_money_to_payroll
+    payroll_account.transactions.create(total: total, comment: "return withdraw #{description}".truncate(255))
+  end
+
+  def create_balance_transfer
     a = {
          total: total,
          description: description.truncate(255),
@@ -56,9 +69,7 @@ class TransferRequest < ActiveRecord::Base # internal invoice
         }
     bt = BalanceTransfer.create a
     self.balance_transfer = bt
-    if bt.persisted? && payroll
-      payroll_account.transactions.create(total: -total, comment: description.truncate(255))
-    else
+    unless bt.persisted?
       errors[:base] << bt.errors.full_messages.join(', ')
     end
     return bt.persisted?
