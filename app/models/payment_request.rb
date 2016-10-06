@@ -93,7 +93,7 @@ class PaymentRequest < ActiveRecord::Base # external payment
   end
   
   def complete_allowed?
-    return false unless User.current_user.account_access.where(account_id: source_account.id).any?
+    #return false unless User.current_user.account_access.where(account_id: source_account.id).any?
     true
   end
   
