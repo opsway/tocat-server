@@ -109,12 +109,12 @@ class TocatRole < ActiveRecord::Base
     paths[:users][:create] = :create_user
     paths[:users][:destroy] = :deactivate_user
     paths[:users][:add_payment] = :create_transactions
-    paths[:users][:salary_checkin] = :salary_check_in
+    paths[:users][:salary_checkin] = :correct_balance_salary_check
     paths[:users][:set_role] = :is_admin
     paths[:users][:show] = :show_issues
     paths[:users][:update] = :update_user
     paths[:users][:makeactive] = :activate_user #TODO - rewrite method
-    paths[:users][:correction] = :correct_balance
+    paths[:users][:correction] = :correct_balance_salary_check
 
     #teams
     paths[:teams] = {}
@@ -180,10 +180,10 @@ class TocatRole < ActiveRecord::Base
     data[:issues] = [:modify_accepted, :modify_resolver, :modify_budgets, :show_budgets, :show_issues, :show_aggregated_info, :can_request_review, :can_review_task, :set_expenses, :remove_expenses]
     data[:transactions] = [:show_transactions, :create_transactions]
     data[:dashboard] = [:show_tocat_page, :has_protected_page, :can_see_public_pages, :is_admin, :show_status_page, :mark_alerts_as_checked, :show_activity_feed]
-    data[:users] = [:create_user, :update_user, :activate_user, :deactivate_user, :correct_balance]
+    data[:users] = [:create_user, :update_user, :activate_user, :deactivate_user, :correct_balance_salary_check]
     data[:teams] = [:create_team, :update_team, :activate_team, :deactivate_team]
     data[:internal_payments] = [:view_transfers, :create_transfer,:view_all_transfers]
-    data[:external_payments] = [:create_payment_request, :edit_payment_request, :cancel_payment_request, :approve_payment_request, :reject_payment_request, :complete_payment_request, :dispatch_payment_request, :view_payment_requests, :salary_check_in, :pay_in_cash_bank, :view_all_payment_requests]
+    data[:external_payments] = [:create_payment_request, :edit_payment_request, :cancel_payment_request, :approve_payment_request, :reject_payment_request, :complete_payment_request, :dispatch_payment_request, :view_payment_requests, :correct_balance_salary_check, :pay_in_cash_bank, :view_all_payment_requests]
 
     return data
   end
