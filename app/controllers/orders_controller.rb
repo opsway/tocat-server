@@ -144,6 +144,30 @@ class OrdersController < ApplicationController
     end
   end
 
+  def set_reseller
+    if @order.update_attributes(reseller: true)
+      @order.create_activity :reseller_update,
+                               parameters: { old: !@order.reseller,
+                                             new: @order.reseller },
+                               owner: User.current_user
+      render json: {}, status: 200
+    else
+      render json: error_builder(@order), status: :unprocessable_entity
+    end
+  end
+
+  def delete_reseller
+    if @order.update_attributes(reseller: false)
+      @order.create_activity :reseller_update,
+                               parameters: { old: !@order.reseller,
+                                             new: @order.reseller },
+                               owner: User.current_user
+      render json: {}, status: 200
+    else
+      render json: error_builder(@order), status: :unprocessable_entity
+    end
+  end
+
   def available_for_invoice
     orders = Queries::Orders::AvailableForInvoice.call(
       limit: 1000

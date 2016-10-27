@@ -9,6 +9,7 @@ class OrderShowSerializer < ActiveModel::Serializer
              :description,
              :paid,
              :completed,
+             :reseller,
              :internal_order,
              :parent_order,
              :parent_id,
