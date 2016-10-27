@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161002161133) do
+ActiveRecord::Schema.define(version: 20161025130959) do
 
   create_table "account_accesses", force: :cascade do |t|
     t.integer  "account_id", limit: 4
@@ -98,6 +98,7 @@ ActiveRecord::Schema.define(version: 20161002161133) do
     t.boolean  "completed",          limit: 1,                              default: false
     t.boolean  "internal_order",     limit: 1,                              default: false
     t.integer  "commission",         limit: 4
+    t.boolean  "reseller",           limit: 1,                              default: false
   end
 
   add_index "orders", ["invoice_id"], name: "index_orders_on_invoice_id", using: :btree

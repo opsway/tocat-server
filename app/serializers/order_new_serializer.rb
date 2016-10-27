@@ -10,6 +10,7 @@ class OrderNewSerializer < ActiveModel::Serializer
              :paid,
              :completed,
              :internal_order,
+             :reseller,
              :team,
              :invoice,
              :commission

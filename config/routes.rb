@@ -61,6 +61,8 @@ Rails.application.routes.draw do
     post 'invoice', to: 'orders#set_invoice', as: 'set_invoice', format: 'json'
     delete 'invoice', to: 'orders#delete_invoice', as: 'delete_invoice', format: 'json'
     post 'complete', to: 'orders#set_completed', as: 'set_completed', format: 'json'
+    post 'reseller', to: 'orders#set_reseller', as: 'order_set_reseller', format: 'json'
+    delete 'reseller', to: 'orders#delete_reseller', as: 'order_remove_reseller', format: 'json'
     get 'budget', to: 'orders#budgets', format: 'json'
 
   end
