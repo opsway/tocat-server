@@ -28,7 +28,7 @@ class PaymentRequest < ActiveRecord::Base # external payment
   validates :target, presence: true, if: Proc.new {|t| t.status == 'dispatched' }
   validates :currency, inclusion: {in: %w(USD )}, if: Proc.new{|t| t.special? }
   after_create :make_transactions
-  validate :check_balance
+  before_create :check_balance
   after_initialize :set_currency
 
   
