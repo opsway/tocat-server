@@ -27,7 +27,7 @@ class User < ActiveRecord::Base
   before_save :normalize_data
   scope :all_active, ->{where(active: true)}
 
-  scoped_search on: [:name, :login, :email, :coach]
+  scoped_search on: [:name, :login, :email, :coach, :active]
   scoped_search in: :team, on: :name, rename: :team, only_explicit: true
   scoped_search in: :role, on: :name, rename: :role, only_explicit: true
   
