@@ -40,7 +40,7 @@ class PaymentRequest < ActiveRecord::Base # external payment
       transitions :from => :new, :to => :canceled, :guard => :cancel_allowed?
     end
     
-    event :complete, after: :make_complete_transaction do
+    event :complete do
       transitions :from => :new, :to => :completed, :guard => :complete_allowed?
     end
   end
@@ -65,10 +65,6 @@ class PaymentRequest < ActiveRecord::Base # external payment
     commission = 5.0 if commission < 5
     source_account.transactions.create(total: + (total + commission), comment: "Cancel external payment #{id}", not_take_transactions: true)
     Account.find(Setting.finance_fund_account_id).transactions.create(total: - (total + commission), comment: "Cancel external payment #{id}", not_take_transactions: true)
-  end
-
-  def make_complete_transaction
-    Account.find(Setting.finance_fund_account_id).transactions.create(total: - total, comment: "Complete external payment #{id}", not_take_transactions: true)
   end
   
   def check_balance
