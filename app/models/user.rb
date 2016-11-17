@@ -77,14 +77,15 @@ class User < ActiveRecord::Base
   def balance_account
     default_account 'balance'
   end
+  
   after_create :create_accounts
 
   private
 
   def create_accounts
-    self.accounts.create! account_type: 'balance'
-    self.accounts.create! account_type: 'payroll'
-    self.accounts.create! account_type: 'money'
+    self.accounts.create! account_type: 'balance', name: name, accountable_id: id, accountable_type: 'User'
+    self.accounts.create! account_type: 'payroll', name: name, accountable_id: id, accountable_type: 'User'
+    self.accounts.create! account_type: 'money', name: name, accountable_id: id, accountable_type: 'User'
     account_access.update_all(default: true)
     self.accounts.map(&:save)
   end
