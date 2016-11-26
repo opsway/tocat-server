@@ -15,7 +15,6 @@ class BalanceTransfer < ActiveRecord::Base # internal payment
                             message: "Total of internal payment should be greater than 0"
   before_validation :set_date
   before_save :create_transactions
-  after_save :send_notification
   #scoped_search in: :source, on: :accountable_id, rename: :source
   #scoped_search in: :target, on: :accountable_id, rename: :target
   
@@ -43,21 +42,5 @@ class BalanceTransfer < ActiveRecord::Base # internal payment
     comment = "Balance transfer:  #{self.description}".truncate 255 # TODO - transaction comment should be not more 255 symbols
     self.source_transaction = source.transactions.create! total: -total, comment: comment
     self.target_transaction = target.transactions.create! total: total, comment: comment
-  end
-
-  def send_notification
-    AWS.config :access_key_id => Settings.aws_access_key_id, :secret_access_key => Settings.awss_secret_access_key
-    ses = AWS::SimpleEmailService.new(
-                                      :access_key_id => Settings.aws_access_key_id,
-                                      :secret_access_key => Settings.aws_secret_access_key)
-    host = Settings.email_host
-    
-    subject = "New internal payment from #{source.name}"
-    body = "Hello,\n You have new internal payment: http://#{host}/tocat/internal_payments/#{id} \n From: #{target.name}\n Total: #{total}\n Description: #{description}\n Yours sincerely,\n TOCAT"
-    if Rails.env.production?
-      source_account.account_accesses.map(&:user).each do |u|
-        ses.send_email subject: subject, from: 'TOCAT@opsway.com', to: u.email, body_text: body
-      end
-    end
   end
 end
