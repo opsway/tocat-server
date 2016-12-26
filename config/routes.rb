@@ -1,6 +1,7 @@
 #  FIXME refactor this!!!
 
 Rails.application.routes.draw do
+
   get 'acl' => 'acl#acl', defaults: {format: 'json'}
 
   get 'activity/index'
@@ -135,7 +136,7 @@ Rails.application.routes.draw do
             path: 'task',
             controller: 'tasks',
             defaults: { format: 'json' },
-            only: [:show] do
+            only: [:show, :destroy] do
 
     post 'expenses', to: 'tasks#set_expenses', as: 'set_expenses', format: 'json'
     delete 'expenses', to: 'tasks#delete_expenses', as: 'delete_expenses', format: 'json'

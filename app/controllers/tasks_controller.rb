@@ -20,6 +20,14 @@ class TasksController < ApplicationController
     end
   end
 
+  def destroy
+    if @task.destroy
+      render json: {}, status: 200
+    else
+      render json: error_builder(@task), status: 406
+    end
+  end
+
   def handle_review_request
     if @task.review_requested != request.post? && @task.update_attributes(review_requested: request.post?)
       @task.create_activity :review_updated,
