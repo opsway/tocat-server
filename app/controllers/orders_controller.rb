@@ -168,6 +168,16 @@ class OrdersController < ApplicationController
     end
   end
 
+  def delete_task
+    @task_order = @order.task_orders.find_by_task_id(params[:task_id])
+    if @task_order.present?
+      @task_order.destroy
+      render json: {}, status: 200
+    else
+      render json: {errors: 'Task not found'}, status: :unprocessable_entity
+    end
+  end
+
   def available_for_invoice
     orders = Queries::Orders::AvailableForInvoice.call(
       limit: 1000

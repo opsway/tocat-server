@@ -12,7 +12,7 @@ class Task < ActiveRecord::Base
            after_add: [:increase_budget],
            before_remove: [:decrease_budget]
 
-  has_many :orders, through: :task_orders, dependent: :destroy
+  has_many :orders, through: :task_orders
 
   before_save :handle_balance_after_changing_resolver, if: proc { |o| o.paid && o.accepted && o.user_id_changed? }
   before_save :handle_balance_after_changing_paid_status, if: proc { |o| (o.accepted_changed? || o.paid_changed?) && o.user_id.present? }

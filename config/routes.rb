@@ -65,7 +65,7 @@ Rails.application.routes.draw do
     post 'reseller', to: 'orders#set_reseller', as: 'order_set_reseller', format: 'json'
     delete 'reseller', to: 'orders#delete_reseller', as: 'order_remove_reseller', format: 'json'
     get 'budget', to: 'orders#budgets', format: 'json'
-
+    delete 'delete_task', to: 'orders#delete_task', as: 'order_delete_task', format: 'json'
   end
 
   #activity
@@ -136,7 +136,7 @@ Rails.application.routes.draw do
             path: 'task',
             controller: 'tasks',
             defaults: { format: 'json' },
-            only: [:show, :destroy] do
+            only: [:show] do
 
     post 'expenses', to: 'tasks#set_expenses', as: 'set_expenses', format: 'json'
     delete 'expenses', to: 'tasks#delete_expenses', as: 'delete_expenses', format: 'json'
