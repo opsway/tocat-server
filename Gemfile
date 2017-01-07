@@ -23,6 +23,10 @@ gem 'google-api-client', '0.9'
 gem 'aws-sdk', '~> 1'
 gem 'whenever'
 gem 'aasm'
+gem 'carrierwave', '~> 1.0'
+gem 'fog-aws'
+gem 'fog'
+gem 'carrierwave-base64'
 
 
 group :development do
