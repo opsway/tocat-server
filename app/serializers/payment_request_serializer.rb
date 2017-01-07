@@ -1,6 +1,7 @@
 class PaymentRequestSerializer < ActiveModel::Serializer
   include Rails.application.routes.url_helpers
-  attributes :id, :source, :target, :source_account, :special, :description, :total, :currency, :created_at, :updated_at, :links, :history, :status
+  attributes :id, :source, :target, :source_account, :special, :description, :total, :currency, :created_at,
+             :updated_at, :links, :history, :status, :file_name, :file_url
   
   def links
     data = {}
@@ -41,5 +42,13 @@ class PaymentRequestSerializer < ActiveModel::Serializer
     data[:name] = object.source_account.try(:name)  || object.source.try(:name)
     data[:id] = object.source_account.try :id
     data
+  end
+
+  def file_name
+    object[:file]
+  end
+
+  def file_url
+    object.file.present? ? object.file.url : nil
   end
 end

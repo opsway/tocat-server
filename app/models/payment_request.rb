@@ -1,7 +1,11 @@
 class PaymentRequest < ActiveRecord::Base # external payment
   include AASM
   include PublicActivity::Common
-  
+
+  mount_base64_uploader :file, FileUploader
+
+  attr_accessor :file_name
+
   #scoped search
   scoped_search on: :status
   

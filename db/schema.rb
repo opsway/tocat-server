@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161025130959) do
+ActiveRecord::Schema.define(version: 20170103165435) do
 
   create_table "account_accesses", force: :cascade do |t|
     t.integer  "account_id", limit: 4
@@ -118,6 +118,8 @@ ActiveRecord::Schema.define(version: 20161025130959) do
     t.integer  "salary_account_id", limit: 4
     t.boolean  "bonus",             limit: 1,     default: false
     t.integer  "source_account_id", limit: 4
+    t.string   "attachments",       limit: 255
+    t.string   "file",              limit: 255
   end
 
   create_table "payment_requests_users", force: :cascade do |t|

@@ -43,7 +43,7 @@ class PaymentRequestsController < ApplicationController
   private
   
   def payment_params
-    payment_attr = params.require(:payment_request).permit(:total, :description, :source_account_id)
+    payment_attr = params.require(:payment_request).permit(:total, :description, :source_account_id, :file, :file_name)
     payment_attr
   end
   def update_params
