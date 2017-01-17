@@ -23,7 +23,7 @@ class PaymentRequest < ActiveRecord::Base # external payment
   
   #validations
   validates :source, :total, :description, presence: true
-  validates :description, :length => { maximum: 250 }
+  validates :description, :length => { maximum: 1000 }
 
   validates_numericality_of :total, 
                             greater_than: 0,
