@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170103165435) do
+ActiveRecord::Schema.define(version: 20170117141717) do
 
   create_table "account_accesses", force: :cascade do |t|
     t.integer  "account_id", limit: 4
@@ -54,12 +54,12 @@ ActiveRecord::Schema.define(version: 20170103165435) do
     t.float    "total",                 limit: 24
     t.integer  "source_id",             limit: 4
     t.integer  "target_id",             limit: 4
-    t.string   "description",           limit: 255
+    t.text     "description",           limit: 65535
     t.datetime "created"
     t.integer  "source_transaction_id", limit: 4
     t.integer  "target_transaction_id", limit: 4
-    t.datetime "created_at",                        null: false
-    t.datetime "updated_at",                        null: false
+    t.datetime "created_at",                          null: false
+    t.datetime "updated_at",                          null: false
     t.string   "btype",                 limit: 255
     t.integer  "target_account_id",     limit: 4
     t.integer  "source_account_id",     limit: 4

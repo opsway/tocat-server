@@ -9,7 +9,7 @@ class TransferRequest < ActiveRecord::Base # internal invoice
   belongs_to :balance_transfer
   validates :description, :total, presence: true
   validates :source_account_id, :target_account_id, presence: true
-  validates :description, :length => { maximum: 250 }
+  validates :description, :length => { maximum: 1000 }
   before_destroy :check_state_paid
   after_save :send_notification, unless: Proc.new { |t| t.state == 'paid' }
   after_save :send_notification_paid, if: Proc.new { |t| t.state == 'paid' }

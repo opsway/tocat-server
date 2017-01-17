@@ -6,7 +6,7 @@ class BalanceTransfer < ActiveRecord::Base # internal payment
   belongs_to :source_transaction, class_name: Transaction
   validates :description, :total, :source_id, :target_id, :presence => true
  
-  validates :description, length: { maximum: 250 }
+  validates :description, length: { maximum: 1000 }
   attr_accessor :target_login
   validate :account_balance_with_transaction_commission
 
