@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170117141717) do
+ActiveRecord::Schema.define(version: 20170220154318) do
 
   create_table "account_accesses", force: :cascade do |t|
     t.integer  "account_id", limit: 4
@@ -109,14 +109,14 @@ ActiveRecord::Schema.define(version: 20170117141717) do
     t.integer  "target_id",         limit: 4
     t.integer  "source_id",         limit: 4
     t.text     "description",       limit: 65535
-    t.float    "total",             limit: 24
+    t.decimal  "total",                           precision: 15, scale: 2
     t.string   "currency",          limit: 255
     t.string   "status",            limit: 255
-    t.datetime "created_at",                                      null: false
-    t.datetime "updated_at",                                      null: false
-    t.boolean  "special",           limit: 1,     default: false
+    t.datetime "created_at",                                                               null: false
+    t.datetime "updated_at",                                                               null: false
+    t.boolean  "special",           limit: 1,                              default: false
     t.integer  "salary_account_id", limit: 4
-    t.boolean  "bonus",             limit: 1,     default: false
+    t.boolean  "bonus",             limit: 1,                              default: false
     t.integer  "source_account_id", limit: 4
     t.string   "attachments",       limit: 255
     t.string   "file",              limit: 255
@@ -206,12 +206,13 @@ ActiveRecord::Schema.define(version: 20170117141717) do
   end
 
   create_table "transactions", force: :cascade do |t|
-    t.decimal  "total",                  precision: 10, scale: 2, null: false
-    t.string   "comment",    limit: 255,                          null: false
-    t.integer  "account_id", limit: 4,                            null: false
-    t.integer  "user_id",    limit: 4
+    t.decimal  "total",                          precision: 15, scale: 2, null: false
+    t.string   "comment",            limit: 255,                          null: false
+    t.integer  "account_id",         limit: 4,                            null: false
+    t.integer  "user_id",            limit: 4
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "payment_request_id", limit: 4
   end
 
   add_index "transactions", ["account_id"], name: "index_transactions_on_account_id", using: :btree
