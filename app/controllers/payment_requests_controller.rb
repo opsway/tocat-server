@@ -1,5 +1,5 @@
 class PaymentRequestsController < ApplicationController
-  before_filter :find_request, except: [:index, :create]
+  before_filter :find_request, except: [:index, :create, :pay_in_full]
   around_filter :process_errors, except: [:index, :create, :update]
   helper_method :sort
 
@@ -39,9 +39,30 @@ class PaymentRequestsController < ApplicationController
       @payment_request.send "#{m}!"
     end
   end
+
+  def pay_in_full
+    account = Account.find(params[:account_id])
+    if account.id.in? current_user.account_access.map(&:account_id)
+      total_calc = account.balance
+      total = account.balance < 500 ? total_calc - 5.0 : total_calc - (total_calc*Setting.external_payment_commission/100.0)
+      p total.to_s
+      source_id = current_user.id
+      source_account_id = current_user.money_account.id
+      description = "Salary pay in full from #{account.name} account #{Date.current}"
+      @pay_full = PaymentRequest.new(source_id: source_id,
+                               description: description,
+                               source_account_id: source_account_id,
+                               total: total)
+      if @pay_full.save
+        render json: {name: current_user.name}
+      else
+        render json: error_builder(@pay_full), status: 406
+      end
+    end
+  end
   
   private
-  
+
   def payment_params
     payment_attr = params.require(:payment_request).permit(:total, :description, :source_account_id, :file, :file_name)
     payment_attr
