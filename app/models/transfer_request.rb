@@ -68,6 +68,7 @@ class TransferRequest < ActiveRecord::Base # internal invoice
          btype: 'base' 
         }
     bt = BalanceTransfer.create a
+    bt.check_transfer = 'yes'
     self.balance_transfer = bt
     unless bt.persisted?
       errors[:base] << bt.errors.full_messages.join(', ')
@@ -103,7 +104,7 @@ class TransferRequest < ActiveRecord::Base # internal invoice
                                       :access_key_id => Settings.aws_access_key_id,
                                       :secret_access_key => Settings.aws_secret_access_key)
     host = Settings.email_host
-    
+
     subject = "New internal invoice from #{target.name}"
     body = "Hello,\n You have new internal invoice: http://#{host}/tocat/internal_invoices/#{id} \n From: #{target.name}\n Total: #{total}\n Description: #{description}\n Yours sincerely,\n TOCAT"
     if Rails.env.production?
@@ -112,7 +113,7 @@ class TransferRequest < ActiveRecord::Base # internal invoice
       end
     end
   end
-  def   send_notification_paid
+  def send_notification_paid
     host = Settings.email_host
     AWS.config :access_key_id => Settings.aws_access_key_id, :secret_access_key => Settings.aws_secret_access_key
     ses = AWS::SimpleEmailService.new(

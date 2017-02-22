@@ -56,39 +56,56 @@ class PaymentRequest < ActiveRecord::Base # external payment
     User.current_user.try(:team).try(:all_children).try(:include?, self.source.team.id)
   end
 
-  private 
+  private
+  # def make_transactions
+  #   user_money_balance = source_account.balance
+  #   if total ==  user_money_balance - 5.0 || total == user_money_balance - ((user_money_balance*Setting.external_payment_commission/100.0).round(2))
+  #     commission = user_money_balance*Setting.external_payment_commission/100.0
+  #     commission = 5.0 if commission < 5
+  #   else
+  #     commission = total*Setting.external_payment_commission/100.0
+  #     commission = 5.0 if commission < 5
+  #   end
+  #   source_account.transactions.create(total: - (total + commission), comment: "External payment #{id}", payment_request_id: id, not_take_transactions: true)
+  #   Account.find(Setting.finance_fund_account_id).transactions.create(total: total + commission, comment: "External payment #{id}", payment_request_id: id, not_take_transactions: true)
+  # end
+  #
+  # def make_back_transactions
+  #   payment_transaction = Transaction.where(payment_request_id: id)
+  #   if payment_transaction.present?
+  #     back_money = payment_transaction.second.total
+  #     commission = back_money*Setting.external_payment_commission/100.0
+  #     commission = 5.0 if commission < 5
+  #   else
+  #     commission = total*Setting.external_payment_commission/100.0
+  #     commission = 5.0 if commission < 5
+  #   end
+  #   source_account.transactions.create(total: + (total + commission), comment: "Cancel external payment #{id}", payment_request_id: id, not_take_transactions: true)
+  #   Account.find(Setting.finance_fund_account_id).transactions.create(total: - (total + commission), comment: "Cancel external payment #{id}", payment_request_id: id, not_take_transactions: true)
+  # end
+  #
+  # def check_balance
+  #   commission = [5.0, total.to_f*Setting.external_payment_commission/100.0].max
+  #   if source_account.balance < (total.to_f + commission) and !source.coach
+  #     errors[:base] << "You can not pay more than you have (including External Payment Comission)"
+  #     false
+  #   end
+  # end
+
   def make_transactions
-    commission = User.current_user.money_account.balance*Setting.external_payment_commission/100.0
+    commission = total*Setting.external_payment_commission/100.0
     commission = 5.0 if commission < 5
-    source_account.transactions.create(total: - (total + commission),
-                                       comment: "External payment #{id}",
-                                       payment_request_id: id, not_take_transactions: true)
-
-    Account.find(Setting.finance_fund_account_id).transactions.create(total: total + commission,
-                                                                      comment: "External payment #{id}",
-                                                                      payment_request_id: id, not_take_transactions: true)
+    source_account.transactions.create(total: - (total + commission), comment: "External payment #{id}", not_take_transactions: true)
+    Account.find(Setting.finance_fund_account_id).transactions.create(total: total + commission, comment: "External payment #{id}", not_take_transactions: true)
   end
 
-  # TODO Refactor it after all the transactions will be with payment request id
   def make_back_transactions
-      payment_transaction = Transaction.where(payment_request_id: id)
-      if payment_transaction.present?
-        back_money = payment_transaction.second.total
-        commission = back_money*Setting.external_payment_commission/100.0
-        commission = 5.0 if commission < 5
-      else
-        commission = total*Setting.external_payment_commission/100.0
-        commission = 5.0 if commission < 5
-      end
-      source_account.transactions.create(total: + (total + commission),
-                                         comment: "Cancel external payment #{id}",
-                                         payment_request_id: id, not_take_transactions: true)
-
-      Account.find(Setting.finance_fund_account_id).transactions.create(total: - (total + commission),
-                                                                        comment: "Cancel external payment #{id}",
-                                                                        payment_request_id: id, not_take_transactions: true)
+    commission = total*Setting.external_payment_commission/100.0
+    commission = 5.0 if commission < 5
+    source_account.transactions.create(total: + (total + commission), comment: "Cancel external payment #{id}", not_take_transactions: true)
+    Account.find(Setting.finance_fund_account_id).transactions.create(total: - (total + commission), comment: "Cancel external payment #{id}", not_take_transactions: true)
   end
-  
+
   def check_balance
     commission = [5.0, total.to_f*Setting.external_payment_commission/100.0].max
     if source_account.balance < (total.to_f + commission) and !source.coach

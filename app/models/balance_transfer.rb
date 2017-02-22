@@ -8,6 +8,7 @@ class BalanceTransfer < ActiveRecord::Base # internal payment
  
   validates :description, length: { maximum: 1000 }
   attr_accessor :target_login
+  attr_accessor :check_transfer
   validate :account_balance_with_transaction_commission
 
   validates_numericality_of :total, 
@@ -15,7 +16,7 @@ class BalanceTransfer < ActiveRecord::Base # internal payment
                             message: "Total of internal payment should be greater than 0"
   before_validation :set_date
   before_save :create_transactions
-  after_save :send_notification_payment
+  after_save :send_notification_payment, if: Proc.new { |t| t.check_transfer != 'yes' }
   #scoped_search in: :source, on: :accountable_id, rename: :source
   #scoped_search in: :target, on: :accountable_id, rename: :target
   

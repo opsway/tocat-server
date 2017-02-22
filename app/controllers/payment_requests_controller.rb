@@ -40,26 +40,26 @@ class PaymentRequestsController < ApplicationController
     end
   end
 
-  def pay_in_full
-    account = Account.find(params[:account_id])
-    if account.id.in? current_user.account_access.map(&:account_id)
-      total_calc = account.balance
-      total = account.balance < 500 ? total_calc - 5.0 : total_calc - (total_calc*Setting.external_payment_commission/100.0)
-      p total.to_s
-      source_id = current_user.id
-      source_account_id = current_user.money_account.id
-      description = "Salary pay in full from #{account.name} account #{Date.current}"
-      @pay_full = PaymentRequest.new(source_id: source_id,
-                               description: description,
-                               source_account_id: source_account_id,
-                               total: total)
-      if @pay_full.save
-        render json: {name: current_user.name}
-      else
-        render json: error_builder(@pay_full), status: 406
-      end
-    end
-  end
+  # def pay_in_full
+  #   account = Account.find(params[:account_id])
+  #   if account.id.in? current_user.account_access.map(&:account_id)
+  #     total_calc = account.balance
+  #     total = account.balance < 500 ? total_calc - 5.0 : total_calc - (total_calc*Setting.external_payment_commission/100.0)
+  #     total = total.round(2)
+  #     source_id = current_user.id
+  #     source_account_id = current_user.money_account.id
+  #     description = "Salary pay in full from #{account.name} account #{Date.current}"
+  #     @pay_full = PaymentRequest.new(source_id: source_id,
+  #                              description: description,
+  #                              source_account_id: source_account_id,
+  #                              total: total)
+  #     if @pay_full.save
+  #       render json: {name: current_user.name}
+  #     else
+  #       render json: error_builder(@pay_full), status: 406
+  #     end
+  #   end
+  # end
   
   private
 
