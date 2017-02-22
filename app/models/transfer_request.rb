@@ -65,10 +65,10 @@ class TransferRequest < ActiveRecord::Base # internal invoice
          description: description.truncate(255),
          source_id: source_account_id,
          target_id: target_account_id,
-         btype: 'base' 
+         btype: 'base',
+         check_transfer: 'yes'
         }
     bt = BalanceTransfer.create a
-    bt.check_transfer = 'yes'
     self.balance_transfer = bt
     unless bt.persisted?
       errors[:base] << bt.errors.full_messages.join(', ')
