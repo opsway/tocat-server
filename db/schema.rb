@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170220154318) do
+ActiveRecord::Schema.define(version: 20170223213540) do
 
   create_table "account_accesses", force: :cascade do |t|
     t.integer  "account_id", limit: 4
@@ -206,13 +206,12 @@ ActiveRecord::Schema.define(version: 20170220154318) do
   end
 
   create_table "transactions", force: :cascade do |t|
-    t.decimal  "total",                          precision: 15, scale: 2, null: false
-    t.string   "comment",            limit: 255,                          null: false
-    t.integer  "account_id",         limit: 4,                            null: false
-    t.integer  "user_id",            limit: 4
+    t.decimal  "total",                  precision: 15, scale: 2, null: false
+    t.string   "comment",    limit: 255,                          null: false
+    t.integer  "account_id", limit: 4,                            null: false
+    t.integer  "user_id",    limit: 4
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "payment_request_id", limit: 4
   end
 
   add_index "transactions", ["account_id"], name: "index_transactions_on_account_id", using: :btree

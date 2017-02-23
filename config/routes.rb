@@ -27,7 +27,7 @@ Rails.application.routes.draw do
   end
   
   resources :payment_requests, defaults: { format: 'json' }, only: [:create, :index] do
-    # post 'pay_in_full', on: :collection
+    post 'pay_in_full', on: :collection
   end
   resources :payment_request, only: [:show], controller: :payment_requests do
     member do
