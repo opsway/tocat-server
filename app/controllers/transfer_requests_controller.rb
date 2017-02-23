@@ -40,12 +40,11 @@ class TransferRequestsController < ApplicationController
     account = Account.find(params[:account_id])
     if account.id.in? current_user.account_access.map(&:account_id)
       coach = current_user.team.couch
-      total = account.balance
       source_id = coach.id
       description = "Withdraw from #{account.name} account #{Date.current}"
       source_account_id = coach.money_account.id
       target_account_id = current_user.money_account.id
-      @tr = TransferRequest.new(total: total, 
+      @tr = TransferRequest.new(total: params[:total],
                                 source_id: source_id, 
                                 description: description, 
                                 target_account_id: target_account_id, 
