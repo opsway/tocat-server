@@ -163,7 +163,6 @@ class TocatRole < ActiveRecord::Base
     paths[:payment_requests][:dispatch_my] = :dispatch_payment_request
     paths[:payment_requests][:show] = :view_payment_requests
     paths[:payment_requests][:update] = :edit_payment_request
-    paths[:payment_requests][:pay_in_full] = :create_payment_request
 
     #transactions
     paths[:transactions] = {}

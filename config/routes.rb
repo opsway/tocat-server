@@ -26,9 +26,7 @@ Rails.application.routes.draw do
     post 'pay', on: :member
   end
   
-  resources :payment_requests, defaults: { format: 'json' }, only: [:create, :index] do
-    post 'pay_in_full', on: :collection
-  end
+  resources :payment_requests, only: [:create, :index]
   resources :payment_request, only: [:show], controller: :payment_requests do
     member do
       post 'cancel'
