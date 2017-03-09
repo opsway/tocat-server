@@ -11,7 +11,7 @@ gem 'acts_as_list'
 gem 'spring',        group: :development
 gem 'will_paginate', '~> 3.0.6'
 gem 'api-pagination'
-gem 'shiftplanning', :git => 'https://github.com/morequalified/ShiftPlanning-ruby.git', :branch => 'change_api_endpoint'
+gem 'shiftplanning', '~> 0.0.3'
 gem "scoped_search"
 gem 'rest-client'
 gem 'hirb'
