@@ -10,7 +10,7 @@ WORKDIR ${TOCAT_HOME}
 COPY entrypoint.sh /sbin/entrypoint.sh
 COPY Gemfile Gemfile
 COPY Gemfile.lock Gemfile.lock
-RUN bundle install
+RUN bundle install --deployment
 COPY . .
 
 ENTRYPOINT ["/sbin/entrypoint.sh"]
