@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170223213540) do
+ActiveRecord::Schema.define(version: 20170514212416) do
 
   create_table "account_accesses", force: :cascade do |t|
     t.integer  "account_id", limit: 4
@@ -84,21 +84,22 @@ ActiveRecord::Schema.define(version: 20170223213540) do
   add_index "invoices", ["external_id"], name: "index_invoices_on_external_id", unique: true, using: :btree
 
   create_table "orders", force: :cascade do |t|
-    t.string   "name",               limit: 255,                                            null: false
-    t.text     "description",        limit: 65535
-    t.boolean  "paid",               limit: 1,                              default: false
-    t.integer  "team_id",            limit: 4,                                              null: false
-    t.integer  "invoice_id",         limit: 4
-    t.decimal  "invoiced_budget",                  precision: 10, scale: 2,                 null: false
-    t.decimal  "allocatable_budget",               precision: 10, scale: 2,                 null: false
+    t.string   "name",                             limit: 255,                                            null: false
+    t.text     "description",                      limit: 65535
+    t.boolean  "paid",                             limit: 1,                              default: false
+    t.integer  "team_id",                          limit: 4,                                              null: false
+    t.integer  "invoice_id",                       limit: 4
+    t.decimal  "invoiced_budget",                                precision: 10, scale: 2,                 null: false
+    t.decimal  "allocatable_budget",                             precision: 10, scale: 2,                 null: false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "parent_id",          limit: 4
-    t.decimal  "free_budget",                      precision: 10, scale: 2,                 null: false
-    t.boolean  "completed",          limit: 1,                              default: false
-    t.boolean  "internal_order",     limit: 1,                              default: false
-    t.integer  "commission",         limit: 4
-    t.boolean  "reseller",           limit: 1,                              default: false
+    t.integer  "parent_id",                        limit: 4
+    t.decimal  "free_budget",                                    precision: 10, scale: 2,                 null: false
+    t.boolean  "completed",                        limit: 1,                              default: false
+    t.boolean  "internal_order",                   limit: 1,                              default: false
+    t.integer  "commission",                       limit: 4
+    t.boolean  "reseller",                         limit: 1,                              default: false
+    t.boolean  "budget_transfered_to_growth_fund", limit: 1,                              default: false
   end
 
   add_index "orders", ["invoice_id"], name: "index_orders_on_invoice_id", using: :btree

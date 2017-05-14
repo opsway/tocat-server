@@ -183,8 +183,30 @@ class Order < ActiveRecord::Base
     tasks_budget = task_orders.sum(:budget)
     allocatable_budget - (sub_orders_budget + tasks_budget)
   end
+  
+  def transfer_money_to_growth_fund_from_pacman_and_nfs
+    self.transaction do
+      couch = team.couch
+      couch.money_account.transactions.create! total: -calculation_of_transfer_amount_to_growth_fund,
+      comment: "Transfer budget from #{couch.name} to growth fund was completed. Order##{id}"
+      Account.find(Setting.growth_fund_account_id).transactions.create! total: calculation_of_transfer_amount_to_growth_fund,
+      comment: "Transfer budget from #{couch.name} to growth fund was completed. Order##{id}"
+    
+      update_column(:budget_transfered_to_growth_fund, true)
+    end
+  end
 
   private
+  
+  def calculation_of_transfer_amount_to_growth_fund
+    growth_c = invoiced_budget * Setting.growth_commission / 100.00
+    central_office_c = invoiced_budget * Setting.central_office_commission / 100.00
+    finance_c = invoiced_budget * Setting.finance_commission / 100.00
+    teams_c = invoiced_budget * Setting.teams_commission / 100.00
+    dividends_c = invoiced_budget * Setting.dividends_commission / 100.00
+    
+    invoiced_budget - (growth_c + central_office_c + finance_c + teams_c + dividends_c)
+  end
 
   def set_invoiced
     self.invoiced_budget = allocatable_budget
