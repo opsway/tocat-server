@@ -11,6 +11,7 @@ class UserShowSerializer < ActiveModel::Serializer
              :accounts,
              :active,
              :coach,
+             :can_pay_withdraw_invoices,
              :balance_account_state,
              :email,
              :income_account_state,

@@ -10,6 +10,15 @@ class Team < ActiveRecord::Base
   def manager
     users.joins(:role).where('roles.name = ?', 'Manager').where(active: true).first
   end
+  
+  def withdraw_invoices_payer(team = self)
+    withdraw_invoices_payer = team.users.where(active: true, can_pay_withdraw_invoices: true).first
+    unless withdraw_invoices_payer
+      withdraw_invoices_payer = withdraw_invoices_payer(team.parent)
+    end
+    withdraw_invoices_payer
+  end
+  
   def couch(team = self)
     couch = team.users.where(active: true, coach: true).first #in order (list)
     unless couch

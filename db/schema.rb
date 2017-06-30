@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170514212416) do
+ActiveRecord::Schema.define(version: 20170629132934) do
 
   create_table "account_accesses", force: :cascade do |t|
     t.integer  "account_id", limit: 4
@@ -119,7 +119,6 @@ ActiveRecord::Schema.define(version: 20170514212416) do
     t.integer  "salary_account_id", limit: 4
     t.boolean  "bonus",             limit: 1,                              default: false
     t.integer  "source_account_id", limit: 4
-    t.string   "attachments",       limit: 255
     t.string   "file",              limit: 255
   end
 
@@ -238,17 +237,18 @@ ActiveRecord::Schema.define(version: 20170514212416) do
   add_index "transfer_requests", ["target_id"], name: "index_transfer_requests_on_target_id", using: :btree
 
   create_table "users", force: :cascade do |t|
-    t.string   "name",               limit: 255,                                         null: false
-    t.string   "login",              limit: 255,                                         null: false
-    t.integer  "team_id",            limit: 4,                                           null: false
-    t.decimal  "daily_rate",                     precision: 5, scale: 2,                 null: false
+    t.string   "name",                      limit: 255,                                         null: false
+    t.string   "login",                     limit: 255,                                         null: false
+    t.integer  "team_id",                   limit: 4,                                           null: false
+    t.decimal  "daily_rate",                            precision: 5, scale: 2,                 null: false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer  "role_id",            limit: 4,                                           null: false
-    t.boolean  "active",             limit: 1,                           default: true
-    t.boolean  "coach",              limit: 1,                           default: false
-    t.string   "email",              limit: 255
-    t.integer  "default_account_id", limit: 4
+    t.integer  "role_id",                   limit: 4,                                           null: false
+    t.boolean  "active",                    limit: 1,                           default: true
+    t.boolean  "coach",                     limit: 1,                           default: false
+    t.string   "email",                     limit: 255
+    t.integer  "default_account_id",        limit: 4
+    t.boolean  "can_pay_withdraw_invoices", limit: 1,                           default: false
   end
 
   add_index "users", ["role_id"], name: "index_users_on_role_id", using: :btree
