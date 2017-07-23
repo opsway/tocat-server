@@ -29,11 +29,8 @@ class BalanceTransfer < ActiveRecord::Base # internal payment
   
   def account_balance_with_transaction_commission
     if total > source.balance && !User.current_user.coach
-      errors[:base] << 'You can not pay more that you have (including Transaction Commission)'
+      errors[:base] << 'You can not pay more that you have.'
     end
-    # if !User.current_user.coach && target.pay_comission && total >= Setting.transactional_micropayment && target.balance + total < Setting.transactional_commission
-#       errors[:base] << "Target account can't receive money"
-#     end
   end
   
   def set_date
@@ -46,11 +43,6 @@ class BalanceTransfer < ActiveRecord::Base # internal payment
     self.target_transaction = target.transactions.create! total: total, comment: comment
   end
 
-  def target_email
-    target_id = BalanceTransfer.last.target.accountable_id
-    target_user_email = User.find_by(id: target_id).email
-  end
-
   def send_notification_payment
     host = Settings.email_host
     AWS.config :access_key_id => Settings.aws_access_key_id, :secret_access_key => Settings.aws_secret_access_key
@@ -60,7 +52,9 @@ class BalanceTransfer < ActiveRecord::Base # internal payment
     subject = "New internal payment from: #{source.name}"
     body = "Hello,\n You have new internal payment: http://#{host}/tocat/internal_payments/#{id} \n From: #{source.name}\n Total: #{total}\n Description: #{description}\n Yours sincerely,\n TOCAT"
     if Rails.env.production?
-      ses.send_email subject: subject, from: 'TOCAT@opsway.com', to: target_email, body_text: body
+      target.account_accesses.map(&:user).each do |u|
+        ses.send_email subject: subject, from: 'TOCAT@opsway.com', to: u.email, body_text: body
+      end
     end
   end
 end
