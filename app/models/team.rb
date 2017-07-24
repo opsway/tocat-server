@@ -3,7 +3,14 @@ class Team < ActiveRecord::Base
   include PublicActivity::Common
   belongs_to :parent, foreign_key: :parent_id, class_name: Team
   has_many :children, foreign_key: :parent_id, class_name: Team
+
   validates :name, :parent_id, :default_commission, presence: true
+
+  VALID_USERNAME_REGEX = /\A[a-z0-9_]+\z/
+  validates :name, length: { minimum: 3 },
+            format: { with: VALID_USERNAME_REGEX,
+                      message: " can contain only lowercase characters, digits and '_'(example: 'team_name12')" }
+
   has_many :orders
   has_many :users
   has_many :roles, :through => :users, source: :role
