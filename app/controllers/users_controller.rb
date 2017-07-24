@@ -4,7 +4,7 @@ class UsersController < ApplicationController
 
   def index
     if params[:anyuser].present?
-      @articles = User.search_for(params[:search]).order('active desc, name asc')
+      @articles = User.search_for(params[:search]).order('users.active desc, users.name asc')
     else
       @articles = User.search_for(params[:search]).order('users.name asc').all_active
     end
