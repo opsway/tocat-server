@@ -2,7 +2,7 @@ class TeamsController < ApplicationController
   before_action :set_team, except: [:index, :create]
 
   def index
-    @teams = Team.all
+    @teams = Team.all.order('teams.active desc, teams.name asc')
     paginate json: @teams, per_page: params[:limit]
   end
 
