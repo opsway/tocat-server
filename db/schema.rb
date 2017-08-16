@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170629132934) do
+ActiveRecord::Schema.define(version: 20170814103347) do
 
   create_table "account_accesses", force: :cascade do |t|
     t.integer  "account_id", limit: 4
@@ -174,11 +174,12 @@ ActiveRecord::Schema.define(version: 20170629132934) do
   add_index "tasks", ["user_id"], name: "index_tasks_on_user_id", using: :btree
 
   create_table "teams", force: :cascade do |t|
-    t.string   "name",               limit: 255, null: false
+    t.string   "name",               limit: 255,                null: false
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "default_commission", limit: 4
-    t.integer  "parent_id",          limit: 4,   null: false
+    t.integer  "parent_id",          limit: 4,                  null: false
+    t.boolean  "active",             limit: 1,   default: true
   end
 
   create_table "timesheets", force: :cascade do |t|

@@ -9,6 +9,14 @@ development: &default
   port: <%= ENV['DB_PORT'] %>
 
 test:
-  <<: *default
+  adapter: mysql2
+  database: 'test_tocat'
+  host: localhost
+  username: root
+  encoding: utf8
+  reconnect: true
+  password: ''
+  port: 3306
+
 production:
   <<: *default

@@ -14,6 +14,9 @@ class Team < ActiveRecord::Base
   has_many :orders
   has_many :users
   has_many :roles, :through => :users, source: :role
+
+  scope :all_active, ->{where(active: true)}
+
   def manager
     users.joins(:role).where('roles.name = ?', 'Manager').where(active: true).first
   end
@@ -32,6 +35,15 @@ class Team < ActiveRecord::Base
       couch = couch(team.parent) 
     end
     couch
+  end
+
+  def include_active_users?
+    team = self
+    if team.users.exists? && team.users.where(active: true).exists?
+      true
+    else
+      false
+    end
   end
   
   def all_children
