@@ -36,6 +36,23 @@ class TeamsController < ApplicationController
     end
   end
 
+  def destroy
+    params.permit!
+    @team.create_activity :destroy,
+                          parameters: params,
+                          owner: User.current_user
+    if @team.active
+      if !@team.include_active_users?
+        @team.update_column(:active,false)
+      else
+        render json: error_builder(@team), status: 406
+      end
+    else
+      @team.update_column(:active,true)
+    end
+    render json: @team, serializer: TeamShowSerializer, status: 200
+  end
+
   private
 
   def set_team
@@ -43,7 +60,7 @@ class TeamsController < ApplicationController
   end
 
   def team_params
-    output = params.require(:team).permit(:name, :default_commission, :parent_id)
+    output = params.require(:team).permit(:name, :default_commission, :parent_id, :active)
     output
   end
 end

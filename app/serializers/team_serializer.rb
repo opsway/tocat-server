@@ -1,7 +1,7 @@
 class TeamSerializer < ActiveModel::Serializer
   include Rails.application.routes.url_helpers
 
-  attributes :id, :name, :links, :default_commission, :parent_id
+  attributes :id, :name, :links, :default_commission, :active, :parent_id
 
   private
 
