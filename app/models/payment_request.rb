@@ -127,7 +127,9 @@ class PaymentRequest < ActiveRecord::Base # external payment
       end
     end
     if Rails.env.production?
-      ses.send_email subject: subj, from: 'TOCAT@opsway.com', to: Setting.finance_service_email, body_text: body
+      if self.status == 'new'
+        ses.send_email subject: subj, from: 'TOCAT@opsway.com', to: Setting.finance_service_email, body_text: body
+      end
     end
   end
   def set_source_user
