@@ -30,6 +30,8 @@ class User < ActiveRecord::Base
   scoped_search on: [:name, :login, :email, :coach, :active]
   scoped_search in: :team, on: :name, rename: :team, only_explicit: true
   scoped_search in: :role, on: :name, rename: :role, only_explicit: true
+
+  enum billable: {billable: 1, non_billable: 0, half: 2}
   
   def tocat_allowed_to?(action)
     self.tocat_role.try(:permissions).try(:include?, action)

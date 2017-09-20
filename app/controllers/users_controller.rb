@@ -137,6 +137,7 @@ class UsersController < ApplicationController
                                           :email,
                                           :coach,
                                           :can_pay_withdraw_invoices,
+                                          :billable,
                                           :role_id
                                           )
     if params[:user].try(:[],:team).present?

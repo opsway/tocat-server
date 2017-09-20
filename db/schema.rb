@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170814103347) do
+ActiveRecord::Schema.define(version: 20170920082534) do
 
   create_table "account_accesses", force: :cascade do |t|
     t.integer  "account_id", limit: 4
@@ -250,6 +250,7 @@ ActiveRecord::Schema.define(version: 20170814103347) do
     t.string   "email",                     limit: 255
     t.integer  "default_account_id",        limit: 4
     t.boolean  "can_pay_withdraw_invoices", limit: 1,                           default: false
+    t.integer  "billable",                  limit: 4,                           default: 0
   end
 
   add_index "users", ["role_id"], name: "index_users_on_role_id", using: :btree
