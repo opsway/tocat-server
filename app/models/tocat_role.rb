@@ -105,6 +105,10 @@ class TocatRole < ActiveRecord::Base
     paths[:status][:index] = :show_status_page
     paths[:status][:checked] = :mark_alerts_as_checked
 
+    #timelogs
+    paths[:timelogs] = {}
+    paths[:timelogs][:index] = :show_timelogs
+
     #users
     paths[:users] = {}
     paths[:users][:me] = :show_issues
@@ -137,8 +141,8 @@ class TocatRole < ActiveRecord::Base
     paths[:tocat_roles][:update] = :is_admin
     paths[:tocat_roles][:update] = :is_admin
     paths[:tocat_roles][:destroy] = :is_admin
-    #balance transfers
 
+    #balance transfers
     paths[:balance_transfers] = {}
     paths[:balance_transfers][:index] = :view_transfers
     paths[:balance_transfers][:create] = :create_transfer
@@ -187,6 +191,7 @@ class TocatRole < ActiveRecord::Base
     data[:teams] = [:create_team, :update_team, :activate_team, :deactivate_team]
     data[:internal_payments] = [:view_transfers, :create_transfer,:view_all_transfers]
     data[:external_payments] = [:create_payment_request, :edit_payment_request, :cancel_payment_request, :approve_payment_request, :reject_payment_request, :complete_payment_request, :dispatch_payment_request, :view_payment_requests, :correct_balance_salary_check, :pay_in_cash_bank, :view_all_payment_requests]
+    data[:timelogs] = [:show_timelogs]
 
     return data
   end

@@ -74,6 +74,12 @@ Rails.application.routes.draw do
             controller: 'activity',
             defaults: { format: 'json' }
 
+  #timelogs
+  resources :timelog,
+            path: 'timelogs',
+            controller: 'timelogs',
+            defaults: { format: 'json' }
+
   #teams
   resources :team,
             path: 'teams',
