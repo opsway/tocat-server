@@ -68,11 +68,12 @@ module TimeLog
       prepared_worklogs = []
       raw_data = self.data_from_tempo_api(username)
       parsed_data = self.parsing_worklogs(raw_data).try(:[], 'worklogs').try(:[], 'worklog') || []
+      p parsed_data.empty?
       parsed_data.each do |item|
         prepared_worklogs << self.prepare_worklog(item)
       end
 
-      self.group_worklogs_per_day(prepared_worklogs)
+      self.group_tempo_worklogs_per_day(prepared_worklogs)
     end
 
     def prepare_worklog(data)
@@ -84,52 +85,58 @@ module TimeLog
       }
     end
 
-    def group_worklogs_per_day(worklogs)
-      group_worklogs_per_day = []
+    def group_tempo_worklogs_per_day(worklogs)
+      group_tempo_worklogs_per_day = []
       grouped_worklogs = worklogs.group_by{ |worklog| worklog[:work_date] }
-      sorted_worklogs_days = grouped_worklogs.keys.sort
+      # sorted_worklogs_days = grouped_worklogs.keys.sort
 
-      sorted_worklogs_days.each do |date|
-        zoho_leave = self.get_leave_percentage_per_day(date)
-        issues = grouped_worklogs[date].map{ |w| w.slice(:issue_key, :hours) }
+      (self.start_date..self.end_date).each do |date|
+        str_date = date.to_s(:db)
+        zoho_leave = self.get_leave_percentage_per_day(str_date)
+        issues = (grouped_worklogs[str_date] || []).map{ |w| w.slice(:issue_key, :hours) }
         total_hours = issues.map{ |w| w[:hours].to_f }.sum.round(1)
 
-        group_worklogs_per_day << {
-            work_date: date,
+        group_tempo_worklogs_per_day << {
+            work_date: str_date,
             hours: total_hours,
             leave_type: zoho_leave[:leave_type],
+            approval_status: zoho_leave[:approval_status],
             percentage: zoho_leave[:percentage],
             issues: issues
         }
       end
 
-      group_worklogs_per_day
+      group_tempo_worklogs_per_day
+    end
+
+    def start_date
+      @start_date ||= self.prepare_date(@params[:date_start]).to_date
+    end
+
+    def end_date
+      @end_date ||= self.prepare_date(@params[:date_end]).to_date
     end
 
     def prepare_date(date)
-      DateTime.parse(date)
+      Date.parse(date)
     end
 
     def get_leave_percentage_per_day(date)
-      leaves = {}
+      leaves = {
+          leave_type: '',
+          approval_status: '',
+          percentage: ''
+      }
+
       @zoho_data.each do |data|
-        if data['From'] == data['To'] && prepare_date(data['From']) == prepare_date(date)
+        if (data['From'] == data['To'] && prepare_date(data['From']) == prepare_date(date)) ||
+           (data['From'] != data['To'] && prepare_date(date).between?(prepare_date(data['From']), prepare_date(data['To'])))
           leaves = {
               leave_type: data['Leave Type'],
+              approval_status: data['ApprovalStatus'],
               percentage: data['Days Taken']
           }
           break
-        elsif data['From'] != data['To'] && prepare_date(date).between?(prepare_date(data['From']), prepare_date(data['To']))
-          leaves = {
-              leave_type: data['Leave Type'],
-              percentage: data['Days Taken']
-          }
-          break
-        else
-          leaves = {
-              leave_type: '',
-              percentage: ''
-          }
         end
       end
       leaves
@@ -141,7 +148,7 @@ module TimeLog
 
     def parsing_zoho_data(raw_data)
       parsed_data = JSON.parse(raw_data)
-      parsed_data[0]['message'] == 'No records found' ? nil : parsed_data
+      parsed_data[0]['message'] == 'No records found' ? [] : parsed_data
     end
 
     def prepare_zoho_data(username)
