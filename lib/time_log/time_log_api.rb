@@ -68,7 +68,6 @@ module TimeLog
       prepared_worklogs = []
       raw_data = self.data_from_tempo_api(username)
       parsed_data = self.parsing_worklogs(raw_data).try(:[], 'worklogs').try(:[], 'worklog') || []
-      p parsed_data.empty?
       parsed_data.each do |item|
         prepared_worklogs << self.prepare_worklog(item)
       end

@@ -108,6 +108,7 @@ class TocatRole < ActiveRecord::Base
     #timelogs
     paths[:timelogs] = {}
     paths[:timelogs][:index] = :show_timelogs
+    paths[:timelogs][:create] = :create_timelogs
 
     #users
     paths[:users] = {}
@@ -191,7 +192,7 @@ class TocatRole < ActiveRecord::Base
     data[:teams] = [:create_team, :update_team, :activate_team, :deactivate_team]
     data[:internal_payments] = [:view_transfers, :create_transfer,:view_all_transfers]
     data[:external_payments] = [:create_payment_request, :edit_payment_request, :cancel_payment_request, :approve_payment_request, :reject_payment_request, :complete_payment_request, :dispatch_payment_request, :view_payment_requests, :correct_balance_salary_check, :pay_in_cash_bank, :view_all_payment_requests]
-    data[:timelogs] = [:show_timelogs]
+    data[:timelogs] = [:show_timelogs, :create_timelogs]
 
     return data
   end
