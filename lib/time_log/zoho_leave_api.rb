@@ -63,12 +63,10 @@ module TimeLog
       employee_id = self.get_employee_id(@params['user_id'])
       leave_type_id = self.get_leave_type_id(@params['leave_type'])
 
-      data = "&xmlData=<Request><Record><field name='Employee_ID'>#{employee_id}</field><field name='To'>#{@params['date']}</field><field name='From'>#{@params['date']}</field><field name='Leavetype'>#{leave_type_id}</field><days><date name='#{@params['date']}'>#{@params['percentage']}</date></days></Record></Request>"
+      data = "&xmlData=<Request><Record><field name='Employee_ID'>#{employee_id}</field><field name='To'>#{@params['date']}</field><field name='From'>#{@params['date']}</field><field name='Leavetype'>#{leave_type_id}</field><days><date name='#{@params['date']}'>#{@params['percentage'].to_f}</date></days></Record></Request>"
 
       url = "#{ZOHO_API_URL}#{CREATE_LEAVE}?authtoken=#{Rails.application.secrets[:zoho_people_auth]}#{data}"
       request = JSON.parse(RestClient.post(url, {timeout: 10}))
-
-      p request['pkId']
 
       if @params['leave_type'] == 'Day off/Vacation'
         self.approve_created_leave((request['pkId']).to_i)
@@ -87,9 +85,7 @@ module TimeLog
 
     def approve_created_leave(leave_id)
       url = "#{ZOHO_API_URL}#{APPROVE_LEAVE}?authtoken=#{Rails.application.secrets[:zoho_people_auth]}&pkid=#{leave_id}&status=1"
-      request = RestClient.post(url, {timeout: 10})
-      p request
-      request
+      RestClient.post(url, {timeout: 10})
     end
 
     def create_transactions(user_id)
