@@ -17,7 +17,7 @@ module Actions
     attr_reader :request
 
     def detect_user
-      @user ||= User.find_by_email(decoded_auth_token[:user_email]) if decoded_auth_token
+      @user ||= User.find_by_email(decoded_auth_token[:user_email]) if (decoded_auth_token && User.find_by_email(decoded_auth_token[:user_email]).active?) || (User.find_by_email(decoded_auth_token[:user_email]).active? && User.where(email: decoded_auth_token[:user_email]).exists?)
       @user || push_errors('Invalid token') && nil
     end
 
