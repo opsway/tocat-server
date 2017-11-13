@@ -10,6 +10,7 @@ module TimeLog
 
     def initialize(params)
       @params = params
+      @parsed_data = []
       @error = ''
       @success = true
       @users_worklogs = {}
@@ -65,9 +66,8 @@ module TimeLog
 
     def prepare_worklogs(username)
       prepared_worklogs = []
-      raw_data = self.data_from_tempo_api
-      parsed_data = self.parsing_worklogs(raw_data).try(:[], 'worklogs').try(:[], 'worklog') || []
-      parsed_data.each do |item|
+
+      @parsed_data.each do |item|
         if username == item['username']
           prepared_worklogs << self.prepare_worklog(item)
         end
@@ -158,6 +158,9 @@ module TimeLog
 
     def get_worklogs_for_users
       usernames = @params['user_id'].split(',')
+      raw_data = self.data_from_tempo_api
+      @parsed_data = self.parsing_worklogs(raw_data).try(:[], 'worklogs').try(:[], 'worklog') || []
+
       usernames.each do |user|
         @zoho_data = self.prepare_zoho_data(user)
         @users_worklogs[user] = self.prepare_worklogs(user)
