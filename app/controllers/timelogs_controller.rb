@@ -1,4 +1,5 @@
 class TimelogsController < ApplicationController
+  # skip_before_action :verify_authenticity_token
 
   def index
     timelog = TimeLog::TimeLogApi.new(params)
@@ -14,7 +15,11 @@ class TimelogsController < ApplicationController
   def create
     leave = TimeLog::ZohoLeaveApi.new(params)
 
-    @leave_status = leave.create_leave
+    if params[:zoho_approved].present?
+      @leave_status = leave.zoho_approved_transactions
+    else
+      @leave_status = leave.create_leave
+    end
 
     if @leave_status
       render json: { result: leave.message}, status: 201

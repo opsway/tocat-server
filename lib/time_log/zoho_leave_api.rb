@@ -23,6 +23,14 @@ module TimeLog
       @leave_status
     end
 
+    def zoho_approved_transactions
+      user_id = self.parse_username(@params[:user_id])
+      p user_id
+      self.create_transactions(user_id)
+      @leave_status
+      @message = 'success'
+    end
+
     protected
 
     def fetch_user_leaves(username)
@@ -131,6 +139,16 @@ module TimeLog
 
     def prepare_date(date)
       Date.parse(date)
+    end
+
+    def parse_username(user_id)
+      zoho_id = ''
+      url = "#{ZOHO_API_URL}#{GET_EMPOYEES}?authtoken=#{Rails.application.secrets[:zoho_people_auth]}"
+      request = self.parsing_zoho_data(RestClient.get(url))
+      request.each do |user|
+        zoho_id = user['EmployeeID'] if user['recordId'] == user_id
+      end
+      zoho_id
     end
   end
 end

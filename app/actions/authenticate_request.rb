@@ -17,7 +17,13 @@ module Actions
     attr_reader :request
 
     def detect_user
-      @user ||= User.find_by_email(decoded_auth_token[:user_email]) if (decoded_auth_token && User.find_by_email(decoded_auth_token[:user_email]).active?) || (User.find_by_email(decoded_auth_token[:user_email]).active? && User.where(email: decoded_auth_token[:user_email]).exists?)
+      if decoded_auth_token
+        if decoded_auth_token && User.find_by_email(decoded_auth_token[:user_email]).active? ||
+           User.find_by_email(decoded_auth_token[:user_email]).active? && User.where(email: decoded_auth_token[:user_email]).exists?
+
+          @user ||= User.find_by_email(decoded_auth_token[:user_email])
+        end
+      end
       @user || push_errors('Invalid token') && nil
     end
 
@@ -26,7 +32,11 @@ module Actions
     end
 
     def http_auth_header
-      headers['Authorization'].split(' ').last if headers['Authorization'].present?
+      if headers['Authorization'].present?
+        headers['Authorization'].split(' ').last
+      else
+        params[:authorization]
+      end
     end
 
     def authorized_addresses
