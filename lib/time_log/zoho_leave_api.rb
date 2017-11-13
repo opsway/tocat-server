@@ -70,7 +70,7 @@ module TimeLog
       employee_id = self.get_employee_id(@params['user_id'])
       leave_type_id = self.get_leave_type_id(@params['leave_type'])
 
-      data = "&xmlData=<Request><Record><field name='Employee_ID'>#{employee_id}</field><field name='To'>#{@params['date']}</field><field name='From'>#{@params['date']}</field><field name='Leavetype'>#{leave_type_id}</field><days><date name='#{@params['date']}'>#{@params['percentage'].to_f}</date></days><field name='Reasonforleave'>create_from_api</field></Record></Request>"
+      data = "&xmlData=<Request><Record><field name='Employee_ID'>#{employee_id}</field><field name='To'>#{@params['date']}</field><field name='From'>#{@params['date']}</field><field name='Leavetype'>#{leave_type_id}</field><days><date name='#{@params['date']}'>#{@params['percentage'].to_f}</date></days><field name='Reasonforleave'>created_from_api</field></Record></Request>"
 
       url = "#{ZOHO_API_URL}#{CREATE_LEAVE}?authtoken=#{Rails.application.secrets[:zoho_people_auth]}#{data}"
       request = JSON.parse(RestClient.post(url, {timeout: 10}))
@@ -102,7 +102,10 @@ module TimeLog
     def create_transactions(user_id)
       user = User.find_by(login: user_id)
 
-      unless user.coach?
+      date = "#{user.name} #{@params['date'].to_time.strftime("%d/%m/%y")}"
+      transaction = Transaction.find_by(comment: "Salary #{date}")
+
+      unless user.coach? || transaction.present?
         #decrease user balance
         Transaction.create!(comment: "Salary for #{@params['date'].to_time.strftime("%d/%m/%y")}", total: "-#{user.daily_rate*@params['percentage'].to_f}", account: user.balance_account, user_id: user.id)
         #increase user payroll
