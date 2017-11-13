@@ -35,7 +35,7 @@ module TimeLog
       parsed_leaves = self.parsing_zoho_data(leaves)
 
       parsed_leaves.each do |leave|
-        if prepare_date(leave['From']) == prepare_date(leave['To']) && prepare_date(leave['From']) == prepare_date(@params['date'])
+        if prepare_date(leave['From']) == prepare_date(leave['To']) && (prepare_date(leave['From']) || prepare_date(leave['To'])) == prepare_date(@params['date'])
           if leave['ApprovalStatus'] == 'Approved'
             @message = 'Leave already approved in ZohoPeople, please check!'
             break

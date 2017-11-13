@@ -6,7 +6,6 @@ module TimeLog
 
     TEMPO_API_URL = 'https://opsway.atlassian.net/plugins/servlet/tempo-getWorklog/'
     ZOHO_API_URL = 'https://people.zoho.com/people/api/'
-    REQUEST_PARAMS = 'format=xml&diffOnly=false'
     BASE_URL = 'https://opsway.atlassian.net'
 
     def initialize(params)
@@ -24,8 +23,8 @@ module TimeLog
 
     protected
 
-    def data_from_tempo_api(username)
-      url = "#{TEMPO_API_URL}?baseUrl=#{BASE_URL}&#{REQUEST_PARAMS}&tempoApiToken=#{Rails.application.secrets[:tempo_api_key]}&userName=#{username}&#{self.api_date_params}"
+    def data_from_tempo_api
+      url = "#{TEMPO_API_URL}?baseUrl=#{BASE_URL}&#{self.api_date_params}&tempoApiToken=#{Rails.application.secrets[:tempo_api_key]}"
 
       RestClient.get(url, {timeout: 20}) { |response, request, result, &block|
         case response.code
@@ -66,10 +65,12 @@ module TimeLog
 
     def prepare_worklogs(username)
       prepared_worklogs = []
-      raw_data = self.data_from_tempo_api(username)
+      raw_data = self.data_from_tempo_api
       parsed_data = self.parsing_worklogs(raw_data).try(:[], 'worklogs').try(:[], 'worklog') || []
       parsed_data.each do |item|
-        prepared_worklogs << self.prepare_worklog(item)
+        if username == item['username']
+          prepared_worklogs << self.prepare_worklog(item)
+        end
       end
 
       self.group_tempo_worklogs_per_day(prepared_worklogs)
