@@ -79,11 +79,7 @@ module TimeLog
         self.approve_created_leave((request['pkId']).to_i)
       end
 
-      if @params['leave_type'] == 'Working'
-        self.create_transactions(@params['user_id'])
-      end
-
-      if @params['leave_type'] == 'Sick [Paid]'
+      if @params['leave_type'] == 'Sick [Paid]' || @params['leave_type'] == 'Working'
         self.approve_created_leave((request['pkId']).to_i)
         self.create_transactions(@params['user_id'])
       end
