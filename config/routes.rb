@@ -78,7 +78,9 @@ Rails.application.routes.draw do
   resources :timelog,
             path: 'timelogs',
             controller: 'timelogs',
-            defaults: { format: 'json' }
+            defaults: { format: 'json' } do
+    post 'issues_summary', on: :collection
+  end
 
   #teams
   resources :team,

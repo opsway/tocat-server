@@ -27,4 +27,15 @@ class TimelogsController < ApplicationController
       render json: {error: leave.error}, status: 406
     end
   end
+
+  def issues_summary
+    issue = TimeLog::JiraApi.new(params)
+    @success = issue.issues_summary
+
+    if @success
+      render json: {result: issue.issue_data}, status: 201
+    else
+      render json: {error: leave.error}, status: 406
+    end
+  end
 end
