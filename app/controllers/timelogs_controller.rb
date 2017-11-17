@@ -35,7 +35,7 @@ class TimelogsController < ApplicationController
     if @success
       render json: {result: issue.issue_data}, status: 201
     else
-      render json: {error: leave.error}, status: 406
+      render json: {error: issue.message}, status: 406
     end
   end
 end

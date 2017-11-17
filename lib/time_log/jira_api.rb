@@ -28,7 +28,7 @@ module TimeLog
     end
 
     def get_issues_data
-      issues_keys = JSON.parse(@params[:issues_keys])
+      issues_keys = @params[:issues_keys].split(',')
       issues_keys.each do |key|
         @issue_data[key] = {
             summary: self.data_from_jira_api(key)
