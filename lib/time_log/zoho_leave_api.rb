@@ -33,12 +33,17 @@ module TimeLog
 
     def fetch_user_leaves(username)
       url = "#{ZOHO_API_URL}#{GET_LEAVES}?authtoken=#{Rails.application.secrets[:zoho_people_auth]}&searchColumn=EMPLOYEEID&searchValue=#{username}"
-      RestClient.get(url)
+      self.send_api_request(url)
     end
 
     def check_existing_leave
       leaves = self.fetch_user_leaves(@params['user_id'])
       parsed_leaves = self.parsing_zoho_data(leaves)
+
+      unless parsed_leaves.present?
+        self.create_paid_leave
+        @message = 'success'
+      end
 
       parsed_leaves.each do |leave|
         if prepare_date(leave['From']) == prepare_date(leave['To']) && (prepare_date(leave['From']) || prepare_date(leave['To'])) == prepare_date(@params['date'])
@@ -54,10 +59,6 @@ module TimeLog
             break
           end
 
-          self.create_paid_leave
-          @message = 'success'
-          break
-        else
           self.create_paid_leave
           @message = 'success'
           break
@@ -131,11 +132,44 @@ module TimeLog
 
     def parsing_zoho_data(raw_data)
       parsed_data = JSON.parse(raw_data)
-      parsed_data[0]['message'] == 'Records not found' ? [] : parsed_data
+      parsed_data[0]['message'].present? ? {} : parsed_data
     end
 
     def prepare_date(date)
       Date.parse(date)
+    end
+
+    def send_api_request(url)
+      RestClient.get(url, {timeout: 20}) { |response, request, result, &block|
+        case response.code
+          when 502
+            @success = false
+            @message = "Check your connection"
+            return nil
+          when 401
+            @success = false
+            @message = "Unauthorized"
+            return nil
+          when 405
+            @success = false
+            @message = "Method not Allowed"
+            return nil
+          when 500
+            @success = false
+            @message = "Internal Error On API Server"
+            return nil
+          when 200
+            @success = true
+            response
+          when 404
+            @success = false
+            @message = "Not Found"
+            return nil
+          else
+            @success = false
+            response.return!(request, result, &block)
+        end
+      }
     end
   end
 end
