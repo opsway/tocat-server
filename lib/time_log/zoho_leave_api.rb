@@ -62,10 +62,6 @@ module TimeLog
           self.create_paid_leave
           @message = 'success'
           break
-        else
-          self.create_paid_leave
-          @message = 'success'
-          break
         end
       end
     end
