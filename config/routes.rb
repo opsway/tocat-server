@@ -82,6 +82,12 @@ Rails.application.routes.draw do
     post 'issues_summary', on: :collection
   end
 
+  #daily_rates_history
+  resources :history_of_change_daily_rate,
+            path: 'rates_history',
+            controller: 'history_of_change_daily_rates',
+            defaults: { format: 'json' }
+
   #teams
   resources :team,
             path: 'teams',
