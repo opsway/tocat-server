@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170920082534) do
+ActiveRecord::Schema.define(version: 20171116083910) do
 
   create_table "account_accesses", force: :cascade do |t|
     t.integer  "account_id", limit: 4
@@ -73,6 +73,17 @@ ActiveRecord::Schema.define(version: 20170920082534) do
     t.datetime "updated_at",                                null: false
     t.integer  "line_number", limit: 4
   end
+
+  create_table "history_of_change_daily_rates", force: :cascade do |t|
+    t.decimal  "daily_rate",               precision: 5, scale: 2
+    t.integer  "user_id",        limit: 4
+    t.date     "timestamp_from"
+    t.date     "timestamp_to"
+    t.datetime "created_at",                                       null: false
+    t.datetime "updated_at",                                       null: false
+  end
+
+  add_index "history_of_change_daily_rates", ["user_id"], name: "index_history_of_change_daily_rates_on_user_id", using: :btree
 
   create_table "invoices", force: :cascade do |t|
     t.string   "external_id", limit: 255
@@ -256,6 +267,7 @@ ActiveRecord::Schema.define(version: 20170920082534) do
   add_index "users", ["role_id"], name: "index_users_on_role_id", using: :btree
   add_index "users", ["team_id"], name: "index_users_on_team_id", using: :btree
 
+  add_foreign_key "history_of_change_daily_rates", "users"
   add_foreign_key "orders", "invoices"
   add_foreign_key "orders", "invoices"
   add_foreign_key "orders", "orders", column: "parent_id"

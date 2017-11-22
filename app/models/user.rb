@@ -1,7 +1,12 @@
 class User < ActiveRecord::Base
   include PublicActivity::Common
+  include ActiveModel::Dirty
+
   has_many :account_access
   has_many :accounts, through: :account_access
+
+  has_many :history_of_change_daily_rates
+
   validates :name, presence: true
   validates :login, presence: true
   validates :daily_rate,
@@ -25,6 +30,8 @@ class User < ActiveRecord::Base
   has_and_belongs_to_many :payment_requests
 
   before_save :normalize_data
+  after_save :daily_rate_history_changed, if: Proc.new {|u| u.daily_rate_changed? }
+
   scope :all_active, ->{where(active: true)}
 
   scoped_search on: [:name, :login, :email, :coach, :active]
@@ -99,9 +106,14 @@ class User < ActiveRecord::Base
   def team_can_have_only_one_manager
     errors.add 'Team', 'already have a manager' if self.role.try(:name) == 'Manager' && self.team.users.where.not(id: self.id).where(active: true, role_id: Role.managers.select(:id)).any? #TODO - fix 
   end
+
   def team_can_have_only_one_member_coach
     if self.coach
       errors.add 'Team', 'already have a user with real money' if self.team.users.where.not(id: self.id).where(active: true, coach: true).any?
     end
+  end
+
+  def daily_rate_history_changed
+    HistoryOfChangeDailyRate.create_new_daily_rate_change(self)
   end
 end
