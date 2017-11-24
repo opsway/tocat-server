@@ -63,6 +63,9 @@ module TimeLog
           @message = 'success'
           break
         end
+        self.create_paid_leave
+        @message = 'success'
+        break
       end
     end
 
@@ -129,14 +132,15 @@ module TimeLog
 
     def get_leave_type_id(leave_name)
       if leave_name == 'Working'
-        319617000000127362
+        leave_type_id = '319617000000127362'
       elsif leave_name == 'Sick [Paid]'
-        319617000000123013
+        leave_type_id = '319617000000123013'
       elsif leave_name == 'Day off/Vacation'
-        319617000000123007
+        leave_type_id = '319617000000123007'
       else
         @message = 'Invalid leave type'
       end
+      leave_type_id
     end
 
     def parsing_zoho_data(raw_data)
