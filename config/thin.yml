@@ -6,5 +6,6 @@ log: log/thin.log
 pid: tmp/pids/thin.pid
 max_conns: 1024
 max_persistent_conns: 1024
+threaded: true
 require: []
 wait: 30
