@@ -39,7 +39,6 @@ module TimeLog
     def check_existing_leave
       leaves = self.fetch_user_leaves(@params['user_id'])
       parsed_leaves = self.parsing_zoho_data(leaves)
-      p parsed_leaves
       @message = 'success'
       need_create_paid_leave = true
 
