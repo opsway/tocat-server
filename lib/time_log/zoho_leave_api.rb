@@ -39,34 +39,23 @@ module TimeLog
     def check_existing_leave
       leaves = self.fetch_user_leaves(@params['user_id'])
       parsed_leaves = self.parsing_zoho_data(leaves)
-
-      unless parsed_leaves.present?
-        self.create_paid_leave
-        @message = 'success'
-      end
+      p parsed_leaves
+      @message = 'success'
+      need_create_paid_leave = true
 
       parsed_leaves.each do |leave|
         if prepare_date(leave['From']) == prepare_date(leave['To']) && (prepare_date(leave['From']) || prepare_date(leave['To'])) == prepare_date(@params['date'])
           if leave['ApprovalStatus'] == 'Approved'
+            need_create_paid_leave = false
             @message = 'Leave already approved in ZohoPeople, please check!'
-            break
-          end
-
-          if leave['ApprovalStatus'] == 'Pending'
+          elsif leave['ApprovalStatus'] == 'Pending'
             self.approve_reject_leave(leave['recordId'])
-            self.create_paid_leave
-            @message = 'success'
-            break
           end
-
-          self.create_paid_leave
-          @message = 'success'
-          break
-        else
-          self.create_paid_leave
-          @message = 'success'
-          break
         end
+      end
+
+      if need_create_paid_leave
+        self.create_paid_leave
       end
     end
 
@@ -146,7 +135,7 @@ module TimeLog
 
     def parsing_zoho_data(raw_data)
       parsed_data = JSON.parse(raw_data)
-      parsed_data[0]['message'].present? ? {} : parsed_data
+      parsed_data[0]['message'].present? ? [] : parsed_data
     end
 
     def prepare_date(date)
