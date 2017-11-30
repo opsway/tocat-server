@@ -50,6 +50,7 @@ module TimeLog
           elsif leave['ApprovalStatus'] == 'Pending'
             self.approve_reject_leave(leave['recordId'])
           end
+          break
         end
       end
 
