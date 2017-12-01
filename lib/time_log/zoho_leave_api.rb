@@ -98,8 +98,10 @@ module TimeLog
         Transaction.create!(comment: "Salary for #{@params['date'].to_time.strftime("%d/%m/%y")}", total: "-#{daily_rate*@params['percentage'].to_f}", account: user.balance_account, user_id: user.id)
         #increase user payroll
         Transaction.create!(comment: "Salary for #{@params['date'].to_time.strftime("%d/%m/%y")}", total: daily_rate*@params['percentage'].to_f, account: user.payroll_account, user_id: user.id)
-        #decrease manager balance
-        Transaction.create!(comment: "Salary #{user.name} #{@params['date'].to_time.strftime("%d/%m/%y")}", total: "-#{daily_rate*@params['percentage'].to_f}", account: user.team.manager.balance_account, user_id: user.id)
+        unless user.role.try(:name) == 'Manager'
+          #decrease manager balance
+          Transaction.create!(comment: "Salary #{user.name} #{@params['date'].to_time.strftime("%d/%m/%y")}", total: "-#{daily_rate*@params['percentage'].to_f}", account: user.team.manager.balance_account, user_id: user.id)
+        end
       end
     end
 
