@@ -90,17 +90,19 @@ module TimeLog
 
       self.prepare_date(@params['date']) >= user_last_rate.timestamp_from ? daily_rate = user_last_rate.daily_rate : daily_rate = self.fetch_user_rate(user_all_rates)
 
-      date = "#{user.name} #{@params['date'].to_time.strftime("%d/%m/%y")}"
-      transaction = Transaction.find_by(comment: "Salary #{date}")
+      date = "#{@params['date'].to_time.strftime("%d/%m/%y")}"
+      transaction = Transaction.where(comment: "Salary for #{date}").where(user_id: user.id)
 
-      unless user.coach? || transaction.present?
-        #decrease user balance
-        Transaction.create!(comment: "Salary for #{@params['date'].to_time.strftime("%d/%m/%y")}", total: "-#{daily_rate*@params['percentage'].to_f}", account: user.balance_account, user_id: user.id)
-        #increase user payroll
-        Transaction.create!(comment: "Salary for #{@params['date'].to_time.strftime("%d/%m/%y")}", total: daily_rate*@params['percentage'].to_f, account: user.payroll_account, user_id: user.id)
-        unless user.role.try(:name) == 'Manager'
-          #decrease manager balance
-          Transaction.create!(comment: "Salary #{user.name} #{@params['date'].to_time.strftime("%d/%m/%y")}", total: "-#{daily_rate*@params['percentage'].to_f}", account: user.team.manager.balance_account, user_id: user.id)
+      unless user.coach?
+        if transaction.empty?
+          #decrease user balance
+          Transaction.create!(comment: "Salary for #{@params['date'].to_time.strftime("%d/%m/%y")}", total: "-#{daily_rate*@params['percentage'].to_f}", account: user.balance_account, user_id: user.id)
+          #increase user payroll
+          Transaction.create!(comment: "Salary for #{@params['date'].to_time.strftime("%d/%m/%y")}", total: daily_rate*@params['percentage'].to_f, account: user.payroll_account, user_id: user.id)
+          unless user.role.try(:name) == 'Manager'
+            #decrease manager balance
+            Transaction.create!(comment: "Salary #{user.name} #{@params['date'].to_time.strftime("%d/%m/%y")}", total: "-#{daily_rate*@params['percentage'].to_f}", account: user.team.manager.balance_account, user_id: user.id)
+          end
         end
       end
     end
