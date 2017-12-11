@@ -99,7 +99,7 @@ module TimeLog
         group_tempo_worklogs_per_day << {
             work_date: str_date,
             hours: total_hours,
-            leave_type: zoho_leave[:leave_type],
+            leave_type: self.check_approval_status(zoho_leave),
             approval_status: zoho_leave[:approval_status],
             percentage: zoho_leave[:percentage],
             issues: issues
@@ -107,6 +107,14 @@ module TimeLog
       end
 
       group_tempo_worklogs_per_day
+    end
+
+    def check_approval_status(leave)
+      if leave[:approval_status] == 'Rejected' || leave[:approval_status] == 'Cancelled'
+        ''
+      else
+        leave[:leave_type]
+      end
     end
 
     def start_date
