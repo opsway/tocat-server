@@ -9,7 +9,7 @@ class TransactionsController < ApplicationController
       account_ids = Account.where(name: account_name).pluck :id
       @articles = @articles.where(account_id: account_ids)
     else
-      if user.manager?
+      if user.manager? && !user.coach?
         team_members_ids = User.where(team_id: user.team.id).ids
         @articles = @articles.where(user_id: team_members_ids)
       elsif !user.manager? && !user.coach?
