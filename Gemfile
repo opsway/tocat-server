@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 ruby '2.2.3'
-gem 'rails', '4.2'
+gem 'rails', '4.2.5.1'
 gem 'rails-api'
 gem 'active_model_serializers'
 gem 'mysql2'
@@ -13,7 +13,7 @@ gem 'will_paginate', '~> 3.0.6'
 gem 'api-pagination'
 gem 'shiftplanning', '~> 0.0.3'
 gem "scoped_search"
-gem 'rest-client'
+gem 'rest-client', '~> 1.7.3'
 gem 'hirb'
 gem 'public_activity'
 gem 'hashdiff'
@@ -38,7 +38,7 @@ end
 
 
 group :test do
-  gem 'rubocop', require: false
+  gem 'rubocop', '~> 0.49.0', require: false
   gem 'json-schema'
   gem 'database_cleaner', '~> 1.4.0'
   gem 'simplecov', require: false
