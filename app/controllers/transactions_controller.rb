@@ -4,15 +4,16 @@ class TransactionsController < ApplicationController
   def index
     user = User.current_user
     @articles = Transaction.includes(:account).search_for(params[:search]).order(sort)
-    if params[:user].present? && (user.manager? || user.coach?)
+
+    if params[:user].present? && (user.manager? || user.coach? || user.tocat_role_admin?)
       account_name = Account.find(params[:user]).name
       account_ids = Account.where(name: account_name).pluck :id
       @articles = @articles.where(account_id: account_ids)
     else
-      if user.manager? && !user.coach?
+      if user.manager? && !user.coach? && (user.tocat_role_manager? || user.tocat_role_admin?)
         team_members_ids = User.where(team_id: user.team.id).ids
         @articles = @articles.where(user_id: team_members_ids)
-      elsif !user.manager? && !user.coach?
+      elsif !user.manager? && !user.coach? && user.tocat_role_dev?
         user_accounts = Account.where(accountable_id: user.id).pluck :id
         @articles = @articles.where(account_id: user_accounts)
       end

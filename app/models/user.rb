@@ -50,6 +50,22 @@ class User < ActiveRecord::Base
     Thread.current[:current_user]
   end
 
+  def tocat_role_admin?
+    self.tocat_role.try(:name) == "TOCAT Administrator"
+  end
+
+  def tocat_role_manager?
+    self.tocat_role.try(:name) == "TOCAT Manager"
+  end
+
+  def tocat_role_coach?
+    self.tocat_role.try(:name) == "FTOCAT Coach"
+  end
+
+  def tocat_role_dev?
+    self.tocat_role.try(:name) == "TOCAT Developer"
+  end
+
   def self.current_user=(usr)
     Thread.current[:current_user] = usr
   end

@@ -2,7 +2,7 @@ class TasksController < ApplicationController
   before_action :set_task, except: [:index, :create]
 
   def index
-    if params[:search].include?('external_id=')
+    if params[:search].present? && params[:search].include?('external_id=')
       external_id_value = params[:search].gsub('external_id=', '')
       @articles = Task.includes(:orders).includes(:user).where(external_id: external_id_value).order(sort)
     else
