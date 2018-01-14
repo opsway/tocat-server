@@ -37,8 +37,11 @@ module TimeLog
     end
 
     def check_existing_leave
+      employee_id = self.get_employee_id(@params['user_id'])
+      leave_type_id = self.get_leave_type_id(@params['leave_type'])
       leaves = self.fetch_user_leaves(@params['user_id'])
       parsed_leaves = self.parsing_zoho_data(leaves)
+      self.check_dayoff_leave(parsed_leaves, employee_id, leave_type_id) if @params['leave_type'] == 'Day off/Vacation'
       @message = 'success'
       need_create_paid_leave = true
 
@@ -55,14 +58,35 @@ module TimeLog
       end
 
       if need_create_paid_leave
-        self.create_paid_leave
+        self.create_paid_leave(employee_id, leave_type_id)
       end
     end
 
-    def create_paid_leave
-      employee_id = self.get_employee_id(@params['user_id'])
-      leave_type_id = self.get_leave_type_id(@params['leave_type'])
+    def check_dayoff_leave(user_leaves, employee_id, leave_type_id)
+      user_leaves.each do |leave|
+        leave_from = prepare_date(leave['From'])
+        leave_to = prepare_date(leave['To'])
+        received_date = prepare_date(@params['date'])
 
+        if leave_from == received_date || leave_to == received_date
+          if leave_from != leave_to
+            self.approve_reject_leave(leave['recordId'])
+            (leave_from..leave_to).each do |day|
+              prepared_day = day.strftime("%d-%b-%Y")
+              data = "&xmlData=<Request><Record><field name='Employee_ID'>#{employee_id}</field><field name='To'>#{prepared_day}</field><field name='From'>#{prepared_day}</field><field name='Leavetype'>#{leave_type_id}</field><days><date name='#{prepared_day}'>1</date></days></Record></Request>"
+              url = "#{ZOHO_API_URL}#{CREATE_LEAVE}?authtoken=#{Rails.application.secrets[:zoho_people_auth]}#{data}"
+              request = JSON.parse(RestClient.post(url, {timeout: 10}))
+              self.approve_reject_leave((request['pkId']).to_i, 1) if received_date.strftime("%d-%b-%Y") == prepared_day
+            end
+          else
+            break
+          end
+          break
+        end
+      end
+    end
+
+    def create_paid_leave(employee_id, leave_type_id)
       data = "&xmlData=<Request><Record><field name='Employee_ID'>#{employee_id}</field><field name='To'>#{@params['date']}</field><field name='From'>#{@params['date']}</field><field name='Leavetype'>#{leave_type_id}</field><days><date name='#{@params['date']}'>#{@params['percentage'].to_f}</date></days><field name='api_request'>yes</field></Record></Request>"
 
       url = "#{ZOHO_API_URL}#{CREATE_LEAVE}?authtoken=#{Rails.application.secrets[:zoho_people_auth]}#{data}"
