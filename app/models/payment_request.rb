@@ -63,6 +63,7 @@ class PaymentRequest < ActiveRecord::Base # external payment
     commission = 5.0 if commission < 5
     source_account.transactions.create(total: - (total + commission), comment: "External payment #{id}", not_take_transactions: true)
     Account.find(Setting.finance_fund_account_id).transactions.create(total: total + commission, comment: "External payment #{id}", not_take_transactions: true)
+    Account.find(Setting.coaches_fund_account_id).transactions.create(total: total + commission, comment: "External payment #{id}", not_take_transactions: true)
   end
 
   def make_back_transactions
@@ -70,6 +71,7 @@ class PaymentRequest < ActiveRecord::Base # external payment
     commission = 5.0 if commission < 5
     source_account.transactions.create(total: + (total + commission), comment: "Cancel external payment #{id}", not_take_transactions: true)
     Account.find(Setting.finance_fund_account_id).transactions.create(total: - (total + commission), comment: "Cancel external payment #{id}", not_take_transactions: true)
+    Account.find(Setting.coaches_fund_account_id).transactions.create(total: - (total + commission), comment: "Cancel external payment #{id}", not_take_transactions: true)
   end
 
   def check_balance

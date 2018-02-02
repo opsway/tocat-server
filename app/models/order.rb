@@ -143,6 +143,12 @@ class Order < ActiveRecord::Base
             couch.money_account.transactions.create! total: - invoiced_budget * Setting.dividends_commission / 100.00,
               comment: "Order ##{id} was completed: Dividends commission"
           end
+          if Setting.coaches_commission > 0
+            Account.find(Setting.coaches_fund_account_id).transactions.create! total: invoiced_budget * Setting.coaches_commission / 100.00,
+              comment: "Order ##{id} was completed: Coaches commission"
+            couch.money_account.transactions.create! total: - invoiced_budget * Setting.coaches_commission / 100.00,
+              comment: "Order ##{id} was completed: Coaches commission"
+          end
         end
       end
     end
@@ -204,8 +210,9 @@ class Order < ActiveRecord::Base
     finance_c = invoiced_budget * Setting.finance_commission / 100.00
     teams_c = invoiced_budget * Setting.teams_commission / 100.00
     dividends_c = invoiced_budget * Setting.dividends_commission / 100.00
+    coaches_c = invoiced_budget * Setting.coaches_commission / 100.00
     
-    invoiced_budget - (growth_c + central_office_c + finance_c + teams_c + dividends_c)
+    invoiced_budget - (growth_c + central_office_c + finance_c + teams_c + dividends_c + coaches_c)
   end
 
   def set_invoiced
