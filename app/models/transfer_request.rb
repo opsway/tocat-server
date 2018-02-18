@@ -13,10 +13,10 @@ class TransferRequest < ActiveRecord::Base # internal invoice
   before_destroy :check_state_paid
   after_save :send_notification, unless: Proc.new { |t| t.state == 'paid' }
   after_save :send_notification_paid, if: Proc.new { |t| t.state == 'paid' }
-  
+
   before_validation :set_state_and_target, if: Proc.new {|t| t.new_record? }
   validate :target_check_for_paid, if: Proc.new {|tr| tr.state_changed? && tr.state == 'paid' }
-  validates_numericality_of :total, 
+  validates_numericality_of :total,
                             greater_than: 0,
                             message: "Total of internal invoice should be greater than 0"
   validates :state, inclusion: {in: %w(new paid canceled) }
@@ -25,7 +25,7 @@ class TransferRequest < ActiveRecord::Base # internal invoice
   before_save :create_balance_transfer, if: Proc.new {|tr| tr.state_changed? && tr.state == 'paid' }
   before_save :create_payroll_transfer, if: Proc.new {|tr| tr.new_record? && tr.payroll? }
   before_destroy :return_money_to_payroll, if: Proc.new {|tr| tr.payroll?}
-  
+
   def as_json(options = {})
     additional_params = { source: source_account.try(:name)||source.try(:name), target: target_account.try(:name)||target.try(:name) }
     self.attributes.merge additional_params
@@ -35,7 +35,7 @@ class TransferRequest < ActiveRecord::Base # internal invoice
   def check_target
     if self.target_id != User.current_user.id && state != 'paid'
       errors[:base] << "You can change only your internal invoice"
-    end 
+    end
   end
   def check_state
     if state == 'paid' && !state_changed?
@@ -43,9 +43,9 @@ class TransferRequest < ActiveRecord::Base # internal invoice
       false
     end
   end
-  
+
   def create_payroll_transfer
-    if payroll_account && payroll_account.balance < total && !User.current_user.coach?
+    if payroll_account && payroll_account.balance < total.to_d && !User.current_user.coach?
       errors[:base] << "Can not process request, as From: account has less than requested sum"
       return false
     end
@@ -75,9 +75,9 @@ class TransferRequest < ActiveRecord::Base # internal invoice
     end
     return bt.persisted?
   end
-  
+
   def check_state_paid
-    if state != 'new' 
+    if state != 'new'
       errors[:base] << "Internal invoice have paid state, you can't remove it"
       return false
     end
@@ -86,18 +86,18 @@ class TransferRequest < ActiveRecord::Base # internal invoice
       return false
     end
   end
-  
+
   def target_check_for_paid
     unless self.source_account_id.in? User.current_user.available_accounts.map(&:id)
       errors[:base] << "You can pay only your internal invoice"
-    end 
+    end
   end
-  
+
   def set_state_and_target
     self.state = 'new'
     self.target = User.current_user
   end
-  
+
   def send_notification
     AWS.config :access_key_id => Settings.aws_access_key_id, :secret_access_key => Settings.awss_secret_access_key
     ses = AWS::SimpleEmailService.new(
