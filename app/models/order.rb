@@ -7,6 +7,12 @@ class Order < ActiveRecord::Base
   validates :team, presence: { message: "Team does not exists" }
   validates :allocatable_budget, presence: { message: "Allocatable budget is missing" }
   validates :invoiced_budget, presence: { message: "Invoiced budget is missing" }
+  # validates :zohobooks_project_id,
+  #           presence: { message: "ZohoBooks Project ID can not be empty" },
+  #           unless: :order_internal?
+  # validates :accrual_completed_date,
+  #           presence: { message: "Accrual Completed Date can not be empty" },
+  #           unless: :order_internal?
   validate :existence_of_invoice, if: :invoice_id?
   validate :non_existence_of_invoice_in_internal_orders
   validate :non_complete_on_internal_remove, if: :internal_order_changed?
@@ -153,7 +159,7 @@ class Order < ActiveRecord::Base
       end
     end
   end
-  
+
   def handle_complete_tax(team, val, commission)
     team.manager.balance_account.transactions.create! total: val * commission / 100.0, comment: "Order ##{id} was completed: Central Office fee"
     return if parent_id.present?
@@ -189,7 +195,7 @@ class Order < ActiveRecord::Base
     tasks_budget = task_orders.sum(:budget)
     allocatable_budget - (sub_orders_budget + tasks_budget)
   end
-  
+
   def transfer_money_to_growth_fund_from_pacman_and_nfs
     self.transaction do
       couch = team.couch
@@ -197,13 +203,13 @@ class Order < ActiveRecord::Base
       comment: "Transfer budget from #{couch.name} to growth fund was completed. Order##{id}"
       Account.find(Setting.growth_fund_account_id).transactions.create! total: calculation_of_transfer_amount_to_growth_fund,
       comment: "Transfer budget from #{couch.name} to growth fund was completed. Order##{id}"
-    
+
       update_column(:budget_transfered_to_growth_fund, true)
     end
   end
 
   private
-  
+
   def calculation_of_transfer_amount_to_growth_fund
     growth_c = invoiced_budget * Setting.growth_commission / 100.00
     central_office_c = invoiced_budget * Setting.central_office_commission / 100.00
@@ -211,7 +217,7 @@ class Order < ActiveRecord::Base
     teams_c = invoiced_budget * Setting.teams_commission / 100.00
     dividends_c = invoiced_budget * Setting.dividends_commission / 100.00
     coaches_c = invoiced_budget * Setting.coaches_commission / 100.00
-    
+
     invoiced_budget - (growth_c + central_office_c + finance_c + teams_c + dividends_c + coaches_c)
   end
 
@@ -486,6 +492,14 @@ class Order < ActiveRecord::Base
     errors[:paid] << 'Completed order must be paid' if completed? && !paid?
   end
 
+  def must_have_zoho_project_id_when_completed
+    errors[:zohobooks_project_id] << 'Completed order must have ZohoBooks Project ID' if completed?
+  end
+
+  def must_have_accrual_completed_date_when_completed
+    errors[:accrual_completed_date] << 'Completed order must have Accrual Completed Date' if completed?
+  end
+
   def parent_has_different_team
     errors[:team] << 'Suborder can not have the same team as the parent' if team == parent.team
   end
@@ -494,7 +508,7 @@ class Order < ActiveRecord::Base
   end
   def current_user_is_in_team_for_internal
     if internal_order?
-      errors[:base] << "You are not allowed to set this order as Internal" if !User.current_user.try(:team).try(:all_children).try(:include?, self.team.id) || !User.current_user.try(:coach)  
+      errors[:base] << "You are not allowed to set this order as Internal" if !User.current_user.try(:team).try(:all_children).try(:include?, self.team.id) || !User.current_user.try(:coach)
     end
   end
 end

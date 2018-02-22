@@ -202,7 +202,9 @@ class OrdersController < ApplicationController
                            :invoiced_budget,
                            :allocatable_budget,
                            :invoice_id,
-                           :internal_order)
+                           :internal_order,
+                           :zohobooks_project_id,
+                           :accrual_completed_date)
     if params[:team].present?
       output.merge!({ team_id: params.try(:[], 'team').try(:[], 'id') })
     end

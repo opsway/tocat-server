@@ -10,6 +10,8 @@ class OrderSerializer < ActiveModel::Serializer
              :paid,
              :completed,
              :internal_order,
+             :zohobooks_project_id,
+             :accrual_completed_date,
              :reseller,
              :team,
              :invoice,

@@ -10,6 +10,8 @@ class OrderShowSerializer < ActiveModel::Serializer
              :paid,
              :completed,
              :reseller,
+             :zohobooks_project_id,
+             :accrual_completed_date,
              :internal_order,
              :parent_order,
              :parent_id,

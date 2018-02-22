@@ -11,14 +11,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171116083910) do
+ActiveRecord::Schema.define(version: 20180222165507) do
 
   create_table "account_accesses", force: :cascade do |t|
     t.integer  "account_id", limit: 4
     t.integer  "user_id",    limit: 4
     t.datetime "created_at",                           null: false
     t.datetime "updated_at",                           null: false
-    t.boolean  "default",    limit: 1, default: false
+    t.boolean  "default",              default: false
   end
 
   create_table "accounts", force: :cascade do |t|
@@ -28,7 +28,7 @@ ActiveRecord::Schema.define(version: 20171116083910) do
     t.integer  "accountable_id",   limit: 4,   default: 0,    null: false
     t.string   "accountable_type", limit: 255, default: "",   null: false
     t.string   "name",             limit: 255
-    t.boolean  "pay_comission",    limit: 1,   default: true
+    t.boolean  "pay_comission",                default: true
   end
 
   add_index "accounts", ["accountable_id"], name: "index_accounts_on_accountable_id", using: :btree
@@ -67,7 +67,7 @@ ActiveRecord::Schema.define(version: 20171116083910) do
 
   create_table "db_errors", force: :cascade do |t|
     t.text     "alert",       limit: 65535,                 null: false
-    t.boolean  "checked",     limit: 1,     default: false, null: false
+    t.boolean  "checked",                   default: false, null: false
     t.datetime "last_run"
     t.datetime "created_at",                                null: false
     t.datetime "updated_at",                                null: false
@@ -87,7 +87,7 @@ ActiveRecord::Schema.define(version: 20171116083910) do
 
   create_table "invoices", force: :cascade do |t|
     t.string   "external_id", limit: 255
-    t.boolean  "paid",        limit: 1,   default: false
+    t.boolean  "paid",                    default: false
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -97,7 +97,7 @@ ActiveRecord::Schema.define(version: 20171116083910) do
   create_table "orders", force: :cascade do |t|
     t.string   "name",                             limit: 255,                                            null: false
     t.text     "description",                      limit: 65535
-    t.boolean  "paid",                             limit: 1,                              default: false
+    t.boolean  "paid",                                                                    default: false
     t.integer  "team_id",                          limit: 4,                                              null: false
     t.integer  "invoice_id",                       limit: 4
     t.decimal  "invoiced_budget",                                precision: 10, scale: 2,                 null: false
@@ -106,11 +106,13 @@ ActiveRecord::Schema.define(version: 20171116083910) do
     t.datetime "updated_at"
     t.integer  "parent_id",                        limit: 4
     t.decimal  "free_budget",                                    precision: 10, scale: 2,                 null: false
-    t.boolean  "completed",                        limit: 1,                              default: false
-    t.boolean  "internal_order",                   limit: 1,                              default: false
+    t.boolean  "completed",                                                               default: false
+    t.boolean  "internal_order",                                                          default: false
     t.integer  "commission",                       limit: 4
-    t.boolean  "reseller",                         limit: 1,                              default: false
-    t.boolean  "budget_transfered_to_growth_fund", limit: 1,                              default: false
+    t.boolean  "reseller",                                                                default: false
+    t.boolean  "budget_transfered_to_growth_fund",                                        default: false
+    t.date     "accrual_completed_date"
+    t.string   "zohobooks_project_id",             limit: 255
   end
 
   add_index "orders", ["invoice_id"], name: "index_orders_on_invoice_id", using: :btree
@@ -126,9 +128,9 @@ ActiveRecord::Schema.define(version: 20171116083910) do
     t.string   "status",            limit: 255
     t.datetime "created_at",                                                               null: false
     t.datetime "updated_at",                                                               null: false
-    t.boolean  "special",           limit: 1,                              default: false
+    t.boolean  "special",                                                  default: false
     t.integer  "salary_account_id", limit: 4
-    t.boolean  "bonus",             limit: 1,                              default: false
+    t.boolean  "bonus",                                                    default: false
     t.integer  "source_account_id", limit: 4
     t.string   "file",              limit: 255
   end
@@ -172,13 +174,13 @@ ActiveRecord::Schema.define(version: 20171116083910) do
   create_table "tasks", force: :cascade do |t|
     t.string   "external_id",      limit: 255,                                         null: false
     t.integer  "user_id",          limit: 4
-    t.boolean  "accepted",         limit: 1,                           default: false
-    t.boolean  "paid",             limit: 1,                           default: false
+    t.boolean  "accepted",                                             default: false
+    t.boolean  "paid",                                                 default: false
     t.datetime "created_at"
     t.datetime "updated_at"
     t.decimal  "budget",                       precision: 8, scale: 2, default: 0.0
-    t.boolean  "review_requested", limit: 1,                           default: false, null: false
-    t.boolean  "expenses",         limit: 1,                           default: false
+    t.boolean  "review_requested",                                     default: false, null: false
+    t.boolean  "expenses",                                             default: false
   end
 
   add_index "tasks", ["external_id"], name: "index_tasks_on_external_id", unique: true, using: :btree
@@ -190,7 +192,7 @@ ActiveRecord::Schema.define(version: 20171116083910) do
     t.datetime "updated_at"
     t.integer  "default_commission", limit: 4
     t.integer  "parent_id",          limit: 4,                  null: false
-    t.boolean  "active",             limit: 1,   default: true
+    t.boolean  "active",                         default: true
   end
 
   create_table "timesheets", force: :cascade do |t|
@@ -241,7 +243,7 @@ ActiveRecord::Schema.define(version: 20171116083910) do
     t.datetime "updated_at",                                        null: false
     t.integer  "source_account_id",   limit: 4
     t.integer  "target_account_id",   limit: 4
-    t.boolean  "payroll",             limit: 1,     default: false
+    t.boolean  "payroll",                           default: false
     t.integer  "payroll_account_id",  limit: 4
   end
 
@@ -256,11 +258,11 @@ ActiveRecord::Schema.define(version: 20171116083910) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "role_id",                   limit: 4,                                           null: false
-    t.boolean  "active",                    limit: 1,                           default: true
-    t.boolean  "coach",                     limit: 1,                           default: false
+    t.boolean  "active",                                                        default: true
+    t.boolean  "coach",                                                         default: false
     t.string   "email",                     limit: 255
     t.integer  "default_account_id",        limit: 4
-    t.boolean  "can_pay_withdraw_invoices", limit: 1,                           default: false
+    t.boolean  "can_pay_withdraw_invoices",                                     default: false
     t.integer  "billable",                  limit: 4,                           default: 0
   end
 
