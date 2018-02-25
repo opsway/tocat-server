@@ -7,12 +7,6 @@ class Order < ActiveRecord::Base
   validates :team, presence: { message: "Team does not exists" }
   validates :allocatable_budget, presence: { message: "Allocatable budget is missing" }
   validates :invoiced_budget, presence: { message: "Invoiced budget is missing" }
-  # validates :zohobooks_project_id,
-  #           presence: { message: "ZohoBooks Project ID can not be empty" },
-  #           unless: :order_internal?
-  # validates :accrual_completed_date,
-  #           presence: { message: "Accrual Completed Date can not be empty" },
-  #           unless: :order_internal?
   validate :existence_of_invoice, if: :invoice_id?
   validate :non_existence_of_invoice_in_internal_orders
   validate :non_complete_on_internal_remove, if: :internal_order_changed?
@@ -52,6 +46,7 @@ class Order < ActiveRecord::Base
   validate :disallow_internal_for_suborders, if: :internal_order_changed?
   #validate :cant_complete_internal_order_with_free_budget_left, if: :completed_changed?
   validate :must_be_paid_when_completed
+  validate :must_have_zoho_project_id_and_accrual_date_when_completed
 
   before_save :check_budgets_for_sub_order
   after_save :set_paid_for_internal_order, if: :internal_order_changed?
@@ -492,12 +487,16 @@ class Order < ActiveRecord::Base
     errors[:paid] << 'Completed order must be paid' if completed? && !paid?
   end
 
-  def must_have_zoho_project_id_when_completed
-    errors[:zohobooks_project_id] << 'Completed order must have ZohoBooks Project ID' if completed?
-  end
-
-  def must_have_accrual_completed_date_when_completed
-    errors[:accrual_completed_date] << 'Completed order must have Accrual Completed Date' if completed?
+  def must_have_zoho_project_id_and_accrual_date_when_completed
+    if completed? && !self.internal_order?
+      if !zohobooks_project_id.present? && !accrual_completed_date.blank?
+        errors[:zohobooks_project_id] << 'Before Complete non internal order must have ZohoBooks Project ID'
+      elsif zohobooks_project_id.present? && accrual_completed_date.blank?
+        errors[:accrual_completed_date] << 'Before Complete non internal order must have Accrual Completed Date'
+      elsif !zohobooks_project_id.present? && accrual_completed_date.blank?
+        errors[:empty_fields] << 'Before complete, non internal order must have ZohoBooks Project ID and Accrual Completed Date'
+      end
+    end
   end
 
   def parent_has_different_team
