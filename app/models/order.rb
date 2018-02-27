@@ -67,7 +67,7 @@ class Order < ActiveRecord::Base
   before_save :check_if_paid, if: proc { |o| o.invoice_id_changed? }
   before_destroy :check_if_paid_before_destroy
   after_destroy :recalculate_parent_free_budget, if: proc { |o| o.parent_id.present? }
-  before_save :check_if_paid_on_budget_update, if: proc { |o| o.invoiced_budget_changed? && !o.internal_order? }
+  # before_save :check_if_paid_on_budget_update, if: proc { |o| o.invoiced_budget_changed? && !o.internal_order? }
   before_save :check_if_invoice_already_paid, if: proc { |o| o.invoice_id_changed? }
   before_save :check_for_tasks_on_team_change, if: proc { |o| o.team_id_changed? }
   before_save :check_if_suborder, if: proc { |o| o.invoice_id_changed? }
@@ -313,12 +313,12 @@ class Order < ActiveRecord::Base
     end
   end
 
-  def check_if_paid_on_budget_update
-    if paid && parent_id.nil?
-      errors[:base] << 'Order is already paid, can not update invoiced budget'
-      return false
-    end
-  end
+  # def check_if_paid_on_budget_update
+  #   if paid && parent_id.nil?
+  #     errors[:base] << 'Order is already paid, can not update invoiced budget'
+  #     return false
+  #   end
+  # end
 
   def check_if_paid_before_destroy
     if paid
