@@ -8,7 +8,7 @@ class PaymentRequest < ActiveRecord::Base # external payment
 
   #scoped search
   scoped_search on: :status
-  
+
   #association
   has_and_belongs_to_many :users
   belongs_to :source, class_name: User
@@ -20,12 +20,12 @@ class PaymentRequest < ActiveRecord::Base # external payment
   before_validation :set_source_user
   after_save :add_current_user
   after_save :notify_all, if: Proc.new{|t| t.status == 'new' || t.status_changed?}
-  
+
   #validations
   validates :source, :total, :description, presence: true
   validates :description, :length => { maximum: 1000 }
 
-  validates_numericality_of :total, 
+  validates_numericality_of :total,
                             greater_than: 0,
                             message: "Total of external payment should be greater than 0"
   validates :currency, inclusion: {in: %w(USD EUR UAH RUR KZT)}
@@ -35,15 +35,15 @@ class PaymentRequest < ActiveRecord::Base # external payment
   before_create :check_balance
   after_initialize :set_currency
 
-  
+
   aasm :column => 'status' do
     state :new, initial: true
     state :canceled, :completed
-    
+
     event :cancel, after: :make_back_transactions do
       transitions :from => :new, :to => :canceled, :guard => :cancel_allowed?
     end
-    
+
     event :complete do
       transitions :from => :new, :to => :completed, :guard => :complete_allowed?
     end
@@ -63,7 +63,6 @@ class PaymentRequest < ActiveRecord::Base # external payment
     commission = 5.0 if commission < 5
     source_account.transactions.create(total: - (total + commission), comment: "External payment #{id}", not_take_transactions: true)
     Account.find(Setting.finance_fund_account_id).transactions.create(total: total + commission, comment: "External payment #{id}", not_take_transactions: true)
-    Account.find(Setting.coaches_fund_account_id).transactions.create(total: total + commission, comment: "External payment #{id}", not_take_transactions: true)
   end
 
   def make_back_transactions
@@ -71,7 +70,6 @@ class PaymentRequest < ActiveRecord::Base # external payment
     commission = 5.0 if commission < 5
     source_account.transactions.create(total: + (total + commission), comment: "Cancel external payment #{id}", not_take_transactions: true)
     Account.find(Setting.finance_fund_account_id).transactions.create(total: - (total + commission), comment: "Cancel external payment #{id}", not_take_transactions: true)
-    Account.find(Setting.coaches_fund_account_id).transactions.create(total: - (total + commission), comment: "Cancel external payment #{id}", not_take_transactions: true)
   end
 
   def check_balance
@@ -81,30 +79,30 @@ class PaymentRequest < ActiveRecord::Base # external payment
       false
     end
   end
-  
+
   def dispatch_allowed?
     true
   end
   def reject_allowed?
     true
   end
-  
+
   def cancel_allowed?
     return false unless User.current_user.account_access.where(account_id: source_account.id).any?
     return true if source_id == User.current_user.try(:id)
     as_manager?
   end
-  
+
   def as_manager?
     return false unless User.current_user.try(:role).try(:manager?)
     User.current_user.try(:team).try(:all_children).try(:include?, self.source.team.id)
   end
-  
+
   def complete_allowed?
     #return false unless User.current_user.account_access.where(account_id: source_account.id).any?
     true
   end
-  
+
   def notify_all
     self.create_activity :status_change, parameters: {status: "Status changed to #{status}"}, owner: User.current_user
 
@@ -114,7 +112,7 @@ class PaymentRequest < ActiveRecord::Base # external payment
     else
       "External Payment #{status.capitalize}"
     end
-    
+
     AWS.config :access_key_id => Settings.aws_access_key_id, :secret_access_key => Settings.aws_secret_access_key
     ses = AWS::SimpleEmailService.new(
                                       :access_key_id => Settings.aws_access_key_id,
@@ -140,7 +138,7 @@ class PaymentRequest < ActiveRecord::Base # external payment
   def add_current_user
     self.users << User.current_user unless self.user_ids.include?(User.current_user.id)
   end
-  
+
   def set_currency
     self.currency ||= 'USD'
   end
