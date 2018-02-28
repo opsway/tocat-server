@@ -98,8 +98,12 @@ class Order < ActiveRecord::Base
   end
 
   def handle_completed
-    self.transaction do
-      couch = team.couch
+    couch = team.couch
+    unless team.manager.present? && User.current_user != couch
+      errors[:base] << 'Team does not have active managers and you does not coach of order team!'
+      return
+    else
+      self.transaction do
       unless team.manager.coach?
         team.manager.balance_account.transactions.create! total: invoiced_budget - task_orders.joins(:task).where("tasks.expenses = true").sum(:budget), comment: "Order ##{id} was completed"
       end
@@ -152,6 +156,7 @@ class Order < ActiveRecord::Base
           end
         end
       end
+    end
     end
   end
 
