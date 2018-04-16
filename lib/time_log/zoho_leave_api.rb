@@ -120,13 +120,28 @@ module TimeLog
       unless user.coach?
         if transaction.empty?
           #decrease user balance
-          Transaction.create!(comment: "Salary for #{@params['date'].to_time.strftime("%d/%m/%y")}", total: "-#{daily_rate*@params['percentage'].to_f}", account: user.balance_account, user_id: user.id)
+          # Transaction.create!(
+          #   comment: "Salary for #{@params['date'].to_time.strftime("%d/%m/%y")}",
+          #   total: "-#{daily_rate*@params['percentage'].to_f}",
+          #   account: user.balance_account,
+          #   user_id: user.id
+          # )
           #increase user payroll
-          Transaction.create!(comment: "Salary for #{@params['date'].to_time.strftime("%d/%m/%y")}", total: daily_rate*@params['percentage'].to_f, account: user.payroll_account, user_id: user.id)
-          unless user.role.try(:name) == 'Manager'
-            #decrease manager balance
-            Transaction.create!(comment: "Salary #{user.name} #{@params['date'].to_time.strftime("%d/%m/%y")}", total: "-#{daily_rate*@params['percentage'].to_f}", account: user.team.manager.balance_account, user_id: user.id)
-          end
+          Transaction.create!(
+            comment: "Salary for #{@params['date'].to_time.strftime("%d/%m/%y")}",
+            total: daily_rate*@params['percentage'].to_f,
+            account: user.payroll_account,
+            user_id: user.id
+          )
+          # unless user.role.try(:name) == 'Manager'
+          #   #decrease manager balance
+          #   Transaction.create!(
+          #     comment: "Salary #{user.name} #{@params['date'].to_time.strftime("%d/%m/%y")}",
+          #     total: "-#{daily_rate*@params['percentage'].to_f}",
+          #     account: u.team.manager.present? ? u.team.manager.balance_account : u.team.parent.manager.balance_account,
+          #     user_id: user.id
+          #   )
+          # end
         end
       end
     end
