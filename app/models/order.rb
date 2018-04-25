@@ -97,12 +97,12 @@ class Order < ActiveRecord::Base
     recalculate_free_budget_and_save
   end
 
-  def handle_completed
+  def handle_completed # TODO Need refactoring
     couch = team.couch
-    unless team.manager.present? && User.current_user != couch
-      errors[:base] << 'Team does not have active managers and you does not coach of order team!'
-      return
-    else
+    # unless team.manager.present? && User.current_user != couch
+    #   errors[:base] << 'Team does not have active managers and you does not coach of order team!'
+    #   return
+    # else
       self.transaction do
       unless team.manager.coach?
         team.manager.balance_account.transactions.create! total: invoiced_budget - task_orders.joins(:task).where("tasks.expenses = true").sum(:budget), comment: "Order ##{id} was completed"
@@ -153,11 +153,11 @@ class Order < ActiveRecord::Base
               comment: "Order ##{id} was completed: Coaches commission"
             couch.money_account.transactions.create! total: - invoiced_budget * Setting.coaches_commission / 100.00,
               comment: "Order ##{id} was completed: Coaches commission"
+            end
           end
         end
       end
-    end
-    end
+    # end
   end
 
   def handle_complete_tax(team, val, commission)
