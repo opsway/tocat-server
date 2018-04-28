@@ -19,14 +19,20 @@ class BalanceTransfersController < ApplicationController
   end
 
   def show
+    user = User.current_user
     @balance_transfer = BalanceTransfer.find(params[:id])
-    render json: @balance_transfer, serializer: BtShowSerializer
+
+    unless user.accounts.include?(@balance_transfer.target) || user.manager? || user.coach?
+      render json: {}, status: 404
+    else
+      render json: @balance_transfer, serializer: BtShowSerializer
+    end
   end
 
   def create
     @bt = BalanceTransfer.new(transfer_params)
     if  @bt.save
-      @bt.create_activity :create, 
+      @bt.create_activity :create,
          parameters: transfer_params,
          owner: User.current_user
       render json: @bt, serializer: BtShowSerializer
@@ -34,7 +40,7 @@ class BalanceTransfersController < ApplicationController
       render json: error_builder(@bt), status: :unprocessable_entity
     end
   end
-  
+
   private
   def transfer_params
     params.require(:balance_transfer).permit(:total, :target_login, :description, :source_id, :target_id)

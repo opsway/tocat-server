@@ -1,5 +1,6 @@
 class TransferRequestsController < ApplicationController
   before_action :find_request, only: [:show, :update, :destroy, :pay]
+
   def index
     @articles =
       if User.current_user.tocat_allowed_to?(:view_all_payment_requests)
@@ -19,25 +20,34 @@ class TransferRequestsController < ApplicationController
     end
     paginate json: @articles, per_page: params[:limit]
   end
+
   def show
-    render json: @tr, serializer: RequestSerializer
+    user = User.current_user
+
+    unless user == @tr.target || user.manager? || user.coach?
+      render json: {}, status: 404
+    else
+      render json: @tr, serializer: RequestSerializer
+    end
   end
 
   def pay
-   @tr.state = 'paid'
-   @tr.source_account_id = params[:source_account_id]
-   if @tr.save
+    @tr.state = 'paid'
+    @tr.source_account_id = params[:source_account_id]
+
+    if @tr.save
       @tr.create_activity :pay,
         parameters: { total: @tr.total },
         owner: User.current_user
       render json: @tr, serializer: RequestSerializer
-   else
+    else
       render json: error_builder(@tr), status: 406
-   end
+    end
   end
-  
+
   def withdraw
     account = Account.find(params[:account_id])
+
     if account.id.in? current_user.account_access.map(&:account_id)
       withdraw_payer = current_user.team.withdraw_invoices_payer
       source_id = withdraw_payer.id
@@ -45,10 +55,10 @@ class TransferRequestsController < ApplicationController
       source_account_id = withdraw_payer.money_account.id
       target_account_id = current_user.money_account.id
       @tr = TransferRequest.new(total: params[:total],
-                                source_id: source_id, 
-                                description: description, 
-                                target_account_id: target_account_id, 
-                                source_account_id: source_account_id, 
+                                source_id: source_id,
+                                description: description,
+                                target_account_id: target_account_id,
+                                source_account_id: source_account_id,
                                 payroll_account_id: account.id,
                                 payroll: true)
       if @tr.save
@@ -73,9 +83,10 @@ class TransferRequestsController < ApplicationController
       render json: error_builder(@tr), status: 406
     end
   end
-  
+
   def create
     @tr = TransferRequest.new transfer_params
+
     if @tr.save
       @tr.create_activity :create,
         parameters: { total: @tr.total },
@@ -85,14 +96,18 @@ class TransferRequestsController < ApplicationController
       render json: error_builder(@tr), status: 406
     end
   end
-  
+
   private
+
   def transfer_params
-    res = params.require(:transfer_request).permit(:total, :source_id, :description, :source_account_id, :target_account_id, :payroll)
+    res = params.require(:transfer_request).permit(
+      :total, :source_id, :description, :source_account_id, :target_account_id, :payroll
+    )
     res[:description] = res[:description].to_s.truncate 254
     res
   end
+
   def find_request
-    @tr= TransferRequest.find params[:id] 
+    @tr = TransferRequest.find params[:id]
   end
 end

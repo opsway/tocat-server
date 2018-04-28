@@ -19,19 +19,27 @@ class UsersController < ApplicationController
       render json: @articles
     end
   end
+
   def me
     @user = User.current_user
     render json: @user, serializer: UserShowSerializer
   end
+
   def show
-    render json: @user, serializer: UserShowSerializer
+    user = User.current_user
+
+    unless user == @user || user.manager? || user.coach?
+      render json: {}, status: 404
+    else
+      render json: @user, serializer: UserShowSerializer
+    end
   end
-  
+
   def correction
-      Transaction.create!(comment: params[:comment].to_s.truncate(254),
-                          total: params[:total],
-                          account: @user.balance_account,
-                          user_id: @user.id)
+    Transaction.create!(comment: params[:comment].to_s.truncate(254),
+                        total: params[:total],
+                        account: @user.balance_account,
+                        user_id: @user.id)
   end
 
   def add_payment
@@ -41,25 +49,26 @@ class UsersController < ApplicationController
       render json: error_builder(@user), status: :unprocessable_entity
     end
   end
-  
+
   def salary_checkin
-      Transaction.create!(comment: params[:comment].to_s.truncate(254),
-                          total: params[:total],
-                          account: @user.payroll_account,
-                          user_id: @user.id)
-      Transaction.create!(comment: params[:comment].to_s.truncate(254),
-                          total: 0 - params[:total].to_f,
-                          account: @user.balance_account,
-                          user_id: @user.id)
-      return render json: {}, status: 200
+    Transaction.create!(comment: params[:comment].to_s.truncate(254),
+                        total: params[:total],
+                        account: @user.payroll_account,
+                        user_id: @user.id)
+    Transaction.create!(comment: params[:comment].to_s.truncate(254),
+                        total: 0 - params[:total].to_f,
+                        account: @user.balance_account,
+                        user_id: @user.id)
+    return render json: {}, status: 200
   end
-  
+
 
   def set_role
     user = User.find(params[:user_id])
     role = TocatRole.find(params[:role])
     user.tocat_user_role.destroy if user.tocat_user_role.present?
     record = TocatUserRole.new(user: user, tocat_role:role, creator_id: User.current_user.id)
+
     if record.save
       render json: {}, status: 200
     else
@@ -69,6 +78,7 @@ class UsersController < ApplicationController
 
   def create
     @user = User.new(user_params)
+
     if @user.save
       @user.create_activity :create,
                              parameters: user_params,
@@ -84,6 +94,7 @@ class UsersController < ApplicationController
     @user.create_activity :destroy,
       parameters: params,
       owner: User.current_user
+
     if @user.active
       @user.update_column(:active,false)
     else
@@ -99,6 +110,7 @@ class UsersController < ApplicationController
     user_attr['team'] = @user.team.to_s
     user_attr['daily_rate'] = @user.daily_rate.to_s
     user_attr['role'] = @user.role.to_s
+
     if @user.update(user_params)
       @user.create_activity :update,
                              parameters: {changes: HashDiff.diff(user_attr, user_params)},
