@@ -28,7 +28,7 @@ class UsersController < ApplicationController
   def show
     user = User.current_user
 
-    unless user == @user || user.manager? || user.coach?
+    unless user == @user || user.manager? || user.coach? || user.tocat_role.name == 'TOCAT Administrator'
       render json: {}, status: 404
     else
       render json: @user, serializer: UserShowSerializer

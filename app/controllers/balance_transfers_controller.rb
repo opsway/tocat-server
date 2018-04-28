@@ -22,7 +22,7 @@ class BalanceTransfersController < ApplicationController
     user = User.current_user
     @balance_transfer = BalanceTransfer.find(params[:id])
 
-    unless user.accounts.include?(@balance_transfer.target) || user.manager? || user.coach?
+    unless user.accounts.include?(@balance_transfer.target) || user.manager? || user.coach?  || user.tocat_role.name == 'TOCAT Administrator'
       render json: {}, status: 404
     else
       render json: @balance_transfer, serializer: BtShowSerializer

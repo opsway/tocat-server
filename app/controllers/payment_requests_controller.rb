@@ -59,7 +59,7 @@ class PaymentRequestsController < ApplicationController
 
     begin
       yield
-      unless user == @payment_request.source || user.manager? || user.coach?
+      unless user == @payment_request.source || user.manager? || user.coach?  || user.tocat_role.name == 'TOCAT Administrator'
         render json: {}, status: 404
       else
         return render json: @payment_request, serializer: PaymentRequestSerializer

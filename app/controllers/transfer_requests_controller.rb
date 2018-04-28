@@ -24,7 +24,7 @@ class TransferRequestsController < ApplicationController
   def show
     user = User.current_user
 
-    unless user == @tr.target || user.manager? || user.coach?
+    unless user == @tr.target || user.manager? || user.coach?  || user.tocat_role.name == 'TOCAT Administrator'
       render json: {}, status: 404
     else
       render json: @tr, serializer: RequestSerializer
