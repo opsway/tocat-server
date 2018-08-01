@@ -4,9 +4,8 @@ module TimeLog
   class TimeLogApi
     attr_reader :users_worklogs, :success, :error
 
-    TEMPO_API_URL = 'https://opsway.atlassian.net/plugins/servlet/tempo-getWorklog/'
+    TEMPO_API_URL = 'https://api.tempo.io/2/worklogs'
     ZOHO_API_URL = 'https://people.zoho.com/people/api/'
-    BASE_URL = 'https://opsway.atlassian.net'
 
     def initialize(params)
       @params = params
@@ -25,34 +24,16 @@ module TimeLog
     protected
 
     def data_from_tempo_api
-      url = "#{TEMPO_API_URL}?baseUrl=#{BASE_URL}&#{self.api_date_params}&tempoApiToken=#{Rails.application.secrets[:tempo_api_key]}"
-
-      RestClient.get(url, {timeout: 20}) { |response, request, result, &block|
-        case response.code
-          when 502
-            @success = false
-            @error      = "Check your connection"
-            return nil
-          when 401
-            @success = false
-            @error      = "Unauthorized"
-            return nil
-          when 500
-            @success = false
-            @error      = "Internal Error On API Server"
-            return nil
-          when 200
-            @success = true
-            response
-          when 404
-            @success = false
-            @error      = "Not Found"
-            return nil
-          else
-            @success = false
-            response.return!(request, result, &block)
-        end
-      }
+      raw_data = []
+      url = "https://api.tempo.io/2/worklogs?#{self.api_date_params}"
+      next_request = true
+      while next_request
+        res = JSON.parse(RestClient.get(url, {:Authorization => "Bearer #{Rails.application.secrets[:tempo_api_key]}"}))
+        url = res['metadata']['next'] if res['metadata'].include?('next')
+        next_request = false unless res['metadata'].include?('next')
+        raw_data << res
+      end
+      raw_data
     end
 
     def data_from_zohopeople_api(username)
@@ -60,15 +41,13 @@ module TimeLog
       RestClient.get(url)
     end
 
-    def parsing_worklogs(data)
-      data.blank? ? {} : Hash.from_xml(data)
-    end
-
     def prepare_worklogs(username)
       prepared_worklogs = []
 
       @parsed_data.each do |item|
-        if username == item['username']
+        display_name = item['author']['displayName'].split(' ')
+        u_name = item['author'].include?('username') ? item['author']['username'] : display_name.first[0..1].downcase + display_name.second[0..2].downcase
+        if username == u_name
           prepared_worklogs << self.prepare_worklog(item)
         end
       end
@@ -77,11 +56,12 @@ module TimeLog
     end
 
     def prepare_worklog(data)
+      display_name = data['author']['displayName'].split(' ')
       {
-          user_id: data['username'],
-          work_date: data['work_date'],
-          issue_key: data['issue_key'],
-          hours: data['hours'].to_f.round(1)
+          user_id: data['author'].include?('username') ? data['author']['username'] : display_name.first[0..1].downcase + display_name.second[0..2].downcase,
+          work_date: data['startDate'],
+          issue_key: data['issue']['key'],
+          hours: (data['timeSpentSeconds'].to_f / 3600.to_f).round(1)
       }
     end
 
@@ -109,14 +89,6 @@ module TimeLog
       group_tempo_worklogs_per_day
     end
 
-    def check_approval_status(leave)
-      if leave[:approval_status] == 'Rejected' || leave[:approval_status] == 'Cancelled'
-        ''
-      else
-        leave[:leave_type]
-      end
-    end
-
     def start_date
       @start_date ||= self.prepare_date(@params[:date_start]).to_date
     end
@@ -127,6 +99,18 @@ module TimeLog
 
     def prepare_date(date)
       Date.parse(date)
+    end
+
+    def api_date_params
+      @api_date_params ||= "from=#{@params[:date_start]}&to=#{@params[:date_end]}"
+    end
+
+    def check_approval_status(leave)
+      if leave[:approval_status] == 'Rejected' || leave[:approval_status] == 'Cancelled'
+        ''
+      else
+        leave[:leave_type]
+      end
     end
 
     def get_leave_percentage_per_day(date)
@@ -150,10 +134,6 @@ module TimeLog
       leaves
     end
 
-    def api_date_params
-      @api_date_params ||= "dateFrom=#{@params[:date_start]}&dateTo=#{@params[:date_end]}"
-    end
-
     def parsing_zoho_data(raw_data)
       parsed_data = JSON.parse(raw_data)
       parsed_data[0]['message'] == 'No records found' ? [] : parsed_data
@@ -167,7 +147,11 @@ module TimeLog
     def get_worklogs_for_users
       usernames = @params['user_id'].split(',')
       raw_data = self.data_from_tempo_api
-      @parsed_data = self.parsing_worklogs(raw_data).try(:[], 'worklogs').try(:[], 'worklog') || []
+      raw_data.each do |data|
+        data['results'].each do |item|
+          @parsed_data << item
+        end
+      end
 
       usernames.each do |user|
         @zoho_data = self.prepare_zoho_data(user)
